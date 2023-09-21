@@ -1,13 +1,19 @@
 import React from 'react';
 
+/**
+ * TODO: Figure out what data to show in BrokerCard
+ * TODO: Give it funtionality where we can click on and get a modal
+ * 
+ */
+
 function BrokerCard() {
     return (
         <>
         <div className='BrokerCard'>
-            <h1>Broker #</h1>
-        <div>data1</div>
-        <div>data2</div>
-        <div>data3</div>
+            <h1>Broker # / Dynamic Data</h1>
+        <div> Broker ID </div>
+        <div> TOPICS </div>
+        <div> PARTITIONS </div>
         <div>data4</div>
         <div>data5</div>
         <div>data6</div>
