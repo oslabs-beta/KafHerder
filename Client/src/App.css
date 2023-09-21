@@ -27,13 +27,15 @@
 .BrokerContainer {
   border: black solid 2px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 
 .BrokerCard { 
   border: black solid 2px;
-  padding: 10px 50px;
-  margin: 10px 50px;
+  padding: 10px 20px;
+  margin: 10px 20px;
+  width: 300px;
 }
 
 /* trying to center the logo, username and password entry boxes */
@@ -41,4 +43,64 @@
   display: flex;
   justify-content: center;
   width: 300 px;
+}
+
+.BrokerContainer > #BrokerContainerTitle {
+  display: flex;
+  border: black solid 1px;
+  flex-direction: column;
+  padding: 0;
+  margin: 10px;
+}
+
+.FormContainer {
+  border: none;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  height: 500px;
+}
+
+.form-group {
+  display: flex;
+  margin: 5px;
+  align-items: center;
+  justify-content: center;
+}
+
+.form {
+  width: 100%;
+}
+
+.form-group input,
+.form-group select {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.btn {
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  background: #757575;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  appearance: button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 86%;
+}
+
+.CardContainer {
+  display: flex;
+
 }

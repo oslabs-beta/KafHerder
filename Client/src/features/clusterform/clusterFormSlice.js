@@ -1,17 +1,27 @@
-// import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
-// export const clusterFormSlice = createSlice({
-//     name: 'clusterForm',
-//     initialState: { 
-//         ClusterName: '',
-//     },
-//     reducers: {
-//         setClusterName: (state, action) => {
-//             state.ClusterName = action.payload;
-//         },
-//     },
-// });
 
-// export const { setClusterName } = clusterFormSlice.actions;
-// export const selectClusterName = (state) => state.form.ClusterName;
-// export default clusterFormSlice.reducer;
+// set initial state for ClusterName
+// will be fetching data from server with ClusterName and Port
+const initialState = {
+    ClusterName: '',
+    Port: '',
+}
+
+
+
+const clusterFormSlice = createSlice({
+    name: 'clusterForm',
+    initialState,
+    reducers: {
+        setClusterForm: (state, action) => {
+            state.ClusterName = action.payload.ClusterName;
+            state.Port = action.payload.Port;
+        }
+    }
+    
+});
+
+
+export const { setClusterForm } = clusterFormSlice.actions;
+export default clusterFormSlice.reducer;

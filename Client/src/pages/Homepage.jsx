@@ -8,7 +8,7 @@ function Homepage() {
     <>
 
       <Navbar />
-        <div className='rightContainer'>
+        <div className='rightContainer' style={{ minWidth: '1200px' }}>
           <KafkaContainer />
           <BrokerContainer />
         </div>
