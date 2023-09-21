@@ -1,0 +1,44 @@
+#root {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  height: 100vh;
+  grid-gap: 10px;
+}
+
+.Navbar {
+  border: black solid 2px;
+  height: 100%;
+  grid-column: 1/4;
+  justify-items: center;
+}
+
+.rightContainer {
+  border: black solid 2px;
+  grid-column: 4/13;
+}
+
+.KafkaContainer {
+  border: black solid 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.BrokerContainer {
+  border: black solid 2px;
+  display: flex;
+  justify-content: center;
+}
+
+.BrokerCard { 
+  border: black solid 2px;
+  padding: 10px 50px;
+  margin: 10px 50px;
+}
+
+/* trying to center the logo, username and password entry boxes */
+.logo {
+  display: flex;
+  justify-content: center;
+  width: 300 px;
+}
