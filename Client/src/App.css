@@ -38,7 +38,5 @@
 
 /* trying to center the logo, username and password entry boxes */
 .logo {
-  display: flex;
-  justify-content: center;
-  width: 300 px;
+  width: 100 px;
 }

@@ -1,8 +1,11 @@
 import React from 'react'
+import RegistrationContainer from '../container/RegistrationContainer'
 
 function Register() {
   return (
-    <h1> Register </h1>
+    <>
+      <RegistrationContainer/> 
+    </>
   )
 }
 

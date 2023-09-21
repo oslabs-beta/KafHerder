@@ -6,14 +6,12 @@ import KafkaContainer from '../container/KafkaContainer'
 function Homepage() {
   return (
     <>
-
       <Navbar />
         <div className='rightContainer'>
           <KafkaContainer />
           <BrokerContainer />
         </div>
     </>
-    
   )
 }
 

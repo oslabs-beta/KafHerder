@@ -6,5 +6,4 @@ function KafkaCard() {
     )
 }
 
-
 export default KafkaCard;
