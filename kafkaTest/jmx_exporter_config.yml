@@ -1,0 +1,28 @@
+rules:
+  # Broker Disk Usage
+  - pattern: 'kafka.log<type=Log, name=(.+), topic=(.+), partition=(.+)><>Size'
+    name: kafka_log_size
+    labels:
+      name: "$1"
+      topic: "$2"
+      partition: "$3"
+    type: GAUGE
+
+  # Broker Memory Usage
+  - pattern: 'java.lang<type=Memory><HeapMemoryUsage>used'
+    name: kafka_heap_memory_usage
+    type: GAUGE
+
+  # Producer Metrics
+  - pattern: 'kafka.producer<type=producer-metrics, client-id=(.+)><>(.+): (.+)'
+    name: kafka_producer_$2
+    labels:
+      client_id: "$1"
+    type: GAUGE
+
+  # Consumer Metrics
+  - pattern: 'kafka.consumer<type=consumer-metrics, client-id=(.+)><>(.+): (.+)'
+    name: kafka_consumer_$2
+    labels:
+      client_id: "$1"
+    type: GAUGE
