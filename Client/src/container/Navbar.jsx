@@ -5,7 +5,7 @@ import ClusterForm from '../components/ClusterForm'
 function Navbar() {
   return (
     <>
-      <div className='Navbar' style={{ minWidth: '400px'}}>
+      <div className='Navbar' style={{ minWidth: '300px'}}>
         <Menu />
         <ClusterForm />
       </div>
