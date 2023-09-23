@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400&display=swap');
+
+html {
+  font-family: 'Oxygen', sans-serif;
+}
+
 #root {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -6,58 +12,18 @@
 }
 
 .Navbar {
-  border: black solid 2px;
+  border-radius: 20px;
+  border: grey solid 2px;
+  background-color: #E4E9DC;
   height: 100%;
-  grid-column: 1/4;
+  grid-column: 1/2;
   justify-items: center;
-}
-
-.rightContainer {
-  border: black solid 2px;
-  grid-column: 4/13;
-}
-
-.KafkaContainer {
-  border: black solid 2px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.BrokerContainer {
-  border: black solid 2px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.BrokerCard { 
-  border: black solid 2px;
-  padding: 10px 20px;
-  margin: 10px 20px;
   width: 300px;
 }
 
-/* trying to center the logo, username and password entry boxes */
-.logo {
-  display: flex;
-  justify-content: center;
-  width: 300 px;
-}
-
-.BrokerContainer > #BrokerContainerTitle {
-  display: flex;
-  border: black solid 1px;
-  flex-direction: column;
-  padding: 0;
-  margin: 10px;
-}
-
 .FormContainer {
-  border: none;
   display: flex;
-
-  align-items: center;
+  /* align-items: center; */
   justify-content: center;
   height: 500px;
 }
@@ -70,7 +36,10 @@
 }
 
 .form {
+  margin: 65px 0px;
   width: 100%;
+  height: 250px;
+
 }
 
 .form-group input,
@@ -87,7 +56,7 @@
   padding: 10px;
   border: 1px solid #000;
   border-radius: 5px;
-  background: #757575;
+  background: #72D1C8;
   color: #fff;
   font-size: 16px;
   font-weight: 700;
@@ -100,7 +69,232 @@
   width: 86%;
 }
 
+.rightContainer {
+  border: grey solid 2px;
+  grid-column: 2/13;
+  min-width: 400px;
+  border-radius: 20px;
+  background-color: #E4E9DC;
+}
+
+.KafkaContainer {
+  margin: 20px;
+
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+}
+
+.BrokerContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.BrokerCard { 
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin: 10px 20px 50px 20px;
+  min-width: 250px;
+  height: 250px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+/* trying to center the logo, username and password entry boxes */
+.logo {
+  display: flex;
+  justify-content: center;
+  width: 300px;
+}
+
+.BrokerContainer > #BrokerContainerTitle {
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+  flex-direction: column;
+  padding: 0 30px 0 30px;
+  margin: 20px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+
 .CardContainer {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  width: 100%;
 
+}
+
+.modal {
+  position: fixed; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1; 
+  padding: 20px;
+  width: 70%; 
+  height: 50%;
+  max-width: 400px;
+  background-color: #fff;
+  border: 1px solid #888;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  border-radius: 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.modal-close {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.p-menu1{
+   height: 20%;
+}
+
+
+
+
+/* Hamburger */
+.hamburger1 {
+  height: 45px;
+  margin: 10px;
+  display: -ms-grid;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  justify-items: left;
+  z-index: 120;
+}
+
+.hamburger1 div {
+  background-color: rgb(61, 61, 61);
+  position: relative;
+  width: 40px;
+  height: 5px;
+  margin-top: 7px;
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+#toggle1 {
+  display: none;
+}
+
+#toggle1:checked + .hamburger1 .top {
+  -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+  margin-top: 22.5px;
+}
+
+#toggle1:checked + .hamburger1 .meat {
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+  margin-top: -5px;
+}
+
+#toggle1:checked + .hamburger1 .bottom {
+  -webkit-transform: scale(0);
+          transform: scale(0);
+}
+
+#toggle1:checked ~ .menu1 {
+  height: 200px;
+}
+
+
+/* Menu */
+.menu1 {
+  width: 100%;
+  background-color: #11789C;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  grid-template-rows: 50px repeat(1, 50px);
+  grid-row-gap: 10px;
+  padding: 0;
+  list-style: none;
+  clear: both;
+  width: auto;
+  text-align: center;
+  height: 0px;
+  overflow: hidden;
+  transition: height .4s ease;
+  z-index: 120;
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+
+.link1 {
+  width: 100%;
+  margin: 0;
+  padding: 10px 0;
+  font: 700 14px 'Oswald', sans-serif;
+}
+
+.link1:hover {
+  background-color: #fff;
+  color: rgb(61, 61, 61);
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+#sortby {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+/* Style the select dropdown */
+#sortbydrop {
+  padding: 10px;
+  width: 300px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  appearance: none; /* remove default appearance for some browsers */
+  -webkit-appearance: none; /* for Chrome and Safari */
+  -moz-appearance: none; /* for Firefox */
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect */
+#sortbydrop:hover {
+  background-color: #f0f0f0;
+}
+
+/* Style the dropdown arrow inside select (optional) */
+#sortbydrop::-ms-expand {
+  display: none; /* for IE11 */
+}
+
+#sortbydrop:after {
+  content: '\25BC';  /* Unicode downward arrow */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  pointer-events: none; /* make sure clicking on the arrow doesn't do anything */
 }
