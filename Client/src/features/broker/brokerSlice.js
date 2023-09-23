@@ -17,7 +17,16 @@ const initialState = {
     error: null
 }
 
-// import fetchBrokerData here and export out to make a single point of export. Using this method can seem redundant or impractical now but as the app grows, it helps maintain clarity
+/** 
+ * import fetchBrokerDataFromAPI here and set fetchBrokerdata as a variable export using createAsyncThunk.
+ * Using this method can seem redundant or impractical but it sets brokerSlice as the single export file for all broker related items. As the app grows, it helps maintain clarity.
+ * !The first parameter of createAsyncThunk is the name of the action.
+ * !Standard convention is to name it '[slice name]/[action name]'.
+ * !createAsyncThunk generates three Redux action creators: pending, fulfilled, and rejected.
+ * !They are used in the extraReducers ['fetchBrokerdata.pending', 'fetchBrokerdata.fulfilled', 'fetchBrokerdata.rejected']
+ * !RTK makes it so you can define reducers and actions in one place. You use .addCase instead of switch-case.
+*/
+
 export const fetchBrokerData = createAsyncThunk(
     'broker/fetchData', fetchBrokerDataFromAPI
     );

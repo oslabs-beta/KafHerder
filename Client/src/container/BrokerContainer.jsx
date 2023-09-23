@@ -5,7 +5,9 @@ import BrokerCard from '../components/BrokerCard'
 
 
 /**
- * TODO: create a map function that will take in data for broker cards and display 
+ * TODO: currently passing testData into sortedData as data stream
+ * Need to change that once we get streaming data. 
+ * Look at the 
  * 
  */
 const testData = [
@@ -18,6 +20,15 @@ const testData = [
 ]
 
 function BrokerContainer() {
+
+
+/** 
+ * Todo: Uncomment dispatch, useEffect, brokerData, status after server is up.
+ * Created a dispatch variable and set it to useDispatch.
+ * Will be used in the useEffect(todo after render) to fetch broker data. 
+ * fetchBrokerData is a createAsyncThunk function in brokerSlice. Look there to find more info.
+ * 
+ */
 
 // const dispatch = useDispatch();
 
@@ -58,7 +69,7 @@ const sortedData = [...testData].sort((a, b) => {
     <>
     <div className='BrokerContainer'>
       <div id='BrokerContainerTitle'>
-        <h1> Current Brokers: {sortedData.length} </h1>
+        <h1 id='brokerheader'> Current Brokers: {sortedData.length} </h1>
         {/* <label id='sortby'>Sort by:</label> */}
           <select id='sortbydrop' value={sortCriteria} onChange={e => setSortCriteria(e.target.value)}>
             <option value="BrokerIdAscending">Sort By: Broker ID Ascending</option>
