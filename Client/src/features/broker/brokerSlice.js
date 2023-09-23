@@ -5,9 +5,9 @@ import { fetchBrokerDataFromAPI } from './brokerService'
 // will be fetching data from server with ClusterName and Port
 // Initial State data points are TBD
 const initialState = {
-    BrokerId: '',
-    ActiveControllerCount: '',
-    PartitionCount: '',
+    BrokerId: null,
+    ActiveControllerCount: 0,
+    PartitionCount: 0,
     // OfflinePartitionsCount: '',
     // UncleanLeaderElectionsPerSec: '',
     // BytesInPerSec: '',
