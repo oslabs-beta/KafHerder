@@ -2,8 +2,12 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setClusterForm } from '../features/clusterform/clusterFormSlice'
 
+
+
 function ClusterForm() {
 
+
+  // Creatinng local state for input data
   const [localForm, setLocalForm] = useState({
     ClusterName: '',
     Port: ''
@@ -11,6 +15,10 @@ function ClusterForm() {
 
   const dispatch = useDispatch();
 
+  // event hanlder that updates the localForm based on what inputs are put in
+  // Example: This it the input from the form div vor the ClusterName input bar
+  // name='ClusterName'
+  // value={localForm.ClusterName}
 
   const handleInputChange = (e) => {
     const { name , value } = e.target;
@@ -20,6 +28,9 @@ function ClusterForm() {
     }));
   }
 
+  // when the form is submitted, state is dispatched from the localForm to the redux store using setClusterForm
+  // *We still need to create a clusterFormService to get data from the API
+   
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(setClusterForm(localForm));
