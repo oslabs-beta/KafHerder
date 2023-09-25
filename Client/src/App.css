@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;1,700&display=swap');
 
 html {
-  font-family: 'Oxygen', sans-serif;
+  font-family: 'Lato', sans-serif;
 }
 
 #root {
@@ -13,7 +13,7 @@ html {
 
 .Navbar {
   border-radius: 20px;
-  border: grey solid 2px;
+  border: rgb(218, 218, 218) solid 1px;
   background-color: #E4E9DC;
   height: 100%;
   grid-column: 1/2;
@@ -70,7 +70,7 @@ html {
 }
 
 .rightContainer {
-  border: grey solid 2px;
+  border: rgb(218, 218, 218) solid 1px;
   grid-column: 2/13;
   min-width: 400px;
   border-radius: 20px;
@@ -177,21 +177,22 @@ a {
 
 /* Hamburger */
 .hamburger1 {
-  height: 45px;
+  height: 32px;
   margin: 10px;
   display: -ms-grid;
   display: grid;
   grid-template-rows: repeat(3, 1fr);
   justify-items: left;
   z-index: 120;
+
 }
 
 .hamburger1 div {
   background-color: rgb(61, 61, 61);
   position: relative;
-  width: 40px;
-  height: 5px;
-  margin-top: 7px;
+  width: 32px;
+  height: 4px;
+  margin-top: 5px;
   -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
@@ -203,13 +204,13 @@ a {
 #toggle1:checked + .hamburger1 .top {
   -webkit-transform: rotate(-45deg);
           transform: rotate(-45deg);
-  margin-top: 22.5px;
+  margin-top: 18px;
 }
 
 #toggle1:checked + .hamburger1 .meat {
   -webkit-transform: rotate(45deg);
           transform: rotate(45deg);
-  margin-top: -5px;
+  margin-top: -4px;
 }
 
 #toggle1:checked + .hamburger1 .bottom {
@@ -278,6 +279,7 @@ a {
   background-color: #f9f9f9;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-bottom: 10px;
 }
 
 /* Hover effect */
@@ -296,4 +298,21 @@ a {
   top: 10px;
   right: 10px;
   pointer-events: none; /* make sure clicking on the arrow doesn't do anything */
+}
+
+.navigation {
+  display: flex;       /* Use flexbox layout */
+  flex-direction: column;  /* Arrange children vertically */
+}
+
+.hamburgerAndImageContainer {
+  display: flex;        /* Use flexbox layout for horizontal arrangement */
+  align-items: center;  /* Center items vertically */
+}
+
+.menuImage {
+  height: 45px;  /* or whatever height you want for your image */
+  width: auto;   /* maintains aspect ratio */
+  margin-left: 10px; /* space between hamburger and the image */
+  align-self: center; /* aligns vertically to the center, assuming parent has display: grid or flex */
 }

@@ -7,8 +7,6 @@ import BrokerCard from '../components/BrokerCard'
 /**
  * TODO: currently passing testData into sortedData as data stream
  * Need to change that once we get streaming data. 
- * Look at the 
- * 
  */
 const testData = [
   {BrokerId: '1', ActiveControllerCount: '1', PartitionCount: '10'},
@@ -26,8 +24,7 @@ function BrokerContainer() {
  * Todo: Uncomment dispatch, useEffect, brokerData, status after server is up.
  * Created a dispatch variable and set it to useDispatch.
  * Will be used in the useEffect(todo after render) to fetch broker data. 
- * fetchBrokerData is a createAsyncThunk function in brokerSlice. Look there to find more info.
- * 
+ * ?fetchBrokerData is a createAsyncThunk function in brokerSlice. Look there to find more info.
  */
 
 // const dispatch = useDispatch();
@@ -41,11 +38,15 @@ function BrokerContainer() {
 // const brokerData = useSelector(state => state.broker);
 // const status = useSelector(state => state.status);
 
-// create local state for sort criteria
+// create local state for sort criteria and set the initial state to 'BrokerIdAscending'
 const [sortCriteria, setSortCriteria] = useState('BrokerIdAscending');
 
-// sort the data
-//**TODO: change testData to brokerData when server is up*/
+
+/** SORTING THE DATA
+ * TODO: change testData to brokerData when server is up
+ * Creates a sortedData variable and sets it to an array.
+ * The array will sort the brokerData (currently testData) and sort it to what the current local state's setting
+ * */
 const sortedData = [...testData].sort((a, b) => {
   if (sortCriteria === 'BrokerIdAscending') {
     return a.BrokerId - b.BrokerId;
@@ -60,11 +61,17 @@ const sortedData = [...testData].sort((a, b) => {
 
   /**
    * This part of the code is rendering the hardcoded brokerData from above. 
-   * Keeping it like this until I can fetch data from server
+   * Created a select element and set it to the id 'sortbydrop'
+   * It currently has 2 options, BrokerIdAscending and BrokerIdDescending
+   * We can add more for Partition count or any other metric
+   * Whichever one is selected sets off an onChange that will set the local state to whatever was selected
+   * Whatever was selected triggers a rerender from the onChange event handler
    */
   const renderedBrokerCards = sortedData.map((data) => (
   <BrokerCard key={data.BrokerId} data={data} />
   ))
+
+
   return (
     <>
     <div className='BrokerContainer'>

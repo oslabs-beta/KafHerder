@@ -6,21 +6,24 @@ import React, { useState } from 'react';
  * 
  */
 
-// data for the modal
-// probably should make another component for it and have live data streamed into it
+
+/**
+ * This is the data inside the modal.
+ * ?Do we need to make a new component for the modal or is it okay to have it in the BrokerCard component since its same data
+ */
 const DialogTitle = () => <h2>Your Title Here</h2>;
 const DialogContent = () => <h2>Your Content Here</h2>
 
-    // modal variable that makes it so we can add the modal into the click
-    const Modal = ({ closeModal }) => {
-        return (
-            <div className="modal">
-                <span className="modal-close" onClick={closeModal}>&times;</span>
-                <DialogTitle />
-                <DialogContent />
-            </div>
-        );
-    };
+// modal variable that makes it so we can add the modal into the click
+const Modal = ({ closeModal }) => {
+    return (
+        <div className="modal">
+            <span className="modal-close" onClick={closeModal}>&times;</span>
+            <DialogTitle />
+            <DialogContent />
+        </div>
+    );
+};
 
 // set a modal with state inside. Might want to play with it to have it more modular?
 function BrokerCard({ data }) {
