@@ -1,11 +1,39 @@
-const fetch = require('node-fetch'); // DELETE THIS FROM NPM
 const axios = require('axios');
 const fs = require('fs');
 
 const promController = {}
 
-const clusterMetricNames = [
+let metrics = [
+    
+    // * ISR Expands/Sec & ISR Shrinks/Sec 
+    'kafka_server_replicamanager_isrexpands_total',
+    'kafka_server_replicamanager_isrshrinks_total',
+    // * Active controller count
+    'kafka_controller_kafkacdcontroller_activecontrollercount',
+    // * Leader Election Rate and Time Ms
+    'kafka_controller_controllerstats_leaderelectionrateandtimems',
+    // * Unclean Leader Elections Per Sec
+    'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems',
+    'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems_count',
+    'kafka_controller_controllerstats_uncleanleaderelections_total',
+    // * Total Time Ms (Producer, FetchConsumer, FetchFollower)
+    'kafka_network_requestmetrics_totaltimems',
+    // * Purgatory Size
+    'kafka_server_delayedoperationpurgatory_purgatorysize',
+    // * Requests Per Second
+    'kafka_network_requestmetrics_requests_total'
+]
 
+const clusterMetricNames = [
+    // * Under replicated partitions
+    'kafka_server_replicamanager_underreplicatedpartitions',
+    'kafka_cluster_partition_underreplicated',
+    // * Offline partitions count
+    'kafka_controller_kafkacontroller_offlinepartitionscount',
+    // * BytesInPerSec
+    'kafka_server_brokertopicmetrics_bytesin_total',
+    // * BytesOutPerSec
+    'kafka_server_brokertopicmetrics_bytesout_total',
 ];
 
 const brokerMetricNames = [
@@ -15,20 +43,26 @@ const brokerMetricNames = [
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 
+// {__name__=~"partitioncount|brokercount|partitioncount2|partitioncount3|partitioncount|4"}
+
 // console.log(buildQuery(brokerMetricNames));
 
 promController.getAllMetrics = async (req, res, next) => {
-    const metric1 = 'kafka_controller_kafkacontroller_globalpartitioncount';
-    const metric2 = 'kafka_server_brokertopicmetrics_producemessageconversions_total';
     try {        
         console.log('about to make request');
         const response = await axios.get('http://localhost:9090/api/v1/query', {
             params: {
-                query: buildQuery(brokerMetricNames)
+                query: buildQuery(metrics)
             }
         });
-        console.log(response.data.data.result);
-        res.locals.allMetrics = response.data.data // { metric: metric1, value: response.data.data };
+        res.locals.allMetrics = {};
+        const results = response.data.data.result;
+        for (const result of results){
+            res.locals.allMetrics[result.metric.__name__] = result.value[1];
+        }
+
+        console.log(res.locals.allMetrics);
+        //res.locals.allMetrics = response.data.data // { metric: metric1, value: response.data.data };
         return next();
     }
     catch (err) {
