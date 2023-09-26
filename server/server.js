@@ -8,9 +8,12 @@ const PORT = 3000;
 
 app.use(express.json());
 
-app.get('/', promController.getMetrics, (req, res, next) => {
-    console.log(res.locals.metrics);
-    res.status(200).send(res.locals.metrics);
+app.get('/', promController.getAllMetrics, (req, res, next) => {
+    return res.status(200).send(res.locals.allMetrics);
+})
+
+app.get('/names', promController.getAllMetricNames, promController.getRandomMetric, (req, res, next) => {
+    return res.status(200).send(res.locals.metric);
 })
 
 
