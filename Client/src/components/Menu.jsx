@@ -13,24 +13,44 @@ function Menu() {
     // <div>
     //     <button>Hamburger Menu</button>
     // </div>
+    // <>
+    //   <section className="p-menu1">
+    //     <nav id="navbar" className="navigation" role="navigation">
+    //       <input id="toggle1" type="checkbox" />
+    //       <label className="hamburger1" htmlFor="toggle1">
+    //         <div className="top"></div>
+    //         <div className="meat"></div>
+    //         <div className="bottom"></div>
+    //       </label>
+    //       <img src="#" alt="KafHerder" className="menuImage" />
+    //       <nav className="menu1">
+    //         <a className="link1" href="">Settings List</a>
+    //         <a className="link1" href="">Logout</a>
+    //       </nav>
+    //     </nav>
+    //   </section>
+    // </>
     <>
-    <section class="p-menu1">
-  <nav id="navbar" class="navigation" role="navigation">
-    <input id="toggle1" type="checkbox" />
-    <label class="hamburger1" for="toggle1">
-      <div class="top"></div>
-      <div class="meat"></div>
-      <div class="bottom"></div>
-    </label>
-  
-    <nav class="menu1">
-      <a class="link1" href="">Settings List</a>
-      <a class="link1" href="">Logout</a>
+      <section className="p-menu1">
+        <nav id="navbar" className="navigation" role="navigation">
+          <input id="toggle1" type="checkbox" />
 
-    </nav>
-</nav>
-</section>
-</>
+          <div className="hamburgerAndImageContainer">
+            <label className="hamburger1" htmlFor="toggle1">
+              <div className="top"></div>
+              <div className="meat"></div>
+              <div className="bottom"></div>
+            </label>
+            <img className="menuImage" src="path_to_your_image.png" alt="Kafherder Logo" />
+          </div>
+
+          <nav className="menu1">
+            <a className="link1" href="">Settings List</a>
+            <a className="link1" href="">Logout</a>
+          </nav>
+        </nav>
+      </section>
+    </>
   )
 }
 

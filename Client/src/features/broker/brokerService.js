@@ -4,6 +4,7 @@
 /**
  * TODO: add in server route in fetch
  * @returns Fetched data from API 
+ * We need to give it an actual route to put in a request
  */
 const fetchBrokerDataFromAPI = async () => {
     const response = await fetch('/* Add In Server Route */' , {
