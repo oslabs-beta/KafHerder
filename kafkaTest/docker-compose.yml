@@ -38,7 +38,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_JMX_PORT: 9992
       KAFKA_JMX_HOSTNAME: localhost
-      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=9992:/usr/app/jmx_exporter_config.yml
+      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.19.0.jar=9992:/usr/app/jmx_exporter_config.yml
 
   prometheus:
     image: prom/prometheus
