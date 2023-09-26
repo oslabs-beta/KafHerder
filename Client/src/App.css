@@ -2,9 +2,11 @@
 
 html {
   font-family: 'Lato', sans-serif;
+  color:#101010 ;
 }
 
 #root {
+  color: 101010;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   height: 100vh;
@@ -19,6 +21,7 @@ html {
   grid-column: 1/2;
   justify-items: center;
   width: 300px;
+  color: #101010;
 }
 
 .FormContainer {
@@ -79,7 +82,6 @@ html {
 
 .KafkaContainer {
   margin: 20px;
-
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   border-radius: 20px;
   display: flex;
@@ -88,20 +90,157 @@ html {
   background-color: white;
 }
 
-.BrokerContainer {
+.KafkaCard {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.BrokerCard { 
+  flex-direction: row;
+  position: relative;
   background-color: white;
   border-radius: 10px;
   padding: 10px 20px;
   margin: 10px 20px 50px 20px;
   min-width: 250px;
-  height: 250px;
+  min-height: 250px;
+  flex-wrap: wrap;
+  justify-content: space-around;
+
+}
+
+.KafkaContainer > #KafkaContainerTitle {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 20px;
+  padding: 0px 30px;
+}
+
+.graphPlaceholder {
+  border: grey solid 1px;
+}
+
+.BrokerContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 0;
+  background-color: white;
+  margin: 20px;
+  border-radius: 20px;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+.BrokerCard { 
+  color: #101010;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin: 10px 20px 50px 20px;
+  min-width: 250px;
+  min-height: 250px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+.BrokerCard:hover {
+  box-shadow: 0 5px 35px 0px rgba(0,0,0,.1);
+}
+
+.BrokerCard:hover::before, .BrokerCard:hover::after {
+  display: block;
+  content: '';
+  position: absolute;
+  width: 101%;
+  height: 101%;
+  background: #FDA8CF;
+  border-radius: 10px;
+  z-index: -1;
+  animation: 2s clockwise infinite;
+}
+
+.BrokerCard:hover:after {
+  background: #F3CE5E;
+  animation: 3s counterclockwise infinite;
+  height: 101%;
+  width: 101%;
+}
+
+@keyframes clockwise {
+  0% {
+    top: -5px;
+    left: 0;
+  }
+  12% {
+    top: -2px;
+    left: 2px;
+  }
+  25% {
+    top: 0;
+    left: 5px;    
+  }
+  37% {
+    top: 2px;
+    left: 2px;
+  }
+  50% {
+    top: 5px;
+    left: 0;    
+  }
+  62% {
+    top: 2px;
+    left: -2px;
+  }
+  75% {
+    top: 0;
+    left: -5px;
+  }
+  87% {
+    top: -2px;
+    left: -2px;
+  }
+  100% {
+    top: -5px;
+    left: 0;    
+  }
+}
+
+@keyframes counterclockwise {
+  0% {
+    top: -5px;
+    right: 0;
+  }
+  12% {
+    top: -2px;
+    right: 2px;
+  }
+  25% {
+    top: 0;
+    right: 5px;    
+  }
+  37% {
+    top: 2px;
+    right: 2px;
+  }
+  50% {
+    top: 5px;
+    right: 0;    
+  }
+  62% {
+    top: 2px;
+    right: -2px;
+  }
+  75% {
+    top: 0;
+    right: -5px;
+  }
+  87% {
+    top: -2px;
+    right: -2px;
+  }
+  100% {
+    top: -5px;
+    right: 0;    
+  }
 }
 
 /* trying to center the logo, username and password entry boxes */
@@ -113,12 +252,12 @@ html {
 
 .BrokerContainer > #BrokerContainerTitle {
   display: flex;
-  background-color: white;
+  /* background-color: white; */
   border-radius: 10px;
   flex-direction: column;
   padding: 0 30px 0 30px;
   margin: 20px;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  /* box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px; */
 }
 
 
@@ -127,7 +266,7 @@ html {
   flex-wrap: wrap;
   justify-content: space-around;
   width: 100%;
-
+  z-index: 0;
 }
 
 .modal {
@@ -135,7 +274,7 @@ html {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1; 
+  z-index: 8; 
   padding: 20px;
   width: 70%; 
   height: 50%;
@@ -153,7 +292,7 @@ html {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 0;
+  z-index: 7;
 }
 
 .modal-close {
@@ -316,3 +455,4 @@ a {
   margin-left: 10px; /* space between hamburger and the image */
   align-self: center; /* aligns vertically to the center, assuming parent has display: grid or flex */
 }
+

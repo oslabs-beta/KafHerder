@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 // import { fetchBrokerData } from '../features/broker/brokerSlice';
-import BrokerCard from '../components/BrokerCard'
+import BrokerCard from '../components/BrokerComponents/BrokerCard'
 
 
 /**
@@ -9,12 +9,12 @@ import BrokerCard from '../components/BrokerCard'
  * Need to change that once we get streaming data. 
  */
 const testData = [
-  {BrokerId: '1', ActiveControllerCount: '1', PartitionCount: '10'},
-  {BrokerId: '2', ActiveControllerCount: '1', PartitionCount: '8'},
-  {BrokerId: '3', ActiveControllerCount: '1', PartitionCount: '7'},
-  {BrokerId: '4', ActiveControllerCount: '1', PartitionCount: '7'},
-  {BrokerId: '5', ActiveControllerCount: '1', PartitionCount: '7'},
-  {BrokerId: '6', ActiveControllerCount: '1', PartitionCount: '9'}
+  {BrokerId: 1, ActiveControllerCount: 1, TotalPartitionCount: 10, OnlinePartitions: 10, OfflinePartitions: 0},
+  {BrokerId: 2, ActiveControllerCount: 1, TotalPartitionCount: 8, OnlinePartitions: 6, OfflinePartitions: 2},
+  {BrokerId: 3, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 3, OfflinePartitions: 4},
+  {BrokerId: 4, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 7, OfflinePartitions: 0},
+  {BrokerId: 5, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 6, OfflinePartitions: 1},
+  {BrokerId: 6, ActiveControllerCount: 1, TotalPartitionCount: 9, OnlinePartitions: 6, OfflinePartitions: 3}
 ]
 
 function BrokerContainer() {
@@ -76,7 +76,7 @@ const sortedData = [...testData].sort((a, b) => {
     <>
     <div className='BrokerContainer'>
       <div id='BrokerContainerTitle'>
-        <h1 id='brokerheader'> Current Brokers: {sortedData.length} </h1>
+        <h1 id='brokerheader' style={{ color: '#101010' }}> Current Brokers: {sortedData.length} </h1>
         {/* <label id='sortby'>Sort by:</label> */}
           <select id='sortbydrop' value={sortCriteria} onChange={e => setSortCriteria(e.target.value)}>
             <option value="BrokerIdAscending">Sort By: Broker ID Ascending</option>
