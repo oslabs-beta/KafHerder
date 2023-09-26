@@ -7,7 +7,7 @@ const chance = new Chance();
 
 const kafka = new Kafka({
     clientId: 'my-producer',
-    brokers: ['localhost:9092']
+    brokers: ['localhost:29092', 'localhost:39092']
 })
 
 const producer = kafka.producer();
@@ -31,7 +31,7 @@ const run = async () => {
     console.log('attempting connection');
     await producer.connect();
     console.log('connected successfully');
-    setInterval(produceMessage, 1000)
+    setInterval(produceMessage, 3000)
 }
 
 run();

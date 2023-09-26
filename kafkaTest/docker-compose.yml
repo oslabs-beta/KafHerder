@@ -1,44 +1,116 @@
-# version: '3'
-
-# services:
-#   zookeeper:
-#     image: wurstmeister/zookeeper
-#     container_name: zookeeper
-#     ports:
-#       - "2181:2181"
-#   kafka:
-#     image: wurstmeister/kafka
-#     container_name: kafka
-#     ports:
-#       - "9092:9092"
-#       - "9992:9992"
-#     environment:
-#       KAFKA_ADVERTISED_HOST_NAME: localhost
-#       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-#       KAFKA_JMX_PORT: 9991
-#       KAFKA_JMX_HOSTNAME: localhost
-
-version: '3'
+version: '2'
 
 services:
-  zookeeper:
-    image: wurstmeister/zookeeper
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-  
-  kafka:
-    build: . # instead of image, this is saying build the image using the dockerfile in the same directory as this file
-    container_name: kafka
-    ports:
-      - "9092:9092" # Map port 9092 in the container to port 9092 on the host
-      - "9992:9992" # Map port 9992 in the container to port 9992 on the host for the JMX
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:latest
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: localhost
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_JMX_PORT: 9992
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 32181:2181
+
+  kafka-1:
+    # image: confluentinc/cp-kafka:latest
+    build: . # instead of image, this is saying build the image using the dockerfile in the same directory as this file
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+    ports:
+      - "29092:29092"
+      - "8686:8686"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # KAFKA_JMX_PORT: 9292 # this key-value pair cause binding issues with the port if changed to 8686
+      KAFKA_JMX_HOSTNAME: localhost # needs to be uncommented for prometheus to see the status, otherwise it marks it us unknown
+      JAVA_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8686 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
+      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=8686:/usr/app/jmx_exporter_config.yml
+  kafka-2:
+    build: . # instead of image, this is saying build the image using the dockerfile in the same directory as this file
+    # image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+    ports:
+      - "39092:39092"
+      - "8687:8686"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092,PLAINTEXT_HOST://localhost:39092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # KAFKA_JMX_PORT: 33992
       KAFKA_JMX_HOSTNAME: localhost
-      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=9992:/usr/app/jmx_exporter_config.yml
+      JAVA_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8687 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
+      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=8686:/usr/app/jmx_exporter_config.yml
+
+
+  # version: '3'
+
+  # services:
+  #   zookeeper:
+  #     image: wurstmeister/zookeeper
+  #     container_name: zookeeper
+  #     ports:
+  #       - "2181:2181"
+
+  #   kafka1:
+  #     build: . # instead of image, this is saying build the image using the dockerfile in the same directory as this file
+  #     container_name: kafka1
+  #     ports:
+  #       - "9092:9092" # Map port 9092 in the container to port 9092 on the host
+  #       - "9992:9992" # Map port 9992 in the container to port 9992 on the host for the JMX
+  #     depends_on:
+  #     - zookeeper
+  #     environment:
+  #       KAFKA_BROKER_ID: 1
+  #       # KAFKA_ADVERTISED_HOST_NAME: localhost
+  #       KAFKA_LISTENERS: EXTERNAL_LISTENER://0.0.0.0:9092,INTERNAL_LISTENER://0.0.0.0:29092      
+  #       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL_LISTENER:PLAINTEXT, INTERNAL_LISTENER:PLAINTEXT
+  #       KAFKA_ADVERTISED_LISTENERS: EXTERNAL_LISTENER://localhost:9092, INTERNAL_LISTENER://kafka1:29092
+  #       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL_LISTENER
+  #       # KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #       # CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+  #       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #       KAFKA_JMX_PORT: 9992
+  #       KAFKA_JMX_HOSTNAME: localhost
+  #       KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=9992:/usr/app/jmx_exporter_config.yml
+
+  #   kafka2:
+  #     build: . # instead of image, this is saying build the image using the dockerfile in the same directory as this file
+  #     container_name: kafka2
+  #     ports:
+  #       - "9093:9092" # Map port 9092 in the container to port 9092 on the host
+  #       - "9993:9992" # Map port 9992 in the container to port 9992 on the host for the JMX
+  #     depends_on:
+  #     - zookeeper
+  #     environment:
+  #       KAFKA_BROKER_ID: 2
+  #       # KAFKA_ADVERTISED_HOST_NAME: localhost
+  #       KAFKA_LISTENERS: EXTERNAL_LISTENER://0.0.0.0:9093,INTERNAL_LISTENER://0.0.0.0:29092      
+  #       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL_LISTENER:PLAINTEXT, INTERNAL_LISTENER:PLAINTEXT
+  #       KAFKA_ADVERTISED_LISTENERS: EXTERNAL_LISTENER://localhost:9093, INTERNAL_LISTENER://kafka2:29092
+  #       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL_LISTENER
+  #       # KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #       # CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+  #       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #       KAFKA_JMX_PORT: 9992
+  #       KAFKA_JMX_HOSTNAME: localhost
+  #       KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=9992:/usr/app/jmx_exporter_config.yml
 
   prometheus:
     image: prom/prometheus
@@ -47,75 +119,3 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-
-# version: '3'
-# services:
-#   zookeeper:
-#     image: wurstmeister/zookeeper
-#     container_name: zookeeper
-#     ports:
-#       - "2181:2181"
-
-#   kafka:
-#     image: wurstmeister/kafka
-#     container_name: kafka
-#     ports:
-#       - "9092:9092"
-#       # - "9991:9991"
-#     environment:
-#       # - KAFKA_BROKER_ID=1
-#       - KAFKA_ADVERTISED_HOST_NAME=localhost
-#       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-#       # - KAFKA_JMX_PORT=9991
-#       # - KAFKA_JMX_HOSTNAME=localhost
-
-#   # kafka2:
-#   #   image: wurstmeister/kafka
-#   #   container_name: kafka2
-#   #   ports:
-#   #     - "9092:9092"
-#   #     - "9992:9992"
-#   #   environment:
-#   #     - KAFKA_BROKER_ID=2
-#   #     - KAFKA_ADVERTISED_HOST_NAME=localhost
-#   #     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-#   #     - KAFKA_JMX_PORT=9992
-#   #     - KAFKA_JMX_HOSTNAME=localhost
-
-#   # kafka3:
-#   #   image: wurstmeister/kafka
-#   #   container_name: kafka3
-#   #   ports:
-#   #     - "9093:9093"
-#   #     - "9993:9993"
-#   #   environment:
-#   #     - KAFKA_BROKER_ID=3
-#   #     - KAFKA_ADVERTISED_HOST_NAME=localhost
-#   #     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-#   #     - KAFKA_JMX_PORT=9993
-#   #     - KAFKA_JMX_HOSTNAME=localhost
-     
-
-
-
-
-# # version: '2'
-# # services:
-
-# #   broker:
-# #     image: confluentinc/cp-kafka:7.5.0
-# #     hostname: broker
-# #     container_name: broker
-# #     ports:
-# #       - "9092:9092"
-# #       - "9101:9101"
-# #     environment:
-# #       KAFKA_NODE_ID: 1
-# #       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
-# #       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092'
-# #       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-# #       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-# #       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-# #       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-# #       KAFKA_JMX_PORT: 9101
-# #       KAFKA_JMX_HOSTNAME: localhost
