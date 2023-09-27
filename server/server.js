@@ -8,13 +8,21 @@ const PORT = 3000;
 
 app.use(express.json());
 
-app.get('/', promController.getAllMetrics, (req, res, next) => {
-    return res.status(200).send(res.locals.allMetrics);
-})
+app.get('/', promController.getGeneralMetrics, promController.getBrokerMetrics, (req, res) => {
+    return res.status(200).send(res.locals.generalMetrics);
+});
 
-app.get('/names', promController.getAllMetricNames, promController.getRandomMetric, (req, res, next) => {
-    return res.status(200).send(res.locals.metric);
-})
+app.get('/:id', promController.getBrokerMetrics,(req, res) => {
+    return res.status(200).send(brokerMetrics);
+});
+
+app.post('/', promController.connectPort,(req, res) => {
+    return res.status(200).send('Successfully connected to port');
+});
+
+// app.get('/names', promController.getAllMetricNames, promController.getRandomMetric, (req, res, next) => {
+//     return res.status(200).send(res.locals.metric);
+// })
 
 
 app.use((req, res) => res.status(404).send(`Oops! This isn't the right page.`))
