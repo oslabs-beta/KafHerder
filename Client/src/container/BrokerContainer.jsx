@@ -29,7 +29,7 @@ function BrokerContainer() {
 
 // const dispatch = useDispatch();
 
-// // fetching data once the component mounts
+// // fetching data once the component mounts but might want to change this to fetching data once the cluster form is active?
 // useEffect(() => {
 //   dispatch(fetchBrokerData());
 // }, [dispatch]);

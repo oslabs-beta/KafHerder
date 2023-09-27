@@ -1,13 +1,13 @@
-// API calls to server
+const API_URL = 'http://localhost:3000/';
 
 
 /**
- * TODO: add in server route in fetch
- * @returns Fetched data from API 
- * We need to give it an actual route to put in a request
+ * Initial get request if the fetchClusterDataFromAPI isnt up. 
+ * fetchClusterDataFromAPI should take in the cluster name and port number to link server to broker and fetch relevant data
+ * TODO We need to figure out what the URL route will be fore broker data
  */
 const fetchBrokerDataFromAPI = async () => {
-    const response = await fetch('/* Add In Server Route */' , {
+    const response = await fetch(API_URL + 'brokerData', {
         method: 'GET',
         headers: {
             'Content-Type' : 'application/json',

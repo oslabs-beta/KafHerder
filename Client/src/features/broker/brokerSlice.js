@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchBrokerDataFromAPI } from './brokerService'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchBrokerDataFromAPI } from './brokerService';
 
 // set initial state for ClusterName
 // will be fetching data from server with ClusterName and Port
@@ -13,9 +13,9 @@ const initialState = {
     // BytesInPerSec: '',
     // BytesOutPerSec: '',
     // RequestsPerSec: '',
-    status: 'idle',
-    error: null
-}
+    Status: 'idle',
+    Error: null
+};
 
 /** 
  * import fetchBrokerDataFromAPI here and set fetchBrokerdata as a variable export using createAsyncThunk.
@@ -29,7 +29,7 @@ const initialState = {
 */
 
 export const fetchBrokerData = createAsyncThunk(
-    'broker/fetchData', fetchBrokerDataFromAPI
+    'broker/fetchBrokerData', fetchBrokerDataFromAPI
     );
 
 
@@ -48,7 +48,7 @@ const brokerSlice = createSlice({
     extraReducers: (builder) => {
         builder
         .addCase(fetchBrokerData.pending, (state) => {
-            state.status = 'loading';
+            state.Status = 'loading';
         })
         .addCase(fetchBrokerData.fulfilled, (state, action) => {
             const { BrokerId,
@@ -69,16 +69,16 @@ const brokerSlice = createSlice({
             // state.BytesInPerSec = BytesInPerSec;
             // state.BytesOutPerSec = BytesOutPerSec;
             // state.RequestsPerSec = RequestsPerSec;
-            state.status = 'success';
+            state.Status = 'success';
         })
         .addCase(fetchBrokerData.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.error.message;
+            state.Status = 'failed';
+            state.Error = action.error.message;
         })
     }
     
 });
 
 
-export const { setClusterForm } = brokerSlice.actions;
+export const { resetBrokerData } = brokerSlice.actions;
 export default brokerSlice.reducer;
