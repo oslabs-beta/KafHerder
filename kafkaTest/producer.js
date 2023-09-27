@@ -7,7 +7,7 @@ const chance = new Chance();
 
 const kafka = new Kafka({
     clientId: 'my-producer',
-    brokers: ['localhost:9092']
+    brokers: ['localhost:29092', 'localhost:39092']
 })
 
 const producer = kafka.producer();
