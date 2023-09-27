@@ -15,7 +15,7 @@ const run = async () => {
         timeout: 5000,
         topics: [
             {
-                topic: 'animals3',
+                topic: 'animals4',
                 numParititons: 3,
                 replicationFactor: 3,
             }
@@ -39,10 +39,13 @@ const run3 = async (topics) => {
     console.log(topicsMetadata);
 
     for (const topic of topicsMetadata.topics){
-        console.log(topic);
+        if (topic.name.includes('animals')){
+            console.log(topic);
+            console.log(topic.partitions[0].replicas)
         // for (const partition of topic){
         //     console.log(partition);
         // }
+        }
     }
     // topicsMetadata.topics.forEach(info => console.log(`topic ${info.name} has partitions: ${info.partitions[0].partitionId}`));
     // await admin.disconnect();
