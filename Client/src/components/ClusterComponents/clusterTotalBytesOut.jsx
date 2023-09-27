@@ -1,9 +1,13 @@
 import React from 'react'
+import { useSelector } from 'react-redux/es/hooks/useSelector'
 
-function clusterTotalBytesOut() {
+function ClusterTotalBytesOut() {
+
+  const totalBytesOut = useSelector(state => state.kafkaCluster.TotalBytesOut);
+
   return (
-    <div>clusterTotalBytesOut</div>
+    <div>{totalBytesOut}</div>
   )
 }
 
-export default clusterTotalBytesOut
+export default ClusterTotalBytesOut

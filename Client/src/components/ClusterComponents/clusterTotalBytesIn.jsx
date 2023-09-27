@@ -1,9 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchInitialData } from '../../features/kafkaCluster/kafkaClusterSlice'
 
-function clusterTotalBytesIn() {
+
+
+function ClusterTotalBytesIn() {
+
+  const bytesIn = useSelector(state => state.kafkaCluster.TotalBytesIn);
+  console.log(bytesIn)
+
   return (
-    <div>clusterTotalBytesIn</div>
+    <div>{bytesIn}</div>
   )
 }
 
-export default clusterTotalBytesIn
+export default ClusterTotalBytesIn

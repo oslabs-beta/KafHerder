@@ -118,6 +118,8 @@ html {
 
 .graphPlaceholder {
   border: grey solid 1px;
+  width: 100px;
+  height: 150px;
 }
 
 .BrokerContainer {

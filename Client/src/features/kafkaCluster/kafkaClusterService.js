@@ -18,6 +18,7 @@ export const initialFetch = async () => {
         throw new Error('Failed to fetch Broker data');
     }
     const data = await response.json();
+
     return data;
 }
 
