@@ -3,7 +3,7 @@ const topic = 'animals';
 
 const kafka = new Kafka({
     clientId: 'my-consumer',
-    brokers: ['localhost:9091']
+    brokers: ['localhost:9092']
 })
 
 const consumer = kafka.consumer({ groupId: 'consumer-group' });

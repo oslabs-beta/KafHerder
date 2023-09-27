@@ -55,6 +55,12 @@ run();
 /*
 docker-compose -f docker-compose.yml up -d
 
+if you get caching issues:
+docker-compose build --no-cache kafka
+docker-compose up -d
+
+
+
 ENTERING DOCKER TERMINAL (LINUX) AND CREATING TOPIC
 docker exec -it kafka /bin/sh
 # cd opt/kafka/bin
