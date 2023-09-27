@@ -34,7 +34,7 @@ const clusterFormSlice = createSlice({
         .addCase(checkPort.pending, (state) => {
             state.Status = 'pending';
         })
-        .addCase(checkPort.fulfilled, (state, action) => {
+        .addCase(checkPort.fulfilled, (state, action, thunkAPI) => {
             state.Status = 'on';
             thunkAPI.dispatch(fetchInitialData());
         })
