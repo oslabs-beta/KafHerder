@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:3000/';
  * fetchClusterDataFromAPI should take in the cluster name and port number to link server to broker and fetch relevant data
  * TODO We need to figure out what the URL route will be fore broker data
  */
-const fetchBrokerDataFromAPI = async () => {
+export const fetchBrokerDataFromAPI = async () => {
     const response = await fetch(API_URL + 'brokerData', {
         method: 'GET',
         headers: {

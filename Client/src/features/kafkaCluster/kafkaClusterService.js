@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:3000/';
  * * We want to do an initial fetch request for KafkaCluster Data here
  * @returns Initial data from a get request to the server
  */
-const initialFetch = async () => {
+export const initialFetch = async () => {
     const response = await fetch(API_URL , {
         method: 'GET',
         headers: {
