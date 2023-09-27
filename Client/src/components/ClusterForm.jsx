@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setClusterForm } from '../features/clusterform/clusterFormSlice'
+import { setClusterForm, checkPort } from '../features/clusterform/clusterFormSlice'
 
 
 
@@ -34,6 +34,7 @@ function ClusterForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(setClusterForm(localForm));
+    dispatch(checkPort(localForm));
     console.log(localForm.ClusterName, localForm.Port)
   }
 
