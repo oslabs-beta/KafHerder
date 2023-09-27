@@ -1,7 +1,7 @@
 const { Kafka } = require('kafkajs');
 const Chance = require('chance');
 
-const topic = 'animals';
+const topic = 'animals3';
 
 const chance = new Chance();
 

@@ -1,5 +1,5 @@
 const { Kafka } = require('kafkajs');
-const topic = 'animals';
+const topic = 'animals3';
 
 const kafka = new Kafka({
     clientId: 'my-consumer',
