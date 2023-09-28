@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const promController = require('./controllers/promController.js');
 
@@ -6,15 +7,25 @@ const promController = require('./controllers/promController.js');
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
 
-app.get('/', promController.getAllMetrics, (req, res, next) => {
-    return res.status(200).send(res.locals.allMetrics);
-})
+app.get('/', promController.getClusterMetrics, promController.getBrokerMetrics, (req, res) => {
+    console.log({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics })
+    return res.status(200).json({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics });
+});
 
-app.get('/names', promController.getAllMetricNames, promController.getRandomMetric, (req, res, next) => {
-    return res.status(200).send(res.locals.metric);
-})
+app.get('/broker', promController.getBrokerMetrics,(req, res) => {
+    return res.status(200).json(brokerMetrics);
+});
+
+app.post('/', promController.connectPort,(req, res) => {
+    return res.status(200).send('Successfully connected to port');
+});
+
+// app.get('/', promController.getAllMetricNames, (req, res, next) => {
+//     return res.status(200).send(res.locals.metric);
+// })
 
 
 app.use((req, res) => res.status(404).send(`Oops! This isn't the right page.`))
