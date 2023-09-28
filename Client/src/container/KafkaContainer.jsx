@@ -5,7 +5,10 @@ function KafkaContainer() {
   return (
     <>
     <div className='KafkaContainer'>
-    <h1>KAFKA CLUSTER DATA</h1>
+      <div id='KafkaContainerTitle'>
+        <h1>KAFKA CLUSTER DATA</h1>
+        <h1> Producer / Consumer Metrics </h1>
+      </div>
     <KafkaCard />
     </div>
     </>
