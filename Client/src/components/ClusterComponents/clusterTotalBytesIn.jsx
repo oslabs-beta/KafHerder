@@ -7,7 +7,6 @@ import { fetchInitialData } from '../../features/kafkaCluster/kafkaClusterSlice'
 function ClusterTotalBytesIn() {
 
   const bytesIn = useSelector(state => state.kafkaCluster.TotalBytesIn);
-  console.log(bytesIn)
 
   return (
     <div>{bytesIn}</div>

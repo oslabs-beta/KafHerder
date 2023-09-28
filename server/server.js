@@ -15,11 +15,11 @@ app.get('/', promController.getClusterMetrics, promController.getBrokerMetrics, 
     return res.status(200).json({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics });
 });
 
-app.get('/broker', promController.getBrokerMetrics,(req, res) => {
+app.get('/broker', promController.getBrokerMetrics, (req, res) => {
     return res.status(200).json(brokerMetrics);
 });
 
-app.post('/', promController.connectPort,(req, res) => {
+app.post('/', promController.verifyPort, (req, res) => {
     return res.status(200).send('Successfully connected to port');
 });
 

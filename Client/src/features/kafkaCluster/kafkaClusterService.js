@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:3000/';
  * @returns Initial data from a get request to the server
  */
 export const initialFetch = async () => {
-    const response = await fetch(API_URL , {
+    const response = await fetch(API_URL, {
         method: 'GET',
         headers: {
             'Content-Type' : 'application/json',

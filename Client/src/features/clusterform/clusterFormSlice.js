@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { checkPortFromAPI } from './clusterFormService';
 import { fetchInitialData } from '../kafkaCluster/kafkaClusterSlice';
+import { useDispatch } from 'react-redux';
 // set initial state for ClusterName
 // will be fetching data from server with ClusterName and Port
 const initialState = {
     ClusterName: '',
     Port: '',
-    Interval: 0,
+    Interval: 5,
     Status: 'off',
     Error: null
 }
@@ -19,6 +20,7 @@ export const checkPort = createAsyncThunk(
     'clusterForm/checkPort', checkPortFromAPI
 );
 
+const dispatch = useDispatch;
 
 // created state that shows if the port connected to the server
 const clusterFormSlice = createSlice({
@@ -28,6 +30,7 @@ const clusterFormSlice = createSlice({
         setClusterForm: (state, action) => {
             state.ClusterName = action.payload.ClusterName;
             state.Port = action.payload.Port;
+            state.Interval = action.payload.Interval;
         }
     },
     extraReducers: (builder) => {
@@ -35,9 +38,9 @@ const clusterFormSlice = createSlice({
         .addCase(checkPort.pending, (state) => {
             state.Status = 'pending';
         })
-        .addCase(checkPort.fulfilled, (state, action, thunkAPI) => {
+        .addCase(checkPort.fulfilled, (state, action) => { // thunkAPI
             state.Status = 'on';
-            thunkAPI.dispatch(fetchInitialData());
+            // thunkAPI.dispatch(fetchInitialData());
         })
         .addCase(checkPort.rejected, (state, action) => {
             state.Status = 'off';
