@@ -6,6 +6,7 @@ import { fetchInitialData } from '../kafkaCluster/kafkaClusterSlice';
 const initialState = {
     ClusterName: '',
     Port: '',
+    Interval: 0,
     Status: 'off',
     Error: null
 }
