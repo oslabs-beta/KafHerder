@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const promController = require('./controllers/promController.js');
 
@@ -6,6 +7,7 @@ const promController = require('./controllers/promController.js');
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/', promController.getAllMetrics, (req, res, next) => {
@@ -23,7 +25,7 @@ app.use((err, req, res, next) => {
     const defaultError = {
         log: 'Express error handler caught unknown middleware error',
         status: 400,
-        message: { err: 'An error occurred' }, 
+        message: { err: 'An error occurred' },
     };
     const errorObj = Object.assign({}, defaultError, err);
     res.status(errorObj.status).send(errorObj.message);

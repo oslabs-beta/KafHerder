@@ -5,24 +5,35 @@ const promController = {}
 
 let metrics = [
     
-    // * ISR Expands/Sec & ISR Shrinks/Sec 
-    'kafka_server_replicamanager_isrexpands_total',
-    'kafka_server_replicamanager_isrshrinks_total',
-    // * Active controller count
-    'kafka_controller_kafkacdcontroller_activecontrollercount',
-    // * Leader Election Rate and Time Ms
-    'kafka_controller_controllerstats_leaderelectionrateandtimems',
-    // * Unclean Leader Elections Per Sec
-    'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems',
-    'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems_count',
-    'kafka_controller_controllerstats_uncleanleaderelections_total',
-    // * Total Time Ms (Producer, FetchConsumer, FetchFollower)
-    'kafka_network_requestmetrics_totaltimems',
-    // * Purgatory Size
-    'kafka_server_delayedoperationpurgatory_purgatorysize',
-    // * Requests Per Second
-    'kafka_network_requestmetrics_requests_total'
+    'kafka_controller_kafkacontroller_globalpartitioncount',
+    'kafka_cluster_partition_underreplicated',
+    'kafka_controller_kafkacontroller_offlinepartitionscount',
+    'kafka_controller_kafkacontroller_activecontrollercount',
+    'kafka_server_brokertopicmetrics_bytesin_total',
+    'kafka_server_brokertopicmetrics_bytesout_total',
+    'kafka_server_brokertopicmetrics_messagesin_total',
+    'kafka_cluster_partition_replicascount',
+    'kafka_cluster_partition_insyncreplicascount',
+    'kafka_controller_kafkacontroller_globaltopiccount'
 ]
+
+    // // * ISR Expands/Sec & ISR Shrinks/Sec 
+    // 'kafka_server_replicamanager_isrexpands_total',
+    // 'kafka_server_replicamanager_isrshrinks_total',
+    // // * Active controller count
+    // 'kafka_controller_kafkacdcontroller_activecontrollercount',
+    // // * Leader Election Rate and Time Ms
+    // 'kafka_controller_controllerstats_leaderelectionrateandtimems',
+    // // * Unclean Leader Elections Per Sec
+    // 'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems',
+    // 'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems_count',
+    // 'kafka_controller_controllerstats_uncleanleaderelections_total',
+    // // * Total Time Ms (Producer, FetchConsumer, FetchFollower)
+    // 'kafka_network_requestmetrics_totaltimems',
+    // // * Purgatory Size
+    // 'kafka_server_delayedoperationpurgatory_purgatorysize',
+    // // * Requests Per Second
+    // 'kafka_network_requestmetrics_requests_total'
 
 const clusterMetricNames = [
     // * Under replicated partitions
