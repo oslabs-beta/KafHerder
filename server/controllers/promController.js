@@ -4,12 +4,11 @@ const fs = require('fs');
 const promController = {}
 
 let metrics = [
-    
+    // * Broker underreplicated partitions
+    'kafka_server_replicamanager_underreplicatedpartitions',
     // * ISR Expands/Sec & ISR Shrinks/Sec 
     'kafka_server_replicamanager_isrexpands_total',
     'kafka_server_replicamanager_isrshrinks_total',
-    // * Active controller count
-    'kafka_controller_kafkacdcontroller_activecontrollercount',
     // * Leader Election Rate and Time Ms
     'kafka_controller_controllerstats_leaderelectionrateandtimems',
     // * Unclean Leader Elections Per Sec
@@ -26,7 +25,6 @@ let metrics = [
 
 const clusterMetricNames = [
     // * Under replicated partitions
-    'kafka_server_replicamanager_underreplicatedpartitions',
     'kafka_cluster_partition_underreplicated',
     // * Offline partitions count
     'kafka_controller_kafkacontroller_offlinepartitionscount',
@@ -34,10 +32,19 @@ const clusterMetricNames = [
     'kafka_server_brokertopicmetrics_bytesin_total',
     // * BytesOutPerSec
     'kafka_server_brokertopicmetrics_bytesout_total',
+    // Global partition count
+    'kafka_controller_kafkacontroller_globalpartitioncount',
+    // * Active controller count
+    'kafka_controller_kafkacontroller_activecontrollercount',
+    // * Total messages in
+    'kafka_server_brokertopicmetrics_messagesin_total',
+    // * Partition replicas
+    'kafka_cluster_partition_replicascount',
+    // * Insync replicas
+    'kafka_cluster_partition_insyncreplicascount'
 ];
 
 const brokerMetricNames = [
-    'kafka_controller_kafkacontroller_globalpartitioncount',
     'kafka_server_brokertopicmetrics_producemessageconversions_total',
 ]
 
@@ -49,7 +56,7 @@ const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 
 promController.connectPort = async (req, res, next) => {
     try {
-        const port = req.body
+        const { port } = req.body;
         const connection = await axios.get(`http://localhost:${port}`);
         if (!connection) {
             throw new Error(`Unable to connect to port: ${port}`);
@@ -73,11 +80,12 @@ promController.getBrokerMetrics = async (req, res, next) => {
                 query: buildQuery(brokerMetricNames)
             }
         });
-        res.locals.allMetrics = {};
+        res.locals.brokerMetrics = {};
         const results = response.data.data.result;
         for (const result of results){
             res.locals.brokerMetrics[result.metric.__name__] = result.value[1];
         }
+        console.log('now printing broker metrics');
 
         console.log(res.locals.brokerMetrics);
         return next();
@@ -91,26 +99,28 @@ promController.getBrokerMetrics = async (req, res, next) => {
     }
 };
 
-promController.getGeneralMetrics = async (req, res, next) => {
+promController.getClusterMetrics = async (req, res, next) => {
     try {        
-        console.log('about to make request');
+        console.log('about to make request2');
         const response = await axios.get('http://localhost:9090/api/v1/query', {
             params: {
                 query: buildQuery(clusterMetricNames)
             }
         });
-        res.locals.allMetrics = {};
+        console.log('successfully axiosd')
+        res.locals.clusterMetrics = {};
         const results = response.data.data.result;
+        // console.log(results);
         for (const result of results){
-            res.locals.generalMetrics[result.metric.__name__] = result.value[1];
+            res.locals.clusterMetrics[result.metric.__name__] = result.value[1];
         }
-
-        console.log(res.locals.generalMetrics);
+        console.log('now printing cluster metrics')
+        console.log(res.locals.clusterMetrics);
         return next();
     }
     catch (err) {
         return next({
-            log: `Error in promController.getGeneralMetrics: ${err}`,
+            log: `Error in promController.getClusterMetrics: ${err}`,
             status: 400,
             message: { err: 'An error ocurred' }
         })      
@@ -139,29 +149,30 @@ promController.getGeneralMetrics = async (req, res, next) => {
 //         console.log(err);
 //         return next(err);
 //     }
-// }
+// } 
+// LOL Cahera ended the meeting >->
 
-// promController.getAllMetricNames = async (req, res, next) => {
-//     try {        
-//         console.log('about to make request');
-//         const response = await axios.get('http://localhost:9090/api/v1/label/__name__/values');
-//         console.log('these are the metric names: ', response.data.data);
-//         res.locals.metricNames = response.data.data;
-//         // await fs.writeFile('metricNames.txt', res.locals.metricNames.join('\n'), (err) => {
-//         //     if (err)
-//         //       console.log(err);
-//         //     else {
-//         //       console.log("File written successfully\n");
-//         //       console.log("The written has the following contents:");
-//         //       console.log(fs.readFileSync("metricNames.txt", "utf8"));
-//         //     }});
-//         return next();
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return next(err);
-//     }
-// }
+promController.getAllMetricNames = async (req, res, next) => {
+    try {        
+        console.log('about to make request');
+        const response = await axios.get('http://localhost:9090/api/v1/label/__name__/values');
+        console.log('these are the metric names: ', response.data.data);
+        res.locals.metricNames = response.data.data;
+        // await fs.writeFile('metricNames.txt', res.locals.metricNames.join('\n'), (err) => {
+        //     if (err)
+        //       console.log(err);
+        //     else {
+        //       console.log("File written successfully\n");
+        //       console.log("The written has the following contents:");
+        //       console.log(fs.readFileSync("metricNames.txt", "utf8"));
+        //     }});
+        return next();
+    }
+    catch (err) {
+        console.log(err);
+        return next(err);
+    }
+}
 
 // promController.getRandomMetric = async (req, res, next) => {
 //     const randomMetric = 'kafka_controller_kafkacontroller_globalpartitioncount'

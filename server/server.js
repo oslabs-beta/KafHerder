@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const promController = require('./controllers/promController.js');
 
@@ -6,21 +7,23 @@ const promController = require('./controllers/promController.js');
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
 
-app.get('/', promController.getGeneralMetrics, promController.getBrokerMetrics, (req, res) => {
-    return res.status(200).send(res.locals.generalMetrics);
+app.get('/', promController.getClusterMetrics, promController.getBrokerMetrics, (req, res) => {
+    console.log({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics })
+    return res.status(200).json({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics });
 });
 
-app.get('/:id', promController.getBrokerMetrics,(req, res) => {
-    return res.status(200).send(brokerMetrics);
+app.get('/broker', promController.getBrokerMetrics,(req, res) => {
+    return res.status(200).json(brokerMetrics);
 });
 
 app.post('/', promController.connectPort,(req, res) => {
     return res.status(200).send('Successfully connected to port');
 });
 
-// app.get('/names', promController.getAllMetricNames, promController.getRandomMetric, (req, res, next) => {
+// app.get('/', promController.getAllMetricNames, (req, res, next) => {
 //     return res.status(200).send(res.locals.metric);
 // })
 
