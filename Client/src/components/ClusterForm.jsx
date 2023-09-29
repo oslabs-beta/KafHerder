@@ -16,7 +16,7 @@ function ClusterForm() {
 
   const dispatch = useDispatch();
 
-  // event hanlder that updates the localForm based on what inputs are put in
+  // event handler that updates the localForm based on what inputs are put in
   // Example: This it the input from the form div vor the ClusterName input bar
   // name='ClusterName'
   // value={localForm.ClusterName}
@@ -86,4 +86,4 @@ function ClusterForm() {
   )
 }
 
-export default ClusterForm
+export default ClusterForm;

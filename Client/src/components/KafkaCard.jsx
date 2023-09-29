@@ -18,7 +18,9 @@ function KafkaCard() {
 
     const dispatch = useDispatch();
 
-
+    // useEffect hook fetches metrics from the Prometheus port
+    // The function fetchInitialData will be triggered if the value of global state for status is "on"
+    // status in global state is dependant on if the user successfully connects to port
     useEffect(() => {
         if (status === 'on') {
             const interval = setInterval(() => {
@@ -34,41 +36,41 @@ function KafkaCard() {
         <>
             <div className='KafkaCard'>
                 <div className='graphPlaceholder'>
-                    {/* <h1>kafka_controller_kafkacontroller_globalpartitioncount</h1> */}
+                    <h1 className='metricsHeader'>Global Partition Count</h1>
                     <ClusterGlobalPartitionCount />
                 </div>
                 {/* <div className='graphPlaceholder'>
                 <h1>Active Brokers</h1>
             </div> */}
                 <div className='graphPlaceholder'>
-                    {/* <h1># Under Replicated Partitions - kafka_cluster_partition_underreplicated</h1> */}
+                    <h1 className='metricsHeader'>Under Replicated Partitions</h1>
                     <ClusterUnderReplicatedPartitions />
                 </div>
                 <div className='graphPlaceholder'>
-                    {/* <h1># Offline Partitions - kafka_controller_kafkacontroller_offlinepartitionscount</h1> */}
+                    <h1 className='metricsHeader'>Offline Partitions</h1>
                     <ClusterOfflinePartitions />
                 </div>
                 <div className='graphPlaceholder'>
-                    {/* <h1># Controller - kafka_controller_kafkacontroller_activecontrollercount</h1> */}
+                    <h1 className='metricsHeader'>Active Controller Count</h1>
                     <ClusterActiveControllerCount />
                 </div>
                 <div className='graphPlaceholder'>
-                    {/* <p>This is </p> */}
+                    <h1 className='metricsHeader'>Total Bytes In</h1>
                     <ClusterTotalBytesIn />
                 </div>
                 <div className='graphPlaceholder'>
-                    {/* <h1>Total Bytes out - Brokers * kafka_server_brokertopicmetrics_bytesout_total</h1> */}
+                    <h1 className='metricsHeader'>Total Bytes Out</h1>
                     <ClusterTotalBytesOut />
                 </div>
                 <div className='graphPlaceholder'>
-                    {/* <h1>Total Messages In - Brokers * kafka_server_brokertopicmetrics_messagesin_total</h1> */}
+                    <h1 className='metricsHeader'>Total Messages In</h1>
                     <ClusterTotalMessagesIn />
                 </div>
                 {/* <div className='graphPlaceholder'>
                 <h1>Error Rate (failed produce or consume requests)</h1>
             </div> */}
                 <div className='graphPlaceholder'>
-                    {/* <h1>Percent of non synced partition - (kafka_cluster_partition_replicascount - kafka_cluster_partition_insyncreplicascount) / kafka_cluster_partition_replicascount </h1> */}
+                    <h1 className='metricsHeader'>Percentage of Unsynced Partitions</h1>
                     <ClusterPercentUnsyncedPartition />
                 </div>
             </div>

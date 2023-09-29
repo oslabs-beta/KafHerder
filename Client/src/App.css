@@ -5,6 +5,13 @@ html {
   color:#101010 ;
 }
 
+#KafkaClusterDataTitle {
+  margin: 0px;
+}
+/* h1 {
+  margin: 5px;
+} */
+
 #root {
   color: 101010;
   display: grid;
@@ -57,7 +64,7 @@ html {
 
 .btn {
   padding: 10px;
-  border: 1px solid #000;
+  border: 1px solid white;
   border-radius: 5px;
   background: #72D1C8;
   color: #fff;
@@ -113,13 +120,61 @@ html {
   flex-direction: column;
   padding: 0 30px 0 30px;
   margin: 20px;
+  margin-bottom: 0px;
   /* box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px; */
 }
 
 .graphPlaceholder {
-  border: grey solid 1px;
-  width: 100px;
-  height: 150px;
+  border: none;
+  width: auto;
+  width: 20%;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f69708;
+  border-radius: 10px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  margin: 10px;
+  color: rgb(59, 56, 56);
+  font-size: 1.5em;
+}
+
+#selectInterval {
+  /* margin-left: 10px;
+  margin-right: 10p; */
+  width: 254px;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.20);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulseEffect {
+  animation: pulse 0.5s ease-in-out;
+}
+
+
+.metricsHeader {
+  font-size: 20px;
+  margin: 10px;
+  color: white;
+  min-height: 72px; /* aligns metrics at the bottom of the div */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  
 }
 
 .BrokerContainer {
@@ -450,13 +505,16 @@ a {
 
 .hamburgerAndImageContainer {
   display: flex;        /* Use flexbox layout for horizontal arrangement */
-  align-items: center;  /* Center items vertically */
+  align-items: start;  /* Center items vertically */
+  height: 100px;
+  margin: 10px;
 }
 
 .menuImage {
-  height: 45px;  /* or whatever height you want for your image */
+  mix-blend-mode: multiply;
+  height: 90px;  /* or whatever height you want for your image */
   width: auto;   /* maintains aspect ratio */
-  margin-left: 10px; /* space between hamburger and the image */
+  margin-left: 20px; /* space between hamburger and the image */
   align-self: center; /* aligns vertically to the center, assuming parent has display: grid or flex */
 }
 

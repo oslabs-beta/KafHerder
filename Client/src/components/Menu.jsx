@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../assets/logoOnly.png'
+import logo from '../assets/kafHerder9-1.png'
 
 
 // creating dropdown functionalitity.
@@ -43,7 +43,6 @@ function Menu() {
               <div className="bottom"></div>
             </label>
             <img className="menuImage" src={logo} alt="Kafherder Logo" />
-            <h1>kafHerder</h1>
           </div>
 
           <nav className="menu1">
