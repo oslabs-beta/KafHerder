@@ -1,9 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchInitialData } from '../../features/kafkaCluster/kafkaClusterSlice'
 
-function clusterActiveBrokers() {
+
+
+function ClusterActiveBrokers() {
+
+  const activeBrokers = useSelector(state => state.kafkaCluster.TotalBytesIn);
+
   return (
     <div>clusterActiveBrokers</div>
   )
 }
 
-export default clusterActiveBrokers
+export default ClusterActiveBrokers
+

@@ -1,9 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-function clusterActiveControllerCount() {
+
+/**
+ * TODO anything other than 1 should turn red
+ */
+
+function ClusterActiveControllerCount() {
+
+  const activeControllers = useSelector(state => state.kafkaCluster.ActiveControllerCount);
+
   return (
-    <div>clusterActiveControllerCount</div>
+    <div>{activeControllers}</div>
   )
 }
 
-export default clusterActiveControllerCount
+export default ClusterActiveControllerCount
+
+
+
+
+
+
+
+
+
+

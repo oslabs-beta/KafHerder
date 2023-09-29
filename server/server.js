@@ -15,11 +15,11 @@ app.get('/', promController.getClusterMetrics, promController.getBrokerMetrics, 
     return res.status(200).json({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics });
 });
 
-app.get('/broker', promController.getBrokerMetrics,(req, res) => {
+app.get('/broker', promController.getBrokerMetrics, (req, res) => {
     return res.status(200).json(brokerMetrics);
 });
 
-app.post('/', promController.connectPort,(req, res) => {
+app.post('/', promController.verifyPort, (req, res) => {
     return res.status(200).send('Successfully connected to port');
 });
 
@@ -34,7 +34,7 @@ app.use((err, req, res, next) => {
     const defaultError = {
         log: 'Express error handler caught unknown middleware error',
         status: 400,
-        message: { err: 'An error occurred' }, 
+        message: { err: 'An error occurred' },
     };
     const errorObj = Object.assign({}, defaultError, err);
     res.status(errorObj.status).send(errorObj.message);
