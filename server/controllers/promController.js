@@ -22,6 +22,7 @@ promController.verifyPort = async (req, res, next) => {
         console.log(`Successfully connected to http://localhost:${Port}`);
         return next();
     }
+    // TODO: if does not find port, should send back 404
     catch (err) {
         return next({
             log: `Error in promController.verifyPort: ${err}`,

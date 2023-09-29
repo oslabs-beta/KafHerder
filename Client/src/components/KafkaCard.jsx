@@ -21,6 +21,9 @@ function KafkaCard() {
     // useEffect hook fetches metrics from the Prometheus port
     // The function fetchInitialData will be triggered if the value of global state for status is "on"
     // status in global state is dependant on if the user successfully connects to port
+    // TODO => Test the useEffect to see if it keeps going
+    // the {return () => clearInterval(interval)} is a cleanup function that cleans up the previous effect before running effect again. 
+    // setTimeout would still need a clearTimeout 
     useEffect(() => {
         if (status === 'on') {
             const interval = setInterval(() => {
