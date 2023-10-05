@@ -2,7 +2,7 @@ const { Kafka } = require('kafkajs');
 
 const kafka = new Kafka({
     clientId: 'my-admin',
-    brokers: ['localhost:9096']
+    brokers: ['localhost:9092', 'localhost:9094', 'localhost:9096']
     // apparently you only need to give one broker and kafkajs will find the rest
 })
 
