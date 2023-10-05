@@ -1,9 +1,13 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
-function clusterUnderReplicatedPartitions() {
+function ClusterUnderReplicatedPartitions() {
+
+  const underReplicatedPartitions = useSelector(state => state.kafkaCluster.UnderReplicatedPartitions);
+
   return (
-    <div>clusterUnderReplicatedPartitions</div>
+    <div>{underReplicatedPartitions}</div>
   )
 }
 
-export default clusterUnderReplicatedPartitions
+export default ClusterUnderReplicatedPartitions
