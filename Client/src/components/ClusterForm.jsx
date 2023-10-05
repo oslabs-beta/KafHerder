@@ -9,9 +9,9 @@ function ClusterForm() {
 
   // Creatinng local state for input data
   const [localForm, setLocalForm] = useState({
-    ClusterName: '',
-    Port: '',
-    Interval: ''
+    clusterName: '',
+    port: '',
+    interval: ''
   });
 
   const dispatch = useDispatch();
@@ -36,7 +36,7 @@ function ClusterForm() {
     e.preventDefault();
     dispatch(setClusterForm(localForm));
     dispatch(checkPort(localForm));
-    console.log(localForm.ClusterName, localForm.Port, localForm.Interval)
+    console.log(localForm.clusterName, localForm.port, localForm.interval)
   }
 
   return (
@@ -50,7 +50,7 @@ function ClusterForm() {
                 className='form-control'
                 id='ClusterName'
                 name='ClusterName'
-                value={localForm.ClusterName}
+                value={localForm.clusterName}
                 onChange={handleInputChange}
                 placeholder='Enter your ClusterName'
               />
@@ -61,7 +61,7 @@ function ClusterForm() {
                 className='form-control'
                 id='Port'
                 name='Port'
-                value={localForm.Port}
+                value={localForm.port}
                 onChange={handleInputChange}
                 placeholder='Port'
               />

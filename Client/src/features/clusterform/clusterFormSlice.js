@@ -5,11 +5,11 @@ import { useDispatch } from 'react-redux';
 // set initial state for ClusterName
 // will be fetching data from server with ClusterName and Port
 const initialState = {
-    ClusterName: '',
-    Port: '',
-    Interval: 5,
-    Status: 'off',
-    Error: null
+    clusterName: '',
+    port: '',
+    interval: 5,
+    status: 'off',
+    error: null
 }
 
 // probably want to create a createAsyncThunk that checks to see if the port connection went through
@@ -28,23 +28,23 @@ const clusterFormSlice = createSlice({
     initialState,
     reducers: {
         setClusterForm: (state, action) => {
-            state.ClusterName = action.payload.ClusterName;
-            state.Port = action.payload.Port;
-            state.Interval = action.payload.Interval;
+            state.clusterName = action.payload.clusterName;
+            state.port = action.payload.port;
+            state.interval = action.payload.interval;
         }
     },
     extraReducers: (builder) => {
         builder
         .addCase(checkPort.pending, (state) => {
-            state.Status = 'pending';
+            state.status = 'pending';
         })
         .addCase(checkPort.fulfilled, (state, action) => { // thunkAPI
-            state.Status = 'on';
+            state.status = 'on';
             // thunkAPI.dispatch(fetchInitialData());
         })
         .addCase(checkPort.rejected, (state, action) => {
-            state.Status = 'off';
-            state.Error = action.error.message
+            state.status = 'off';
+            state.error = action.error.message
         })
     }
     

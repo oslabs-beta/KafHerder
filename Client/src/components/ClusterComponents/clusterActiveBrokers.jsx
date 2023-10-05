@@ -6,7 +6,7 @@ import { fetchInitialData } from '../../features/kafkaCluster/kafkaClusterSlice'
 
 function ClusterActiveBrokers() {
 
-  const activeBrokers = useSelector(state => state.kafkaCluster.TotalBytesIn);
+  const activeBrokers = useSelector(state => state.kafkaCluster.totalBytesIn);
 
   return (
     <div>clusterActiveBrokers</div>

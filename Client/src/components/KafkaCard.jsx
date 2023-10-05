@@ -13,8 +13,8 @@ import ClusterUnderReplicatedPartitions from './ClusterComponents/clusterUnderRe
 
 function KafkaCard() {
 
-    const stateInterval = useSelector(state => state.clusterForm.Interval) * 1000
-    const status = useSelector(state => state.clusterForm.Status);
+    const stateInterval = useSelector(state => state.clusterForm.interval) * 1000
+    const status = useSelector(state => state.clusterForm.status);
 
     const dispatch = useDispatch();
 

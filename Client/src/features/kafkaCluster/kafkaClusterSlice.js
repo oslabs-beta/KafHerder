@@ -5,17 +5,17 @@ import { initialFetch } from './kafkaClusterService';
 // will have all the states here and have it refresh here so the ClusterComponents can pull that data
 
 const initialState = {
-    GlobalPartitionCount: '',
+    globalPartitionCount: '',
     // ActiveBrokers: '',
-    UnderReplicatedPartitions: '',
-    OfflinePartitions: '',
-    ActiveControllerCount: '',
-    TotalBytesIn: '',
-    TotalBytesOut: '',
-    TotalMessagesIn: '',
+    underReplicatedPartitions: '',
+    offlinePartitions: '',
+    activeControllerCount: '',
+    totalBytesIn: '',
+    totalBytesOut: '',
+    totalMessagesIn: '',
     // ErrorRate: '',
-    PartitionReplicaCount: '',
-    PartitionInSyncReplicaCount: '',
+    partitionReplicaCount: '',
+    partitionInSyncReplicaCount: '',
 };
 
 export const fetchInitialData = createAsyncThunk(
@@ -33,17 +33,17 @@ const kafkaClusterSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchInitialData.fulfilled, (state, action) => {
-                state.GlobalPartitionCount = action.payload.kafka_controller_kafkacontroller_globalpartitioncount;
+                state.globalPartitionCount = action.payload.kafka_controller_kafkacontroller_globalpartitioncount;
                 // state.ActiveBrokers = action.payload.
-                state.UnderReplicatedPartitions = action.payload.kafka_cluster_partition_underreplicated;
-                state.OfflinePartitions = action.payload.kafka_controller_kafkacontroller_offlinepartitionscount;
-                state.ActiveControllerCount = action.payload.kafka_controller_kafkacontroller_activecontrollercount;
-                state.TotalBytesIn = action.payload.kafka_server_brokertopicmetrics_bytesin_total;
-                state.TotalBytesOut = action.payload.kafka_server_brokertopicmetrics_bytesout_total;
-                state.TotalMessagesIn = action.payload.kafka_server_brokertopicmetrics_messagesin_total;
+                state.underReplicatedPartitions = action.payload.kafka_cluster_partition_underreplicated;
+                state.offlinePartitions = action.payload.kafka_controller_kafkacontroller_offlinepartitionscount;
+                state.activeControllerCount = action.payload.kafka_controller_kafkacontroller_activecontrollercount;
+                state.totalBytesIn = action.payload.kafka_server_brokertopicmetrics_bytesin_total;
+                state.totalBytesOut = action.payload.kafka_server_brokertopicmetrics_bytesout_total;
+                state.totalMessagesIn = action.payload.kafka_server_brokertopicmetrics_messagesin_total;
                 // state.ErrorRate = action.payload.
-                state.PartitionReplicaCount = action.payload.kafka_cluster_partition_replicascount;
-                state.PartitionInSyncReplicaCount = action.payload.kafka_cluster_partition_insyncreplicascount;
+                state.partitionReplicaCount = action.payload.kafka_cluster_partition_replicascount;
+                state.partitionInSyncReplicaCount = action.payload.kafka_cluster_partition_insyncreplicascount;
 
             })
     }
