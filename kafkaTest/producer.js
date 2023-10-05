@@ -1,7 +1,7 @@
 const { Kafka } = require('kafkajs');
 const Chance = require('chance');
 
-const topic = 'animals3';
+const topic = 'animals';
 
 const chance = new Chance();
 
@@ -11,13 +11,12 @@ const kafka = new Kafka({
 })
 
 const producer = kafka.producer();
-// const consumer = kafka.consumer({ groupId: 'my-producer'});
 
 const produceMessage = async () => {
     console.log('animal sent');
     try {
         await producer.send({
-            topic: topic,
+            topic,
             messages: [
                 { value: chance.animal() },
             ],
@@ -34,7 +33,7 @@ const run = async () => {
     setInterval(produceMessage, 1000)
 }
 
-run();
+run('animals');
 
 // const run = async () => {
 //     console.log('Entering producer');

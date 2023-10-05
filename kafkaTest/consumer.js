@@ -1,5 +1,4 @@
 const { Kafka } = require('kafkajs');
-const topic = 'animals3';
 
 const kafka = new Kafka({
     clientId: 'my-consumer',
@@ -8,9 +7,9 @@ const kafka = new Kafka({
 
 const consumer = kafka.consumer({ groupId: 'consumer-group' });
 
-const run = async () => {
+const run = async (topic) => {
     await consumer.connect();
-    await consumer.subscribe({ topic: topic, fromBeginning: true });
+    await consumer.subscribe({ topic, fromBeginning: true });
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             console.log({
@@ -22,4 +21,4 @@ const run = async () => {
     })
 }
 
-run();
+run('animals');
