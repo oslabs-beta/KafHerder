@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchInitialData } from '../../features/kafkaCluster/kafkaClusterSlice'
+import { fetchedClusterData } from '../../features/kafkaCluster/kafkaClusterSlice'
 
 
 

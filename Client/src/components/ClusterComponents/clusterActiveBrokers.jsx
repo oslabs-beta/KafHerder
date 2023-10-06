@@ -9,7 +9,7 @@ function ClusterActiveBrokers() {
   const activeBrokers = useSelector(state => state.kafkaCluster.totalBytesIn);
 
   return (
-    <div>clusterActiveBrokers</div>
+    <div>{activeBrokers}</div>
   )
 }
 

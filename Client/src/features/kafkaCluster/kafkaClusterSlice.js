@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { initialFetch } from './kafkaClusterService';
+import { fetchClusterDataFromAPI } from './kafkaClusterService';
 
 // creating initial state for all of kafkaCard's datapoints
 // will have all the states here and have it refresh here so the ClusterComponents can pull that data
@@ -18,23 +18,16 @@ const initialState = {
     partitionInSyncReplicaCount: '',
 };
 
-// let port;
-// const portData = () => (dispatch, getState) => {
-//     let port = store.getState().port;
-//     console.log(port)
-//     return port;
-// }
-
-// TODO : set the initialFetch 
-export const fetchInitialData = createAsyncThunk(
-    'kafkaCluster/fetchInitialData', 
+/**
+ * accessing state to grab port information to use in param in initialFetch
+ */
+export const fetchedClusterData = createAsyncThunk(
+    'kafkaCluster/fetchedClusterData', 
     async(_, thunkAPI) => {
         const state = thunkAPI.getState();
-        return await initialFetch(state);
+        return await fetchClusterDataFromAPI(state);
     }
 );
-
-// we want to check to see if the 
 
 
 const kafkaClusterSlice = createSlice({
@@ -45,7 +38,7 @@ const kafkaClusterSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchInitialData.fulfilled, (state, action) => {
+            .addCase(fetchedClusterData.fulfilled, (state, action) => {
                 state.globalPartitionCount = action.payload.kafka_controller_kafkacontroller_globalpartitioncount;
                 // state.ActiveBrokers = action.payload.
                 state.underReplicatedPartitions = action.payload.kafka_cluster_partition_underreplicated;

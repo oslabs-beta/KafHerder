@@ -3,10 +3,6 @@ const fs = require('fs');
 
 const promController = {}
 
-let PROMPORT 
-// = 9090; // TODO: this doesn't work and save globally... it isn't state. next time the promcontroller is entered it isn't saved
-// // use extension like todo highlight todo tree better comments
-// // TODO: how to use state in express?
 
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
 
@@ -19,7 +15,6 @@ promController.verifyPort = async (req, res, next) => {
     try {
         const { port } = req.body;
         const connection = await axios.get(`http://localhost:${port}`);
-        PROMPORT = port;
         console.log(`Successfully connected to http://localhost:${port}`);
         return next();
     }
@@ -64,11 +59,10 @@ promController.verifyPort = async (req, res, next) => {
 
 promController.getBrokerMetrics = async (req, res, next) => {
     try {
-        const port = req.query.port; // added by Caheri
+        const {port} = req.query; 
         console.log('getBrokerMetrics port is', port);
-        PROMPORT = port; // added by Caheri
-        if (!PROMPORT) return next({ err: `Port doesn't exist` });
-        const response = await axios.get(`http://localhost:${PROMPORT}/api/v1/query`, {
+        if (!port) return next({ err: `Port doesn't exist` });
+        const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
             params: {
                 query: buildQuery(brokerMetricNames)
             }
@@ -122,8 +116,9 @@ promController.getBrokerMetrics = async (req, res, next) => {
 
 promController.getClusterMetrics = async (req, res, next) => {
     try {
-        if (!PROMPORT) return next({ err: `Port doesn't exist` });
-        const response = await axios.get(`http://localhost:${PROMPORT}/api/v1/query`, {
+        const {port} = req.query; 
+        if (!port) return next({ err: `Port doesn't exist` });
+        const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
             params: {
                 query: buildQuery(clusterMetricNames)
             }
@@ -169,7 +164,6 @@ promController.getClusterMetrics = async (req, res, next) => {
 //         return next(err);
 //     }
 // } 
-// LOL Cahera ended the meeting >->
 
 promController.getAllMetricNames = async (req, res, next) => {
     try {        
