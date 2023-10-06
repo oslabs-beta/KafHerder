@@ -18,11 +18,24 @@ const initialState = {
     partitionInSyncReplicaCount: '',
 };
 
+// let port;
+// const portData = () => (dispatch, getState) => {
+//     let port = store.getState().port;
+//     console.log(port)
+//     return port;
+// }
+
+// TODO : set the initialFetch 
 export const fetchInitialData = createAsyncThunk(
-    'kafkaCluster/fetchInitialData', initialFetch
+    'kafkaCluster/fetchInitialData', 
+    async(_, thunkAPI) => {
+        const state = thunkAPI.getState();
+        return await initialFetch(state);
+    }
 );
 
 // we want to check to see if the 
+
 
 const kafkaClusterSlice = createSlice({
     name: 'kafkaCluster',

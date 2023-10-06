@@ -15,6 +15,7 @@ function KafkaCard() {
 
     const stateInterval = useSelector(state => state.clusterForm.interval) * 1000
     const status = useSelector(state => state.clusterForm.status);
+    const port = useSelector(state => state.clusterForm.port)
 
     const dispatch = useDispatch();
 
@@ -28,7 +29,8 @@ function KafkaCard() {
         if (status === 'on') {
             const interval = setInterval(() => {
                 console.log(`This will run every ${stateInterval} second!`);
-                dispatch(fetchInitialData())
+                dispatch(fetchInitialData(port))
+                console.log('inside useEffect')
             }, stateInterval);
             return () => clearInterval(interval);
         }

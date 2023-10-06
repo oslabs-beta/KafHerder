@@ -6,8 +6,10 @@ import { setClusterForm, checkPort } from '../features/clusterform/clusterFormSl
 
 function ClusterForm() {
 
+  const status = useSelector(state => state.clusterForm.status)
 
-  // Creatinng local state for input data
+
+  // Creating local state for input data
   const [localForm, setLocalForm] = useState({
     clusterName: '',
     port: '',
@@ -39,45 +41,65 @@ function ClusterForm() {
     console.log(localForm.clusterName, localForm.port, localForm.interval)
   }
 
+
+
+
   return (
     <>
       <div className='FormContainer'>
         <section className="form">
           <form onSubmit={handleSubmit}>
-            <div className='form-group'>
+          <div className='form-group'>
+              {status === 'off' ? (
               <input
                 type='text'
                 className='form-control'
-                id='ClusterName'
-                name='ClusterName'
+                id='clusterName'
+                name='clusterName'
                 value={localForm.clusterName}
                 onChange={handleInputChange}
                 placeholder='Enter your ClusterName'
-              />
-            </div>
-            <div className='form-group'>
+              />) : (
+                // <div> {localForm.clusterName} </div>
+                // just a place holder right now. need to style as well
+                <p>Cluster Name</p>
+              )}
+          </div>
+          <div className='form-group'>
+            {status === 'off' ? (
               <input
-                type='text'
-                className='form-control'
-                id='Port'
-                name='Port'
-                value={localForm.port}
-                onChange={handleInputChange}
-                placeholder='Port'
-              />
-            </div>
-            <div className='form-group'>
-              <select name='Interval' id='selectInterval' onChange={handleInputChange}>
-                <option value='null'>Select Your Interval</option>
-                <option value='1'>1</option>
-                <option value='3'>3</option>
-                <option value='5'>5</option>
-                <option value='10'>10</option>
-              </select>
-            </div>
+              type='text'
+              className='form-control'
+              id='port'
+              name='port'
+              value={localForm.port}
+              onChange={handleInputChange}
+              placeholder='Port'
+              /> ) : (
+          // <div> {localForm.clusterName} </div>
+          // just a place holder right now. need to style as well
+            <p>Port Number</p>
+              )}
+          </div>
+          <div className='form-group'>
+            <select name='interval' id='selectInterval' onChange={handleInputChange}>
+              <option value='null'>Select Your Interval</option>
+              <option value='1'>1</option>
+              <option value='3'>3</option>
+              <option value='5'>5</option>
+              <option value='10'>10</option>
+            </select>
+          </div>
 
-            <div className="form-group">
-              <button type='submit' className='btn btn-block'>Submit</button>
+            <div className="form-group" id="buttons">
+              {status === 'off' ? (
+                <button type='submit' className='btn btn-block'>Submit</button>
+               ) : (
+                <>
+                <button type='submit' className='btn btn-block'>Submit</button>
+                <button type='stop' className='btn-stop'>Stop</button>
+                </>
+              )}
             </div>
           </form>
         </section>

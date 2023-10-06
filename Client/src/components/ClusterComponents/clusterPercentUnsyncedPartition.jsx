@@ -9,7 +9,7 @@ function ClusterPercentUnsyncedPartition() {
   const percentUnsyncedPartition = ((parseInt(partitionReplicaCount) - parseInt(partitionInSyncReplicaCount)) / parseInt(partitionReplicaCount) * 100).toFixed(2);
 
   return (
-    <div>{percentUnsyncedPartition}%</div>
+    <div>{percentUnsyncedPartition === 'NaN' ? '' : `${percentUnsyncedPartition}%`}</div>
   )
 }
 

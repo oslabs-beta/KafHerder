@@ -62,7 +62,8 @@ html {
   text-align: center;
 }
 
-.btn {
+.btn, .btn-stop
+ {
   padding: 10px;
   border: 1px solid white;
   border-radius: 5px;
@@ -77,6 +78,16 @@ html {
   align-items: center;
   justify-content: center;
   width: 86%;
+}
+
+.btn-stop {
+  background: #fc6907;
+  margin-top: 7px;
+}
+
+#buttons {
+  display: flex;
+  flex-direction: column;
 }
 
 .rightContainer {
