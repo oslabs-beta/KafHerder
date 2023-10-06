@@ -23,9 +23,13 @@ app.post('/', promController.verifyPort, (req, res) => {
     return res.status(200).send('Successfully connected to port');
 });
 
-// app.get('/', promController.getAllMetricNames, (req, res, next) => {
-//     return res.status(200).send(res.locals.metric);
-// })
+app.get('/names', promController.getAllMetricNames, (req, res) => {
+    return res.status(200).send(res.locals.metric);
+});
+
+app.get('/random', promController.getRandomMetric, (req, res) => {
+    return res.status(200).send(res.locals.metric);
+})
 
 
 app.use((req, res) => res.status(404).send(`Oops! This isn't the right page.`))
