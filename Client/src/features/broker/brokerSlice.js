@@ -5,16 +5,16 @@ import { fetchBrokerDataFromAPI } from './brokerService';
 // will be fetching data from server with ClusterName and Port
 // Initial State data points are TBD
 const initialState = {
-    BrokerId: null,
-    ActiveControllerCount: 0,
-    PartitionCount: 0,
+    brokerId: null,
+    activeControllerCount: 0,
+    partitionCount: 0,
     // OfflinePartitionsCount: '',
     // UncleanLeaderElectionsPerSec: '',
     // BytesInPerSec: '',
     // BytesOutPerSec: '',
     // RequestsPerSec: '',
-    Status: 'idle',
-    Error: null
+    status: 'idle',
+    error: null
 };
 
 /** 
@@ -48,12 +48,12 @@ const brokerSlice = createSlice({
     extraReducers: (builder) => {
         builder
         .addCase(fetchBrokerData.pending, (state) => {
-            state.Status = 'loading';
+            state.status = 'loading';
         })
         .addCase(fetchBrokerData.fulfilled, (state, action) => {
-            const { BrokerId,
-                 ActiveControllerCount, 
-                 PartitionCount, 
+            const { brokerId,
+                 activeControllerCount, 
+                 partitionCount, 
                 //  OfflinePartitionsCount, 
                 //  UncleanLeaderElectionsPerSec, 
                 //  BytesInPerSec, 
@@ -61,19 +61,19 @@ const brokerSlice = createSlice({
                 //  RequestsPerSec 
                 } = action.payload;
 
-            state.BrokerId = BrokerId;
-            state.ActiveControllerCount = ActiveControllerCount;
-            state.PartitionCount = PartitionCount;
+            state.brokerId = brokerId;
+            state.activeControllerCount = activeControllerCount;
+            state.partitionCount = partitionCount;
             // state.OfflinePartitionsCount = OfflinePartitionsCount;
             // state.UncleanLeaderElectionsPerSec = UncleanLeaderElectionsPerSec;
             // state.BytesInPerSec = BytesInPerSec;
             // state.BytesOutPerSec = BytesOutPerSec;
             // state.RequestsPerSec = RequestsPerSec;
-            state.Status = 'success';
+            state.status = 'success';
         })
         .addCase(fetchBrokerData.rejected, (state, action) => {
-            state.Status = 'failed';
-            state.Error = action.error.message;
+            state.status = 'failed';
+            state.error = action.error.message;
         })
     }
     

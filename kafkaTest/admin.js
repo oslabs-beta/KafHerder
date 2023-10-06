@@ -67,12 +67,13 @@ const getTopicInfo = async() => {
 }
 
 const run = async () => {
-    await createTopic('animals', 3, 3);
+    await createTopic('animals2', 3, 3);
     await getTopicInfo();
 }
 
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
+// createTopic('animals2', 3, 3)
 getTopicInfo(); // THIS JUST CREATES A TOPIC
 
 

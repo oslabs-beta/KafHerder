@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 function ClusterActiveControllerCount() {
 
-  const activeControllers = useSelector(state => state.kafkaCluster.ActiveControllerCount);
+  const activeControllers = useSelector(state => state.kafkaCluster.activeControllerCount);
 
   return (
     <div>{activeControllers}</div>

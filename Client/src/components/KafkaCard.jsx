@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchInitialData } from '../features/kafkaCluster/kafkaClusterSlice';
+import { fetchedClusterData } from '../features/kafkaCluster/kafkaClusterSlice';
 import ClusterTotalBytesIn from './ClusterComponents/clusterTotalBytesIn'
 import ClusterActiveControllerCount from './ClusterComponents/clusterActiveControllerCount'
 import ClusterGlobalPartitionCount from './ClusterComponents/clusterGlobalPartitionCount'
@@ -13,8 +13,8 @@ import ClusterUnderReplicatedPartitions from './ClusterComponents/clusterUnderRe
 
 function KafkaCard() {
 
-    const stateInterval = useSelector(state => state.clusterForm.Interval) * 1000
-    const status = useSelector(state => state.clusterForm.Status);
+    const stateInterval = useSelector(state => state.clusterForm.interval) * 1000
+    const status = useSelector(state => state.clusterForm.status);
 
     const dispatch = useDispatch();
 
@@ -27,8 +27,7 @@ function KafkaCard() {
     useEffect(() => {
         if (status === 'on') {
             const interval = setInterval(() => {
-                console.log(`This will run every ${stateInterval} second!`);
-                dispatch(fetchInitialData())
+                dispatch(fetchedClusterData())
             }, stateInterval);
             return () => clearInterval(interval);
         }
