@@ -21,4 +21,4 @@ const run = async (topic) => {
     })
 }
 
-run('animals');
+run('animals2');

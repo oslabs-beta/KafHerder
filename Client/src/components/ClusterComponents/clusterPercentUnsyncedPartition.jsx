@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux'
 
 function ClusterPercentUnsyncedPartition() {
 
-  const partitionReplicaCount = useSelector(state => state.kafkaCluster.PartitionReplicaCount);
-  const partitionInSyncReplicaCount = useSelector(state => state.kafkaCluster.PartitionInSyncReplicaCount);
+  const partitionReplicaCount = useSelector(state => state.kafkaCluster.partitionReplicaCount);
+  const partitionInSyncReplicaCount = useSelector(state => state.kafkaCluster.partitionInSyncReplicaCount);
 
   const percentUnsyncedPartition = ((parseInt(partitionReplicaCount) - parseInt(partitionInSyncReplicaCount)) / parseInt(partitionReplicaCount) * 100).toFixed(2);
 
   return (
-    <div>{percentUnsyncedPartition}%</div>
+    <div>{percentUnsyncedPartition === 'NaN' ? '' : `${percentUnsyncedPartition}%`}</div>
   )
 }
 

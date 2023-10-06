@@ -3,9 +3,6 @@ const fs = require('fs');
 
 const promController = {}
 
-let PROMPORT = 9090; // TODO: this doesn't work and save globally... it isn't state. next time the promcontroller is entered it isn't saved
-// use extension like todo highlight todo tree better comments
-// TODO: how to use state in express?
 
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
 
@@ -16,10 +13,9 @@ const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 
 promController.verifyPort = async (req, res, next) => {
     try {
-        const { Port } = req.body;
-        const connection = await axios.get(`http://localhost:${Port}`);
-        PROMPORT = Port;
-        console.log(`Successfully connected to http://localhost:${Port}`);
+        const { port } = req.body;
+        const connection = await axios.get(`http://localhost:${port}`);
+        console.log(`Successfully connected to http://localhost:${port}`);
         return next();
     }
     // TODO: if does not find port, should send back 404
@@ -32,10 +28,41 @@ promController.verifyPort = async (req, res, next) => {
     }
 };
 
+// promController.getBrokerMetrics = (param) => {
+//     return async (req, res, next) => {
+//         try {
+//             if (!param) return next({ err: `Port doesn't exist` });
+//             const response = await axios.get(`http://localhost:${param}/api/v1/query`, {
+//                 params: {
+//                     query: buildQuery(brokerMetricNames)
+//                 }
+//             });
+//             res.locals.brokerMetrics = {};
+//             const results = response.data.data.result;
+//             for (const result of results) {
+//                 res.locals.brokerMetrics[result.metric.__name__] = result.value[1];
+//             }
+//             console.log('now printing broker metrics');
+
+//             console.log(res.locals.brokerMetrics);
+//             return next();
+//         }
+//         catch (err) {
+//             return next({
+//                 log: `Error in promController.getBrokerMetrics: ${err}`,
+//                 status: 400,
+//                 message: { err: 'An error ocurred' }
+//             })
+//         }
+//     }
+// };
+
 promController.getBrokerMetrics = async (req, res, next) => {
     try {
-        if (!PROMPORT) return next({ err: `Port doesn't exist` });
-        const response = await axios.get(`http://localhost:${PROMPORT}/api/v1/query`, {
+        const {port} = req.query; 
+        console.log('getBrokerMetrics port is', port);
+        if (!port) return next({ err: `Port doesn't exist` });
+        const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
             params: {
                 query: buildQuery(brokerMetricNames)
             }
@@ -59,10 +86,39 @@ promController.getBrokerMetrics = async (req, res, next) => {
     }
 };
 
+// promController.getClusterMetrics = (param) => {
+//     return async (req, res, next) => {
+//         try {
+//             if (!param) return next({ err: `Port doesn't exist` });
+//             const response = await axios.get(`http://localhost:${param}/api/v1/query`, {
+//                 params: {
+//                     query: buildQuery(clusterMetricNames)
+//                 }
+//             });
+//             res.locals.clusterMetrics = {};
+//             const results = response.data.data.result;
+//             for (const result of results) {
+//                 res.locals.clusterMetrics[result.metric.__name__] = result.value[1];
+//             }
+//             console.log('now printing cluster metrics')
+//             console.log(res.locals.clusterMetrics);
+//             return next();
+//         }
+//         catch (err) {
+//             return next({
+//                 log: `Error in promController.getClusterMetrics: ${err}`,
+//                 status: 400,
+//                 message: { err: 'An error ocurred' }
+//             })
+//         }
+//     }
+// };
+
 promController.getClusterMetrics = async (req, res, next) => {
     try {
-        if (!PROMPORT) return next({ err: `Port doesn't exist` });
-        const response = await axios.get(`http://localhost:${PROMPORT}/api/v1/query`, {
+        const {port} = req.query; 
+        if (!port) return next({ err: `Port doesn't exist` });
+        const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
             params: {
                 query: buildQuery(clusterMetricNames)
             }
@@ -108,7 +164,6 @@ promController.getClusterMetrics = async (req, res, next) => {
 //         return next(err);
 //     }
 // } 
-// LOL Cahera ended the meeting >->
 
 promController.getAllMetricNames = async (req, res, next) => {
     try {        

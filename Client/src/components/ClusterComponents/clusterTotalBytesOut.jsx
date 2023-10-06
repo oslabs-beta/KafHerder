@@ -5,7 +5,7 @@ function ClusterTotalBytesOut() {
 
   const [pulse, setPulse] = useState(false);
 
-  const totalBytesOut = useSelector(state => state.kafkaCluster.TotalBytesOut);
+  const totalBytesOut = useSelector(state => state.kafkaCluster.totalBytesOut);
 
   useEffect(() => {
     setPulse(true);

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 function ClusterOfflinePartitions() {
 
-  const offlinePartitions = useSelector(state => state.kafkaCluster.OfflinePartitions);
+  const offlinePartitions = useSelector(state => state.kafkaCluster.offlinePartitions);
 
   return (
     <div>{offlinePartitions}</div>

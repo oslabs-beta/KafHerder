@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 
 function ClusterTotalMessagesIn() {
 
-  const totalMessagesIn = useSelector(state => state.kafkaCluster.TotalMessagesIn);
+  const totalMessagesIn = useSelector(state => state.kafkaCluster.totalMessagesIn);
 
   return (
     <div>{totalMessagesIn}</div>
