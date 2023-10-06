@@ -9,7 +9,7 @@ let PROMPORT = 9090; // TODO: this doesn't work and save globally... it isn't st
 
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
 
-console.log(clusterMetricNames);
+// console.log(clusterMetricNames);
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 // {__name__=~"partitioncount|brokercount|partitioncount2|partitioncount3|partitioncount"}
@@ -132,25 +132,25 @@ promController.getAllMetricNames = async (req, res, next) => {
     }
 }
 
-// promController.getRandomMetric = async (req, res, next) => {
-//     const randomMetric = 'kafka_controller_kafkacontroller_globalpartitioncount'
-//     // const randomMetric = 'kafka_server_brokertopicmetrics_totalproducerequests_total';
-//     // const randomMetric = res.locals.metricNames[Math.floor(Math.random()*res.locals.metricNames.length)];
-//     try {        
-//         console.log('about to make request');
-//         const response = await axios.get(`http://localhost:${PROMPORT}/api/v1/query`, {
-//             params: {
-//                 query: randomMetric
-//             }
-//         });
-//         // console.log('these are the metric names: ', response.data.data);
-//         res.locals.metric = { metric: randomMetric, value: response.data.data }; // .result[0].value[0]
-//         return next();
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return next(err);
-//     }
-// }
+promController.getRandomMetric = async (req, res, next) => {
+    const randomMetric = 'kafka_log_log_size';
+    // const randomMetric = 'kafka_server_brokertopicmetrics_totalproducerequests_total';
+    // const randomMetric = res.locals.metricNames[Math.floor(Math.random()*res.locals.metricNames.length)];
+    try {        
+        console.log('about to make request');
+        const response = await axios.get(`http://localhost:9090/api/v1/query`, {
+            params: {
+                query: randomMetric
+            }
+        });
+        res.locals.metric = { metric: randomMetric, value: response.data.data }; // .result[0].value[0]
+        console.log(res.locals.metric.value.result);
+        return next();
+    }
+    catch (err) {
+        console.log(err);
+        return next(err);
+    }
+}
 
 module.exports = promController;
