@@ -46,10 +46,10 @@ const getTopicInfo = async() => {
 
         console.log('fetching list of topics....');
         const topics = await admin.listTopics();
-        console.log('here are the topics: ', topics);
+        // console.log('here are the topics: ', topics);
 
         console.log('now fetching topicsMetadata...');
-        const topicsMetadata = await admin.fetchTopicMetadata({ topics });
+        const topicsMetadata = await admin.fetchTopicMetadata({ topics: ['animals2'] });
         console.log('here is the topicsMetadata: ', topicsMetadata);
         for (const topic of topicsMetadata.topics){
             if (!topic.name.includes('offset')){
@@ -74,7 +74,7 @@ const run = async () => {
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
 // createTopic('animals2', 3, 3)
-getTopicInfo(); // THIS JUST CREATES A TOPIC
+getTopicInfo();
 
 
 

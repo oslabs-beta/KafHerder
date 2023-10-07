@@ -50,34 +50,42 @@ kafkaController.getTopics = async (req, res, next) => {
     }
 }
 
-kafkaController.getTopicsInfo = async (req, res, next) => {
+
+kafkaController.getClusterInfo = async (req, res, next) => {
     try {
         const admin = res.locals.admin;
 
-
-        const { topics } = req.body;
-        if (!topics) topics = res.locals.topics;
-
-        // * @DIARY
-        // * we wondered whether to get data for just one topic or all of them
-        // * i guess it depends if we want to fetch topic data one at a time
-        // * (as they hover over the dropdown)
-        // * or we fetch all the data in one go (topicS)
-        // * we are going with the latter because requests seem more expensive
-        // * edit: nvm
-        // * the topicsmetadata is such a disgustingly nested object
-        // * it would be too hard for the front-end to index into it to get stuff
-        
-
-        console.log('fetching topic info...');
-        const metaData = await admin.fetchTopicMetadata({ topics });
-        console.log(`Here's your metadata: ${metadata}`);
-        res.locals.topicsInfo = metadata;
         return next();
     }
     catch (err) {
         return next({
-            log: `Error in kafkaController.getTopicInfo: ${err}`,
+            log: `Error in kafkaController.getClusterInfo: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+
+kafkaController.getPartitions = async (req, res, next) => {
+    try {
+        const admin = res.locals.admin;
+
+        const { topicName } = req.body; //! this will be a string
+
+        console.log('fetching topic info...');
+        const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
+        // metadata structure: Metadata:  { topics: [ { name: topicName, partitions: [Array] } ] }
+
+        const topicsArr = metadata.topics;
+        const partitions = topicsArr[0].partitions;
+        res.locals.partitions = partitions;
+
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in kafkaController.getPartitions: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })
