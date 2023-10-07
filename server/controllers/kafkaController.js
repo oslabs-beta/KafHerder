@@ -27,6 +27,13 @@ kafkaController.connect = async (req, res, next) => {
   }
 };
 
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 kafkaController.getTopics = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
@@ -49,10 +56,12 @@ kafkaController.getTopics = async (req, res, next) => {
 }
 
 /**
- * @async @function that retrieves cluster information from a connected Kafka admin client.
+ * Retrieves cluster information from a Kafka cluster.
  * 
- * @example
- * // The 'clusterInfo' property on 'res.locals' will be set to an object that has the following shape:
+ * @async
+ * @function
+ * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
+ * @returns {Object} res.locals.clusterInfo will have the following shape:
  * // {
  * //  brokers: [
  * //    { nodeId: 2, host: 'localhost', port: 9094 },
@@ -84,7 +93,26 @@ kafkaController.getClusterInfo = async (req, res, next) => {
     }
 }
 
-
+/**
+ * Retrieves partition information for a given Kafka topic.
+ * 
+ * @async
+ * @function
+ * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
+ * @param {String} req.body.topicName specifies the desired topic to retrieve partition info about 
+ * @returns {Array} res.locals.partitionInfo will have the following shape:
+ * // [
+ * //     {
+ * //       partitionErrorCode: 0,
+ * //       partitionId: 0,
+ * //       leader: 3,
+ * //       replicas: [Array],
+ * //       isr: [Array],
+ * //       offlineReplicas: []
+ * //     },
+ * //     ...
+ * // ]
+ */
 kafkaController.getPartitions = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
