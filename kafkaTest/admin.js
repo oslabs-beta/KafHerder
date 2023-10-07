@@ -93,8 +93,8 @@ const run = async () => {
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
 // createTopic('animals2', 3, 3)
-// getTopicInfo();
-getClusterInfo()
+getTopicInfo();
+// getClusterInfo()
 
 
 
