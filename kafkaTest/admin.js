@@ -2,7 +2,7 @@ const { Kafka } = require('kafkajs');
 
 const kafka = new Kafka({
     clientId: 'my-admin',
-    brokers: ['localhost:9092', 'localhost:9094', 'localhost:9096']
+    brokers: ['localhost:9092'] //, 'localhost:9094', 'localhost:9096']
     // apparently you only need to give one broker and kafkajs will find the rest
 })
 
@@ -49,7 +49,7 @@ const getTopicInfo = async() => {
         console.log('here are the topics: ', topics);
 
         console.log('now fetching topicsMetadata...');
-        const topicsMetadata = await admin.fetchTopicMetadata({ topics });
+        const topicsMetadata = await admin.fetchTopicMetadata({ topics: ['animals2'] });
         console.log('here is the topicsMetadata: ', topicsMetadata);
         for (const topic of topicsMetadata.topics){
             if (!topic.name.includes('offset')){
@@ -66,6 +66,25 @@ const getTopicInfo = async() => {
     }
 }
 
+const getClusterInfo = async() => {
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log('fetching cluster info....');
+        const cluster = await admin.describeCluster();
+        console.log('here is the cluster info: ', cluster);
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+    }
+    catch (error) {
+        console.log('failed to fetch cluster info');
+        console.error(error);
+    }
+}
+
 const run = async () => {
     await createTopic('animals2', 3, 3);
     await getTopicInfo();
@@ -74,7 +93,9 @@ const run = async () => {
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
 // createTopic('animals2', 3, 3)
-getTopicInfo(); // THIS JUST CREATES A TOPIC
+getTopicInfo();
+// getClusterInfo()
+
 
 
 
