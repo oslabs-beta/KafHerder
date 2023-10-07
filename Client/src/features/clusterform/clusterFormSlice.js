@@ -49,7 +49,7 @@ const clusterFormSlice = createSlice({
         .addCase(checkPromPort.rejected, (state, action) => {
             state.status = 'off';
             state.error = action.error.message
-        })
+        }) // TODO: add extraReducers for checkKafkaPort. On fulfilled we'll fetch the data.
     }
     
 });
