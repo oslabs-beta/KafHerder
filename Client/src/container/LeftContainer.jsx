@@ -6,7 +6,7 @@ function Navbar() {
   return (
     <>
       <div className='Navbar' style={{ minWidth: '300px'}}>
-        <Menu />
+        {/* <Menu /> */}
         <ClusterForm />
       </div>
     </>
