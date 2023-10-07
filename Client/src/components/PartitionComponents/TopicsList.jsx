@@ -1,3 +1,4 @@
+// topicsList
 import React from 'react'
 
 // receiving an object with key: topics with value of array
@@ -9,7 +10,15 @@ function TopicsList() {
     return (
         <div className='TopicContainer'>       
             <input type="text" placeholder='Enter topic' />   
+            <div className='topicsList'>
+                {topicsTest.topics.map((topic, index) => (
+                    <div className='topic' key=''>
+                        <p>{topic}</p>
+                    </div>
+                ))}
+            </div>
             <div> <p>Testing</p> </div> 
+            <button>Submit</button>
         </div>
     )
 }
