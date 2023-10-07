@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-function clusterOfflinePartitions() {
+function ClusterOfflinePartitions() {
+
+  const offlinePartitions = useSelector(state => state.kafkaCluster.offlinePartitions);
+
   return (
-    <div>clusterOfflinePartitions</div>
+    <div>{offlinePartitions}</div>
   )
 }
 
-export default clusterOfflinePartitions
+export default ClusterOfflinePartitions

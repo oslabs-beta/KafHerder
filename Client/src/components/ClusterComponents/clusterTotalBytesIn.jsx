@@ -1,9 +1,24 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchedClusterData } from '../../features/kafkaCluster/kafkaClusterSlice'
 
-function clusterTotalBytesIn() {
+
+
+function ClusterTotalBytesIn() {
+
+  const [pulse, setPulse] = useState(false);
+
+  const bytesIn = useSelector(state => state.kafkaCluster.totalBytesIn);
+
+  useEffect(() => {
+    setPulse(true);
+    const timer = setTimeout(() => setPulse(false), 500);
+    return () => clearTimeout(timer);
+  }, [bytesIn]);
+
   return (
-    <div>clusterTotalBytesIn</div>
+    <div className={pulse ? 'pulseEffect' : ''}>{bytesIn}</div>
   )
 }
 
-export default clusterTotalBytesIn
+export default ClusterTotalBytesIn

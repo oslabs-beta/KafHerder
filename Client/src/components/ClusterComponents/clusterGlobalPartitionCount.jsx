@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-function clusterGlobalPartitionCount() {
+function ClusterGlobalPartitionCount() {
+
+  const globalPartitionCount = useSelector(state => state.kafkaCluster.globalPartitionCount);
+
   return (
-    <div>clusterGlobalPartitionCount</div>
+    <div>{globalPartitionCount}</div>
   )
 }
 
-export default clusterGlobalPartitionCount
+export default ClusterGlobalPartitionCount

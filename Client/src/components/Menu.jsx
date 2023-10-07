@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../assets/logoOnly.png'
+import logo from '../assets/kafHerder9-1.png'
 
 
 // creating dropdown functionalitity.
@@ -11,26 +11,6 @@ import logo from '../assets/logoOnly.png'
 
 function Menu() {
   return (
-    // <div>
-    //     <button>Hamburger Menu</button>
-    // </div>
-    // <>
-    //   <section className="p-menu1">
-    //     <nav id="navbar" className="navigation" role="navigation">
-    //       <input id="toggle1" type="checkbox" />
-    //       <label className="hamburger1" htmlFor="toggle1">
-    //         <div className="top"></div>
-    //         <div className="meat"></div>
-    //         <div className="bottom"></div>
-    //       </label>
-    //       <img src="#" alt="KafHerder" className="menuImage" />
-    //       <nav className="menu1">
-    //         <a className="link1" href="">Settings List</a>
-    //         <a className="link1" href="">Logout</a>
-    //       </nav>
-    //     </nav>
-    //   </section>
-    // </>
     <>
       <section className="p-menu1">
         <nav id="navbar" className="navigation" role="navigation">
@@ -43,7 +23,6 @@ function Menu() {
               <div className="bottom"></div>
             </label>
             <img className="menuImage" src={logo} alt="Kafherder Logo" />
-            <h1>kafHerder</h1>
           </div>
 
           <nav className="menu1">

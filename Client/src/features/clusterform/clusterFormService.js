@@ -7,19 +7,25 @@ const API_URL = 'http://localhost:3000/';
  * 
  */
 export const checkPortFromAPI = async (clusterPortData) => {
-    const response = await fetch(API_URL + 'checkPort' , {
-        method: 'POST',
-        headers: {
-            'Content-Type' : 'application/json',
-        },
-        body: JSON.stringify(clusterPortData)
-    });
-
-    const data = await response.json();
-    if (data.success) {
-        return clusterPortData
-    } else {
-        throw new Error('Failed to connect to port');
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(clusterPortData)
+        });
+    
+        const data = await response;
+        //*TODO: make sure this throws a 404 on backend and check for it here too
+        console.log('data', data)
+        // if (data.success) {
+        //     return clusterPortData
+        // } else {
+        //     throw new Error('Failed to connect to port');
+        // }    
+    } catch (error) {
+        console.error('Error occurred in clusterFormService.js', error);
     }
 };
 

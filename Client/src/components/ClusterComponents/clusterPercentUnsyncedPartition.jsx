@@ -1,9 +1,16 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
-function clusterPercentUnsyncedPartition() {
+function ClusterPercentUnsyncedPartition() {
+
+  const partitionReplicaCount = useSelector(state => state.kafkaCluster.partitionReplicaCount);
+  const partitionInSyncReplicaCount = useSelector(state => state.kafkaCluster.partitionInSyncReplicaCount);
+
+  const percentUnsyncedPartition = ((parseInt(partitionReplicaCount) - parseInt(partitionInSyncReplicaCount)) / parseInt(partitionReplicaCount) * 100).toFixed(2);
+
   return (
-    <div>clusterPercentUnsyncedPartition</div>
+    <div>{percentUnsyncedPartition === 'NaN' ? '' : `${percentUnsyncedPartition}%`}</div>
   )
 }
 
-export default clusterPercentUnsyncedPartition
+export default ClusterPercentUnsyncedPartition
