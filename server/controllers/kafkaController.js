@@ -39,11 +39,13 @@ kafkaController.connectAdmin = async (req, res, next) => {
 
 /**
  * Retrieves a list of topics from a Kafka cluster.
+ * NOTE: this middleware should come AFTER getClusterInfo
  * 
  * @async
  * @function
  * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
- * @returns {Array} res.locals.topics will have the following shape:
+ * @param {Object} res.locals.clusterInfo is passed from the previous middleware
+ * @returns {Array} res.locals.clusterInfo.topics will have the following shape:
  * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
 kafkaController.getTopics = async (req, res, next) => {
@@ -54,7 +56,7 @@ kafkaController.getTopics = async (req, res, next) => {
         const topics = await admin.listTopics();
         console.log('here are the topics: ', topics);
 
-        res.locals.topics = topics;
+        res.locals.clusterInfo.topics = topics;
 
         return next();
     }
@@ -66,6 +68,8 @@ kafkaController.getTopics = async (req, res, next) => {
         })
     }
 }
+
+// @TODO: route should be connect ---> getClusterInfo ---> getTopics and ADD it to the ClusterInfo
 
 /**
  * Retrieves cluster information from a Kafka cluster.
@@ -81,7 +85,8 @@ kafkaController.getTopics = async (req, res, next) => {
  * //    { nodeId: 1, host: 'localhost', port: 9092 }
  * //  ],
  * //  controller: 2,
- * //  clusterId: 'gp0aetvsQrK28GH_ZMTI5Q'
+ * //  clusterId: 'gp0aetvsQrK28GH_ZMTI5Q',
+ * //  // later on, topics: [array, of, topic, names]
  * // }
  */
 kafkaController.getClusterInfo = async (req, res, next) => {
