@@ -7,25 +7,25 @@ const adminController = {};
  * 
  * @async
  * @function
- * @param {String} req.body.seedBroker should be a port number of one Kafka broker in the cluster
+ * @param {String} req.body.seedBrokerUrl should be the url of the port (ex. 'localhost:9092') of one Kafka broker in the cluster
  * @returns {Object} res.locals.connectedAdmin will be a KafkaJS admin client connected to a Kafka cluster
  * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
 adminController.connectAdmin = async (req, res, next) => {
   try {
-    const { seedBroker } = req.body;
+    const { seedBrokerUrl } = req.body;
 
     const kafka = new Kafka({
         clientId: 'my-admin',
-        brokers: [ seedBroker ]
+        brokers: [ seedBrokerUrl ]
     });
-
+    
     const admin = kafka.admin(); 
-
-    console.log('connecting admin to Kafka cluster...')
     await admin.connect();
-    console.log('successfully connected admin to Kafka cluster!')
+    console.log('Connected admin to Kafka cluster.');
+
     res.locals.connectedAdmin = admin;
+
     return next();
   }
   catch (err) {
@@ -61,9 +61,7 @@ adminController.getClusterInfo = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
-        console.log('Fetching cluster info....');
         const clusterInfo = await admin.describeCluster();
-        console.log('Here is the cluster info: ', clusterInfo);
 
         res.locals.clusterInfo = clusterInfo;
 
@@ -93,9 +91,7 @@ adminController.getTopics = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
-        console.log('fetching list of topics....');
         const topics = await admin.listTopics();
-        console.log('here are the topics: ', topics);
 
         res.locals.clusterInfo.topics = topics;
 
@@ -136,9 +132,8 @@ adminController.getPartitions = async (req, res, next) => {
 
         const { topicName } = req.body;
 
-        console.log('Fetching topic info...');
         const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
-        // metadata structure: Metadata:  { topics: [ { name: topicName, partitions: [Array] } ] }
+        // * metadata structure: Metadata:  { topics: [ { name: topicName, partitions: [Array] } ] }
 
         const topicsArr = metadata.topics;
         const partitions = topicsArr[0].partitions;
@@ -173,7 +168,6 @@ adminController.createTopic = async (req, res, next) => {
 
         const { topicName, numPartitions, replicationFactor } = req.body;
 
-        console.log(`Creating topic ${topicName} with ${numPartitions} partitions and rep factor ${replicationFactor}`);
         const wasCreated = await admin.createTopics({
             validateOnly: false, // default
             waitForLeaders: true, // default
@@ -188,7 +182,6 @@ adminController.createTopic = async (req, res, next) => {
                 }
             ]
         });
-        console.log(`${wasCreated ? 'Successfully created topic!' : 'Topic already exists'}`);
 
         res.locals.wasCreated = wasCreated;
 
@@ -214,6 +207,7 @@ adminController.disconnectAdmin = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
         await admin.disconnect();
+        console.log('Disconnected admin from Kafka cluster.');
         return next();
     }
     catch (err) {
@@ -224,3 +218,5 @@ adminController.disconnectAdmin = async (req, res, next) => {
         })
     }
 };
+
+module.exports = adminController;

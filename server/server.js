@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use('/prometheus', promRouter);
 app.use('/admin', adminRouter);
-app.use('/rp', rpRouter);
+// app.use('/rp', rpRouter);
 
 
 app.use((req, res) => res.status(404).send(`Oops! This isn't the right page.`))
