@@ -3,13 +3,11 @@ const kafkaController = {};
 
 kafkaController.connect = async (req, res, next) => {
   try {
-    const { brokers } = req.body;
-    // this should be an array of brokers, like: 
-    // ['localhost:9092', 'localhost:9094', 'localhost:9096']
+    const { seedBroker } = req.body; // expecting a string
 
     const kafka = new Kafka({
         clientId: 'my-admin',
-        brokers
+        brokers: [ seedBroker ]
     });
 
     const admin = kafka.admin(); 
@@ -17,7 +15,7 @@ kafkaController.connect = async (req, res, next) => {
     console.log('connecting admin to Kafka cluster...')
     await admin.connect();
     console.log('successfully connected admin to Kafka cluster!')
-    res.locals.admin = admin;
+    res.locals.connectedAdmin = admin;
     return next();
   }
   catch (err) {
@@ -31,7 +29,7 @@ kafkaController.connect = async (req, res, next) => {
 
 kafkaController.getTopics = async (req, res, next) => {
     try {
-        const admin = res.locals.admin;
+        const admin = res.locals.connectedAdmin;
 
         console.log('fetching list of topics....');
         const topics = await admin.listTopics();
@@ -53,7 +51,11 @@ kafkaController.getTopics = async (req, res, next) => {
 
 kafkaController.getClusterInfo = async (req, res, next) => {
     try {
-        const admin = res.locals.admin;
+        const admin = res.locals.connectedAdmin;
+
+        console.log('fetching cluster info....');
+        const cluster = await admin.describeCluster();
+        console.log('here is the cluster info: ', cluster);
 
         return next();
     }
@@ -69,7 +71,7 @@ kafkaController.getClusterInfo = async (req, res, next) => {
 
 kafkaController.getPartitions = async (req, res, next) => {
     try {
-        const admin = res.locals.admin;
+        const admin = res.locals.connectedAdmin;
 
         const { topicName } = req.body; //! this will be a string
 
@@ -94,7 +96,7 @@ kafkaController.getPartitions = async (req, res, next) => {
 
 kafkaController.createTopic = async (req, res, next) => {
     try {
-        const admin = res.locals.admin;
+        const admin = res.locals.connectedAdmin;
 
         const { topic, numPartitions, replicationFactor } = req.body;
         
@@ -112,7 +114,7 @@ kafkaController.createTopic = async (req, res, next) => {
 
 kafkaController.disconnect = async (req, res, next) => {
     try {
-        const admin = res.locals.admin;
+        const admin = res.locals.connectedAdmin;
         await admin.disconnect();
         return next();
     }
