@@ -3,6 +3,7 @@ const kafkaController = {};
 
 /**
  * Connects to a Kafka cluster via KafkaJS admin. Should be the first middleware in any route that uses KafkaJS admin
+ * Only requires one seed broker. KafkaJS will discover the rest.
  * 
  * @async
  * @function
@@ -87,9 +88,9 @@ kafkaController.getClusterInfo = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
-        console.log('fetching cluster info....');
+        console.log('Fetching cluster info....');
         const clusterInfo = await admin.describeCluster();
-        console.log('here is the cluster info: ', clusterInfo);
+        console.log('Here is the cluster info: ', clusterInfo);
 
         res.locals.clusterInfo = clusterInfo;
 
@@ -128,9 +129,9 @@ kafkaController.getPartitions = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
-        const { topicName } = req.body; //! this will be a string
+        const { topicName } = req.body;
 
-        console.log('fetching topic info...');
+        console.log('Fetching topic info...');
         const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
         // metadata structure: Metadata:  { topics: [ { name: topicName, partitions: [Array] } ] }
 
@@ -149,13 +150,44 @@ kafkaController.getPartitions = async (req, res, next) => {
     }
 }
 
+// @TODO: stretch feature would be allowing user to provide additional configurations
+/**
+ * Creates a topic in the Kafka cluster given provided information.
+ * 
+ * @async
+ * @function
+ * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
+ * @param {String} req.body.topicName specifies the name of the new topic
+ * @param {Number} req.body.numPartitions specifies the number of partitions for the new topic
+ * @param {Number} req.body.topicName specifies the replication factor for the new topic
+ * @returns {Boolean} res.locals.wasCreated will be false if the topic already exists
+ */
 kafkaController.createTopic = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
-        const { topic, numPartitions, replicationFactor } = req.body;
-        
-        console.log(`Creating topic ...`);
+        const { topicName, numPartitions, replicationFactor } = req.body;
+
+        console.log(`Creating topic ${topicName} with ${numPartitions} partitions and rep factor ${replicationFactor}`);
+        const wasCreated = await admin.createTopics({
+            validateOnly: false, // default
+            waitForLeaders: true, // default
+            timeout: 5000, // default
+            topics: [
+                {
+                    topic: topicName,
+                    numPartitions,
+                    replicationFactor,
+                    replicaAssignment: [], // default
+                    configEntries: [] // default
+                }
+            ]
+        });
+        console.log(`${wasCreated ? 'Successfully created topic!' : 'Topic already exists'}`);
+
+        res.locals.wasCreated = wasCreated;
+
+        return next();
     }
     catch (err) {
         return next({
