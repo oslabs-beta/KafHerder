@@ -48,7 +48,21 @@ kafkaController.getTopics = async (req, res, next) => {
     }
 }
 
-
+/**
+ * @async @function that retrieves cluster information from a connected Kafka admin client.
+ * 
+ * @example
+ * // The 'clusterInfo' property on 'res.locals' will be set to an object that has the following shape:
+ * // {
+ * //  brokers: [
+ * //    { nodeId: 2, host: 'localhost', port: 9094 },
+ * //    { nodeId: 3, host: 'localhost', port: 9096 },
+ * //    { nodeId: 1, host: 'localhost', port: 9092 }
+ * //  ],
+ * //  controller: 2,
+ * //  clusterId: 'gp0aetvsQrK28GH_ZMTI5Q'
+ * // }
+ */
 kafkaController.getClusterInfo = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
