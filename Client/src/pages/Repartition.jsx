@@ -1,5 +1,6 @@
 import React from 'react'
 import NavBar from '../components/NavBar'
+import LeftContainer from '../container/LeftContainer'
 
 
 
@@ -12,8 +13,14 @@ import NavBar from '../components/NavBar'
 function Repartition() {
   return (
     <>
-    <NavBar />
-    <div>Repartition</div>
+        <div className='root'>
+            <NavBar />
+            <div className='homeContainer'>
+                <LeftContainer />
+                <div className='rightContainer' style={{ minWidth: '400px' }}>
+                </div>
+            </div>
+        </div>
     </>
   )
 }

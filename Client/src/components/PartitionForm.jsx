@@ -1,7 +1,49 @@
+
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setClusterForm, checkPromPort } from '../features/clusterform/clusterFormSlice'
+import { checkKafkaPort, setKafkaPort } from '../features/clusterform/clusterFormSlice'
 
+function PartitionForm() {
+
+    // Creating local state for input data
+    const [partitionForm, setPartitionForm] = useState({
+        kafkaPort: '',
+    });
+
+    const dispatch = useDispatch();
+
+    // event handler that updates the localForm based on what inputs are put in
+    // Example: This it the input from the form div for the ClusterName input bar
+    // name='ClusterName'
+    // value={localForm.ClusterName}
+  
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setPartitionForm(prevState => ({
+        ...prevState,
+        [name]: value
+      }));
+    }
+  
+    // when the form is submitted, state is dispatched from the localForm to the redux store using setClusterForm
+    // *We still need to create a clusterFormService to get data from the API
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      dispatch(setKafkaPort(partitionForm));
+      dispatch(checkKafkaPort(partitionForm)); // TODO: ask backend team about route to connect to kafka port
+      console.log(partitionForm.promPort)
+    }
+  
+
+    return (
+        <div>
+            <p>hello</p>
+        </div>
+    )
+}
+
+export default PartitionForm;
 
 
 function ClusterForm() {
@@ -37,7 +79,7 @@ function ClusterForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(setClusterForm(localForm));
-    dispatch(checkPromPort(localForm));
+    dispatch(checkPort(localForm));
     console.log(localForm.clusterName, localForm.promPort, localForm.interval)
   }
 
@@ -108,4 +150,4 @@ function ClusterForm() {
   )
 }
 
-export default ClusterForm;
+// export default ClusterForm;

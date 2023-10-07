@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { checkPortFromAPI } from './clusterFormService';
+import { checkPromPortFromAPI, checkKafkaPortFromAPI } from './clusterFormService';
 import { fetchedClusterData } from '../kafkaCluster/kafkaClusterSlice';
 
 const initialState = {
     clusterName: '',
-    port: '',
+    promPort: '',
+    kafkaPort: '',
     interval: 5,
     status: 'off',
     error: null
@@ -14,9 +15,13 @@ const initialState = {
 // if connection went through, we change the status to 'On'
 // else we give an error that says that port could not be connected
 
-export const checkPort = createAsyncThunk(
-    'clusterForm/checkPort', checkPortFromAPI
+export const checkPromPort = createAsyncThunk(
+    'clusterForm/checkPromPort', checkPromPortFromAPI
 );
+
+export const checkKafkaPort = createAsyncThunk(
+    'clusterForm/checkKafkaPort', checkKafkaPortFromAPI
+)
 
 // created state that shows if the port connected to the server
 const clusterFormSlice = createSlice({
@@ -25,20 +30,23 @@ const clusterFormSlice = createSlice({
     reducers: {
         setClusterForm: (state, action) => {
             state.clusterName = action.payload.clusterName;
-            state.port = action.payload.port;
+            state.promPort = action.payload.promPort;
             state.interval = action.payload.interval;
+        },
+        setKafkaPort: (state, action) => {
+            state.kafkaPort = action.payload.kafkaPort;
         }
     },
     extraReducers: (builder) => {
         builder
-        .addCase(checkPort.pending, (state) => {
+        .addCase(checkPromPort.pending, (state) => {
             state.status = 'pending';
         })
-        .addCase(checkPort.fulfilled, (state, action) => {
+        .addCase(checkPromPort.fulfilled, (state, action) => {
             state.status = 'on';
             fetchedClusterData()
         })
-        .addCase(checkPort.rejected, (state, action) => {
+        .addCase(checkPromPort.rejected, (state, action) => {
             state.status = 'off';
             state.error = action.error.message
         })
@@ -47,5 +55,5 @@ const clusterFormSlice = createSlice({
 });
 
 
-export const { setClusterForm } = clusterFormSlice.actions;
+export const { setClusterForm, setKafkaPort } = clusterFormSlice.actions;
 export default clusterFormSlice.reducer;

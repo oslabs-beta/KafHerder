@@ -87,7 +87,7 @@ li:hover::before {
 } */
 
 
-.Navbar {
+.LeftContainer {
   border-radius: 20px;
   border: rgb(218, 218, 218) solid 1px;
   background-color: #E4E9DC;
