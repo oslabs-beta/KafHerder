@@ -1,9 +1,18 @@
 const { Kafka } = require('kafkajs');
 const kafkaController = {};
 
-kafkaController.connect = async (req, res, next) => {
+/**
+ * Connects to a Kafka cluster via KafkaJS admin. Should be the first middleware in any route that uses KafkaJS admin
+ * 
+ * @async
+ * @function
+ * @param {String} req.body.seedBroker should be a port number of one Kafka broker in the cluster
+ * @returns {Object} res.locals.connectedAdmin will be a KafkaJS admin client connected to a Kafka cluster
+ * // [ 'animals2', 'animals', '__consumer_offsets' ]
+ */
+kafkaController.connectAdmin = async (req, res, next) => {
   try {
-    const { seedBroker } = req.body; // expecting a string
+    const { seedBroker } = req.body;
 
     const kafka = new Kafka({
         clientId: 'my-admin',
@@ -28,11 +37,13 @@ kafkaController.connect = async (req, res, next) => {
 };
 
 /**
+ * Retrieves a list of topics from a Kafka cluster.
  * 
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @returns 
+ * @async
+ * @function
+ * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
+ * @returns {Array} res.locals.topics will have the following shape:
+ * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
 kafkaController.getTopics = async (req, res, next) => {
     try {
@@ -145,7 +156,6 @@ kafkaController.createTopic = async (req, res, next) => {
         const { topic, numPartitions, replicationFactor } = req.body;
         
         console.log(`Creating topic ...`);
-        const 
     }
     catch (err) {
         return next({
@@ -156,7 +166,14 @@ kafkaController.createTopic = async (req, res, next) => {
     }
 }
 
-kafkaController.disconnect = async (req, res, next) => {
+/**
+ * Disconnects a KafkaJS admin client from a Kafka cluster. Should be the last middleware in any route that uses KafkaJS admin
+ * 
+ * @async
+ * @function
+ * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
+ */
+kafkaController.disconnectAdmin = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
         await admin.disconnect();
