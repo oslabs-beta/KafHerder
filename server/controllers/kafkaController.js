@@ -54,8 +54,10 @@ kafkaController.getClusterInfo = async (req, res, next) => {
         const admin = res.locals.connectedAdmin;
 
         console.log('fetching cluster info....');
-        const cluster = await admin.describeCluster();
-        console.log('here is the cluster info: ', cluster);
+        const clusterInfo = await admin.describeCluster();
+        console.log('here is the cluster info: ', clusterInfo);
+
+        res.locals.clusterInfo = clusterInfo;
 
         return next();
     }
