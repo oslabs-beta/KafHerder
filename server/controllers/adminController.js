@@ -1,5 +1,5 @@
 const { Kafka } = require('kafkajs');
-const kafkaController = {};
+const adminController = {};
 
 /**
  * Connects to a Kafka cluster via KafkaJS admin. Should be the first middleware in any route that uses KafkaJS admin
@@ -11,7 +11,7 @@ const kafkaController = {};
  * @returns {Object} res.locals.connectedAdmin will be a KafkaJS admin client connected to a Kafka cluster
  * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
-kafkaController.connectAdmin = async (req, res, next) => {
+adminController.connectAdmin = async (req, res, next) => {
   try {
     const { seedBroker } = req.body;
 
@@ -30,44 +30,12 @@ kafkaController.connectAdmin = async (req, res, next) => {
   }
   catch (err) {
     return next({
-        log: `Error in kafkaController.verifyPort: ${err}`,
+        log: `Error in adminController.verifyPort: ${err}`,
         status: 400,
         message: { err: 'An error occured' }
     })
   }
 };
-
-/**
- * Retrieves a list of topics from a Kafka cluster.
- * NOTE: this middleware should come AFTER getClusterInfo
- * 
- * @async
- * @function
- * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
- * @param {Object} res.locals.clusterInfo is passed from the previous middleware
- * @returns {Array} res.locals.clusterInfo.topics will have the following shape:
- * // [ 'animals2', 'animals', '__consumer_offsets' ]
- */
-kafkaController.getTopics = async (req, res, next) => {
-    try {
-        const admin = res.locals.connectedAdmin;
-
-        console.log('fetching list of topics....');
-        const topics = await admin.listTopics();
-        console.log('here are the topics: ', topics);
-
-        res.locals.clusterInfo.topics = topics;
-
-        return next();
-    }
-    catch (err) {
-        return next({
-            log: `Error in kafkaController.getTopics: ${err}`,
-            status: 400,
-            message: { err: 'An error occured' }
-        })
-    }
-}
 
 // @TODO: route should be connect ---> getClusterInfo ---> getTopics and ADD it to the ClusterInfo
 
@@ -89,7 +57,7 @@ kafkaController.getTopics = async (req, res, next) => {
  * //  // later on, topics: [array, of, topic, names]
  * // }
  */
-kafkaController.getClusterInfo = async (req, res, next) => {
+adminController.getClusterInfo = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
@@ -103,7 +71,39 @@ kafkaController.getClusterInfo = async (req, res, next) => {
     }
     catch (err) {
         return next({
-            log: `Error in kafkaController.getClusterInfo: ${err}`,
+            log: `Error in adminController.getClusterInfo: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+/**
+ * Retrieves a list of topics from a Kafka cluster.
+ * NOTE: this middleware should come AFTER getClusterInfo
+ * 
+ * @async
+ * @function
+ * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
+ * @param {Object} res.locals.clusterInfo is passed from the previous middleware
+ * @returns {Array} res.locals.clusterInfo.topics will have the following shape:
+ * // [ 'animals2', 'animals', '__consumer_offsets' ]
+ */
+adminController.getTopics = async (req, res, next) => {
+    try {
+        const admin = res.locals.connectedAdmin;
+
+        console.log('fetching list of topics....');
+        const topics = await admin.listTopics();
+        console.log('here are the topics: ', topics);
+
+        res.locals.clusterInfo.topics = topics;
+
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.getTopics: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })
@@ -130,7 +130,7 @@ kafkaController.getClusterInfo = async (req, res, next) => {
  * //     ...
  * // ]
  */
-kafkaController.getPartitions = async (req, res, next) => {
+adminController.getPartitions = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
@@ -148,7 +148,7 @@ kafkaController.getPartitions = async (req, res, next) => {
     }
     catch (err) {
         return next({
-            log: `Error in kafkaController.getPartitions: ${err}`,
+            log: `Error in adminController.getPartitions: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })
@@ -167,7 +167,7 @@ kafkaController.getPartitions = async (req, res, next) => {
  * @param {Number} req.body.topicName specifies the replication factor for the new topic
  * @returns {Boolean} res.locals.wasCreated will be false if the topic already exists
  */
-kafkaController.createTopic = async (req, res, next) => {
+adminController.createTopic = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
 
@@ -196,7 +196,7 @@ kafkaController.createTopic = async (req, res, next) => {
     }
     catch (err) {
         return next({
-            log: `Error in kafkaController.createTopic: ${err}`,
+            log: `Error in adminController.createTopic: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })
@@ -210,7 +210,7 @@ kafkaController.createTopic = async (req, res, next) => {
  * @function
  * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
  */
-kafkaController.disconnectAdmin = async (req, res, next) => {
+adminController.disconnectAdmin = async (req, res, next) => {
     try {
         const admin = res.locals.connectedAdmin;
         await admin.disconnect();
@@ -218,7 +218,7 @@ kafkaController.disconnectAdmin = async (req, res, next) => {
     }
     catch (err) {
         return next({
-            log: `Error in kafkaController.disconnect: ${err}`,
+            log: `Error in adminController.disconnect: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })
