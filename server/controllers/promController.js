@@ -116,7 +116,8 @@ promController.getBrokerMetrics = async (req, res, next) => {
 
 promController.getClusterMetrics = async (req, res, next) => {
     try {
-        const {port} = req.query; 
+        const { port } = req.query; // TODO: fix from this being number to Url
+        console.log('query: ', buildQuery(clusterMetricNames));
         if (!port) return next({ err: `Port doesn't exist` });
         const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
             params: {
@@ -136,7 +137,7 @@ promController.getClusterMetrics = async (req, res, next) => {
         return next({
             log: `Error in promController.getClusterMetrics: ${err}`,
             status: 400,
-            message: { err: 'An error ocurred' }
+            message: { err: 'An error occurred' }
         })
     }
 };
