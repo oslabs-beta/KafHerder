@@ -46,7 +46,7 @@ const getTopicInfo = async() => {
 
         console.log('fetching list of topics....');
         const topics = await admin.listTopics();
-        // console.log('here are the topics: ', topics);
+        console.log('here are the topics: ', topics);
 
         console.log('now fetching topicsMetadata...');
         const topicsMetadata = await admin.fetchTopicMetadata({ topics: ['animals2'] });
