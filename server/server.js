@@ -1,35 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 
-const promController = require('./controllers/promController.js');
-
-
 const app = express();
 const PORT = 3000;
+
+const adminRouter = require('./routes/admin.js');
+const promRouter = require('./routes/prom.js');
+const rpRouter = require('./routes/rp.js');
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/', promController.getClusterMetrics, promController.getBrokerMetrics, (req, res) => {
-    console.log({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics })
-    return res.status(200).json({ ...res.locals.clusterMetrics, ...res.locals.brokerMetrics });
-});
-
-app.get('/broker', promController.getBrokerMetrics, (req, res) => {
-    return res.status(200).json(brokerMetrics);
-});
-
-app.post('/', promController.verifyPort, (req, res) => {
-    return res.status(200).send('Successfully connected to port');
-});
-
-app.get('/names', promController.getAllMetricNames, (req, res) => {
-    return res.status(200).send(res.locals.metric);
-});
-
-app.get('/random', promController.getRandomMetric, (req, res) => {
-    return res.status(200).send(res.locals.metric);
-})
+app.use('/prometheus', promRouter);
+app.use('/admin', adminRouter);
+// app.use('/rp', rpRouter);
 
 
 app.use((req, res) => res.status(404).send(`Oops! This isn't the right page.`))
