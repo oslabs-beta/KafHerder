@@ -6,6 +6,7 @@ const initialState = {
     clusterName: '',
     promPort: '',
     kafkaPort: '',
+    topics: [],
     interval: 5,
     status: 'off',
     error: null

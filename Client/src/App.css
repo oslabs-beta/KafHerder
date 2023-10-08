@@ -596,3 +596,83 @@ a {
   align-self: center; /* aligns vertically to the center, assuming parent has display: grid or flex */
 }
 
+.topicsList {
+  border: #686b63 1px solid;
+  background-color: white;
+  width: 60%;
+  height: 690px;
+  overflow-x: auto;
+  /* border-radius: 20px; */
+  /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
+}
+
+.topic {
+  border: #aeb1a7 1px solid;
+  padding: 0px;
+}
+
+.topicName {
+  padding: 16px;
+  margin: 0px;
+
+}
+
+.TopicContainer {
+  /* border: #10433f 1px solid; */
+  border-radius: 20px;
+  margin: 30px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.TopicInput {
+  height: 30px;
+  margin: 10px;
+  width: 200px;
+  display: flex;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+
+.TopicSubmitButton {
+  background-color: #e1ecf4;
+  border-radius: 3px;
+  border: 1px solid #7aa7c7;
+  box-shadow: rgba(255, 255, 255, .7) 0 1px 0 0 inset;
+  box-sizing: border-box;
+  color: #39739d;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.15385;
+  margin: 0;
+  outline: none;
+  padding: 8px .8em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  white-space: nowrap;
+  margin: 10px;
+}
+
+.TopicSubmitButton:hover,
+.TopicSubmitButton:focus {
+  background-color: #b3d3ea;
+  color: #2c5777;
+}
+
+.TopicSubmitButton:focus {
+  box-shadow: 0 0 0 4px rgba(0, 149, 255, .15);
+}
+
+.TopicSubmitButton:active {
+  background-color: #a0c7e4;
+  box-shadow: none;
+  color: #2c5777;
+}

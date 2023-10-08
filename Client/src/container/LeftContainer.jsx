@@ -1,7 +1,7 @@
 import React from 'react'
 import Menu from '../components/Menu'
 import ClusterForm from '../components/ClusterForm'
-import PartitionForm from '../components/PartitionForm'
+import PartitionForm from '../components/PartitionComponents/PartitionForm'
 import { useLocation } from 'react-router-dom'
 
 function LeftContainer() {
