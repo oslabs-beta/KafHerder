@@ -74,23 +74,21 @@ const listGroups = async() => {
         console.log('successfully connected!');
 
         console.log('fetching list of topics....');
-        const topics = await admin.listTopics();
-        console.log('here are the topics: ', topics);
+        const response = await admin.listGroups();
 
-        console.log('now fetching topicsMetadata...');
-        const topicsMetadata = await admin.fetchTopicMetadata({ topics: ['animals2'] });
-        console.log('here is the topicsMetadata: ', topicsMetadata);
-        for (const topic of topicsMetadata.topics){
-            if (!topic.name.includes('offset')){
-                console.log(topic);
+        const consumerGroups = [];
+        for (group of response.groups){
+            if (group.protocolType === 'consumer'){
+                consumerGroups.push(group.groupId);
             }
-        }
+        };
+        console.log('here are the consumer groups: ', consumerGroups);
 
         console.log('disconnecting...');
         await admin.disconnect();
     }
     catch (error) {
-        console.log('failed to fetch topics list or metadata');
+        console.log('failed to consumer groups list');
         console.error(error);
     }
 }
@@ -125,7 +123,11 @@ const run = async () => {
 // createTopic('animals2', 3, 3)
 // getTopicInfo();
 // getClusterInfo()
+const response = listGroups();
+// returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
 
+
+//
 
 
 
