@@ -67,7 +67,7 @@ const getTopicInfo = async() => {
 }
 
 
-const listGroups = async() => {
+const listConsumerGroupIds = async() => {
     try {
         console.log('connecting to Kafka cluster...');
         await admin.connect();
@@ -86,6 +86,7 @@ const listGroups = async() => {
 
         console.log('disconnecting...');
         await admin.disconnect();
+        return consumerGroups;
     }
     catch (error) {
         console.log('failed to consumer groups list');
@@ -96,21 +97,23 @@ const listGroups = async() => {
 class Topic {
     constructor (topicName){
         this.topicName = topicName;
-        this.partitions = []; // would a map be better?
-        this.consumerOffsetConfigurations = []; // would a map be better?
+        this.partitions = {}; // would a map be better?
+        this.consumerOffsetConfigurations = new Map();
     }
 
-    addConsumerGroupOffset(partition, offset, consumerGroupName){
-        this.partitions[partition].consumerOffsetLL.add(offset, consumerGroupName);
-
+    addConsumerGroupOffset(partitionNumber, offset, consumerGroupName){
+        if (!this.partitions[partitionNumber]){
+            this.partitions[partitionNumber] = new Partition(partitionNumber);
+        }
+        this.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupName);
     }
 
+    calculateConsumerGroupConfigurations(){
+
+    }
 }
 
-// I am building a function that takes a partition and offset off of a partitionObj (for a given consumerGroupName), and then adds it to my linkedlist for that partition. There are several partitions for a topic.
-
-// What is the best data structure for my partitions on my Topic object? I have it as an array but I think something else would be better. I need more explicit keys 1, 2, 3, 4 but also want to be able to add partition 6 without needing to define 5 first.
-
+// actually a string is not the best way
 
 
 // you want to find the relevant partition of the topic
@@ -134,44 +137,38 @@ class Partition {
 }
 
 class ConsumerOffsetLL {
-    constructor ( ){
+    constructor (){
         this.head = null;
         this.tail = null;
     }
 
     // Method to add a new node to the linked list in sorted order
-    // or update an existing node's consumerGroupName
     add(offset, consumerGroupName) {
-        if (this.head === null) {
-            this.head = new ConsumerOffsetNode(offset, consumerGroupName);
-            this.tail = this.head;
-            return;
-        }
-
-        let currentNode = this.head;
-        let previousNode = null;
-
-        while (currentNode !== null && currentNode.offset < offset) {
-            previousNode = currentNode;
-            currentNode = currentNode.next;
-        }
-
-        if (currentNode !== null && currentNode.offset === offset) {
-            // Update the existing node's consumerGroupName
-            currentNode.consumerGroupName += '/' + consumerGroupName;
-        } else {
-            // Insert a new node in sorted order
-            const newNode = new ConsumerOffsetNode(offset, consumerGroupName);
-            if (previousNode === null) {
-                newNode.next = this.head;
-                this.head = newNode;
-            } else {
-                newNode.next = currentNode;
-                previousNode.next = newNode;
-            }
-            if (newNode.next === null) {
+        const newNode = new ConsumerOffsetNode(offset, consumerGroupName);
+        const numericOffset = parseInt(offset, 10);
+    
+        if (this.head === null || 
+            parseInt(this.head.offset, 10) > numericOffset || 
+            (parseInt(this.head.offset, 10) === numericOffset && this.head.consumerGroupName > consumerGroupName)) {
+            newNode.next = this.head;
+            this.head = newNode;
+            if (this.tail === null) {
                 this.tail = newNode;
             }
+            return;
+        }
+    
+        let currentNode = this.head;
+        while (currentNode.next !== null &&
+               (parseInt(currentNode.next.offset, 10) < numericOffset ||
+               (parseInt(currentNode.next.offset, 10) === numericOffset && currentNode.next.consumerGroupName < consumerGroupName))) {
+            currentNode = currentNode.next;
+        }
+    
+        newNode.next = currentNode.next;
+        currentNode.next = newNode;
+        if (newNode.next === null) {
+            this.tail = newNode;
         }
     }
 
@@ -193,7 +190,7 @@ class ConsumerOffsetLL {
 class ConsumerOffsetNode {
     constructor (offset, consumerGroupName){
         this.next = null;
-        this.offset = offset; // number
+        this.offset = offset; // THIS IS A STRING for consistency with KafkaJS
         this.consumerGroupName = consumerGroupName; // string
     }
 }
@@ -207,7 +204,62 @@ const fetchOffsets = async( groupId, topicName ) => {
         console.log(`fetching ${groupId}'s offsets...`);
         const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
         const partitionsArr = response[0].partitions;
-        console.log(partitionsArr);
+        // console.log(partitionsArr);
+        // console.log(response);
+
+        // @example:
+        // [
+        //     { partition: 4, offset: '377', metadata: null },
+        //     { partition: 3, offset: '378', metadata: null },
+        //     { partition: 0, offset: '378', metadata: null },
+        //     { partition: 2, offset: '379', metadata: null },
+        //     { partition: 1, offset: '378', metadata: null }
+        //   ]
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+        return partitionsArr;
+    }
+    catch (error) {
+        console.log('failed to consumer groups list');
+        console.error(error);
+    }
+}
+
+
+const fetchAllOffsets = async( consumerGroupIds, topicName ) => {
+    const allConsumerGroupOffsets = {};
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        for (const groupId of consumerGroupIds){
+            const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+            const partitionsArr = response[0].partitions;    
+            // @example:
+            // [
+            //     { partition: 4, offset: '377', metadata: null },
+            //     { partition: 3, offset: '378', metadata: null },
+            //     { partition: 0, offset: '-1', metadata: null },
+            //     { partition: 2, offset: '379', metadata: null },
+            //     { partition: 1, offset: '-1', metadata: null }
+            //   ]
+            // this will return ALL partitions, but -1 for the offset if it doesn't exist
+            // what I'm realizing then is that it wouldn't be efficient to get all the ConsumerGroupOffsets first
+
+            if (allConsumerGroupOffsets[groupId])
+
+
+            allOffsets.push(response);
+            // this is largely useless. we want consumerGroupId
+        }
+
+        console.log(`fetching ${groupId}'s offsets...`);
+        const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+        const partitionsArr = response[0].partitions;
+        // console.log(partitionsArr);
+        console.log(response);
 
         // @example:
         // [
@@ -225,6 +277,39 @@ const fetchOffsets = async( groupId, topicName ) => {
         console.log('failed to consumer groups list');
         console.error(error);
     }
+}
+
+const getTopicConfigurations = async (topicName) => {
+    const topic = new Topic(topicName);
+
+    try {
+        // await admin.connect();
+        const consumerGroupIds = await listConsumerGroupIds();
+        // [ 'consumerGroupId1', 'consumerGroupId2', ... ]
+        // not all of these have read the topic
+        // if they haven't, all their offsets below will be -1
+
+        for (const groupId of consumerGroupIds){
+
+            const partitionObjArr = await fetchOffsets ( groupId, topicName );
+            // [
+            //     { partition: 0, offset: '377', metadata: null },
+            //     { partition: 1, offset: '-1', metadata: null }
+            // ]
+
+            for (const partitionObj of partitionObjArr){
+                const { partition, offset } = partitionObj;
+                if (offset !== '-1'){
+                    topic.addConsumerGroupOffset(partition, offset, groupId);
+                }
+            }
+        }
+        console.log('topic: ', topic);
+        console.log('topic.partitions');
+        console.log(topic.partitions[0].consumerOffsetLL.head);
+        return topic;
+    }
+    catch (err) {console.log(err)}
 }
 
 const getClusterInfo = async() => {
@@ -256,9 +341,10 @@ const run = async () => {
 // createTopic('animals2', 3, 3)
 // getTopicInfo();
 // getClusterInfo()
-// const response = listGroups();
+// const response = listConsumerGroupIds();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
-fetchOffsets( 'consumer-group', 'animals2'); // try this
+// fetchOffsets( 'consumer-group2', 'animals2'); // try this
+getTopicConfigurations('animals2');
 
 
 //
