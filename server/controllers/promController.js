@@ -5,7 +5,7 @@ const promController = {}
 
 
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
-// @TODO: allow users to specify what metric names they want
+// @TODO: stretch: allow users to specify what metric names they want
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 // {__name__=~"partitioncount|brokercount|partitioncount2|partitioncount3|partitioncount"}
