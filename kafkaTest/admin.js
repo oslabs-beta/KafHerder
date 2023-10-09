@@ -93,6 +93,115 @@ const listGroups = async() => {
     }
 }
 
+class Topic {
+    constructor (topicName){
+        this.topicName = topicName;
+        this.partitions = []; // would a map be better?
+        this.consumerOffsetConfigurations = []; // would a map be better?
+    }
+
+    addConsumerGroupOffset(partition, offset, consumerGroupName){
+
+    }
+
+}
+
+// you want to find the relevant partition of the topic
+// and ADD an offset to it
+// const consumerGroupName;
+// for const partitionObj of partitionsArr:
+//  const {}
+//  const partitionNumber = partitionObj.partition
+//  const offset = partitionObj.offset
+// animals.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupName)
+
+
+class Partition {
+    constructor (partitionNumber){
+        this.partitionNumber = partitionNumber;
+        this.consumerOffsetLL = new ConsumerOffsetLL;
+    }
+}
+
+class ConsumerOffsetLL {
+    constructor ( ){
+        this.head = null;
+        this.tail = null;
+    }
+
+    // Method to add a new node to the linked list in sorted order
+    add(offset, consumerGroupName) {
+        const newNode = new ConsumerOffsetNode(offset, consumerGroupName);
+        if (this.head === null || this.head.offset > offset) {
+            newNode.next = this.head;
+            this.head = newNode;
+            if (this.tail === null) {
+                this.tail = newNode;
+            }
+        } else {
+            let currentNode = this.head;
+            while (currentNode.next !== null && currentNode.next.offset < offset) {
+                currentNode = currentNode.next;
+            }
+            newNode.next = currentNode.next;
+            currentNode.next = newNode;
+            if (newNode.next === null) {
+                this.tail = newNode;
+            }
+        }
+    }
+
+    // Method to print all nodes in the linked list
+    printAll() {
+        let output = 'Consumer Offsets: ';
+        let currentNode = this.head;
+        while (currentNode !== null) {
+            output += `[${currentNode.consumerGroupName}: ${currentNode.offset}] -> `;
+            currentNode = currentNode.next;
+        }
+        output += 'null';
+        console.log(output);
+    }
+
+
+}
+
+class ConsumerOffsetNode {
+    constructor (offset, consumerGroupName){
+        this.next = null;
+        this.offset = offset; // number
+        this.consumerGroupName = consumerGroupName; // string
+    }
+}
+
+const fetchOffsets = async( groupId, topicName ) => {
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log(`fetching ${groupId}'s offsets...`);
+        const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+        const partitionsArr = response[0].partitions;
+        console.log(partitionsArr);
+
+        // @example:
+        // [
+        //     { partition: 4, offset: '377', metadata: null },
+        //     { partition: 3, offset: '378', metadata: null },
+        //     { partition: 0, offset: '378', metadata: null },
+        //     { partition: 2, offset: '379', metadata: null },
+        //     { partition: 1, offset: '378', metadata: null }
+        //   ]
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+    }
+    catch (error) {
+        console.log('failed to consumer groups list');
+        console.error(error);
+    }
+}
 
 const getClusterInfo = async() => {
     try {
@@ -123,8 +232,9 @@ const run = async () => {
 // createTopic('animals2', 3, 3)
 // getTopicInfo();
 // getClusterInfo()
-const response = listGroups();
+// const response = listGroups();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
+fetchOffsets( 'consumer-group', 'animals2'); // try this
 
 
 //
