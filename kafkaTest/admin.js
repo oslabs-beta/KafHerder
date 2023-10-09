@@ -66,6 +66,36 @@ const getTopicInfo = async() => {
     }
 }
 
+
+const listGroups = async() => {
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log('fetching list of topics....');
+        const topics = await admin.listTopics();
+        console.log('here are the topics: ', topics);
+
+        console.log('now fetching topicsMetadata...');
+        const topicsMetadata = await admin.fetchTopicMetadata({ topics: ['animals2'] });
+        console.log('here is the topicsMetadata: ', topicsMetadata);
+        for (const topic of topicsMetadata.topics){
+            if (!topic.name.includes('offset')){
+                console.log(topic);
+            }
+        }
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+    }
+    catch (error) {
+        console.log('failed to fetch topics list or metadata');
+        console.error(error);
+    }
+}
+
+
 const getClusterInfo = async() => {
     try {
         console.log('connecting to Kafka cluster...');
@@ -93,7 +123,7 @@ const run = async () => {
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
 // createTopic('animals2', 3, 3)
-getTopicInfo();
+// getTopicInfo();
 // getClusterInfo()
 
 

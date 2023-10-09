@@ -1,16 +1,16 @@
 const { Kafka } = require('kafkajs');
 const rpController = {};
 
-// to start with, run one consumer to the previous topic
-// simultaenously producing to the new topic
-// no need for an array
-
-// make one consumer for each partition
-// have them all run concurrently until they hit their first offsets, then pause them
-// once everyone has read up until their first offset, continue to the next
-// and so on and so forth
-
-// delete consumer group at end of it
+// REPARTITIONING STRATEGY SO FAR
+// 1. List all consumer groups via admin.listGroups()
+// 2. For each group, check if it exists in the topic in question admin.fetchOffsets({ groupId, topics: [topicName]})
+// 3. If it does (presumably returns non-empty array), fetch the consumer group offset for that and save it
+// 4. Save all these an object or other data structure:
+//    - key: partition #
+//    - value: consumer groups + their offsets, SORTED by offsets. maybe a configuration too
+// 5. 
+// ...
+// 99. You can create new consumer groups and SET the new consumer group offsets for them
 
 rpController.connectConsumers = async (req, res, next) => {
     try {
