@@ -97,42 +97,38 @@ const listConsumerGroupIds = async() => {
 class Topic {
     constructor (topicName){
         this.topicName = topicName;
-        this.partitions = {}; // would a map be better?
+        this.partitions = {};
         this.consumerOffsetConfigurations = new Map();
     }
 
-    addConsumerGroupOffset(partitionNumber, offset, consumerGroupName){
-        if (!this.partitions[partitionNumber]){
-            this.partitions[partitionNumber] = new Partition(partitionNumber);
+    addConsumerOffset(number, offset, consumerGroupId){
+        if (!this.partitions[number]){
+            this.partitions[number] = new Partition(number);
         }
-        this.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupName);
+        this.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupId);
     }
 
-    calculateConsumerGroupConfigurations(){
+    getAllConsumerOffsetConfigurations(){
 
     }
 }
-
-// actually a string is not the best way
-
-
-// you want to find the relevant partition of the topic
-// and ADD an offset to it
-// const topic;
-// const consumerGroupName;
-// for const partitionObj of partitionsArr:
-//  const { partition, offset } = partitionObj;
-//  Topic.addConsumerGroupOffset(partition, offset, consumerGroupName);
-
-//  const partitionNumber = partitionObj.partition
-//  const offset = partitionObj.offset
-// animals.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupName)
-
 
 class Partition {
     constructor (partitionNumber){
         this.partitionNumber = partitionNumber;
         this.consumerOffsetLL = new ConsumerOffsetLL;
+        this.consumerOffsetConfiguration = '';
+    }
+
+    // Method to generate string representing all the offsets in the list
+    getConsumerOffsetConfiguration() {
+        let output = 'config:';
+        let currentNode = this.consumerOffsetLL.head;
+        while (currentNode !== null) {
+            output += `-${currentNode.consumerGroupId}`;
+            currentNode = currentNode.next;
+        };
+        this.consumerOffsetConfiguration = output;
     }
 }
 
@@ -143,13 +139,13 @@ class ConsumerOffsetLL {
     }
 
     // Method to add a new node to the linked list in sorted order
-    add(offset, consumerGroupName) {
-        const newNode = new ConsumerOffsetNode(offset, consumerGroupName);
+    add(offset, consumerGroupId) {
+        const newNode = new ConsumerOffsetNode(offset, consumerGroupId);
         const numericOffset = parseInt(offset, 10);
     
         if (this.head === null || 
             parseInt(this.head.offset, 10) > numericOffset || 
-            (parseInt(this.head.offset, 10) === numericOffset && this.head.consumerGroupName > consumerGroupName)) {
+            (parseInt(this.head.offset, 10) === numericOffset && this.head.consumerGroupId > consumerGroupId)) {
             newNode.next = this.head;
             this.head = newNode;
             if (this.tail === null) {
@@ -161,7 +157,7 @@ class ConsumerOffsetLL {
         let currentNode = this.head;
         while (currentNode.next !== null &&
                (parseInt(currentNode.next.offset, 10) < numericOffset ||
-               (parseInt(currentNode.next.offset, 10) === numericOffset && currentNode.next.consumerGroupName < consumerGroupName))) {
+               (parseInt(currentNode.next.offset, 10) === numericOffset && currentNode.next.consumerGroupId < consumerGroupId))) {
             currentNode = currentNode.next;
         }
     
@@ -172,26 +168,24 @@ class ConsumerOffsetLL {
         }
     }
 
-    // Method to print all nodes in the linked list
-    printAll() {
-        let output = 'Consumer Offsets: ';
+    // Method to generate string representing all the offsets in the list
+    getConfiguration() {
+        let output = 'config-';
         let currentNode = this.head;
         while (currentNode !== null) {
-            output += `[${currentNode.consumerGroupName}: ${currentNode.offset}] -> `;
+            output += `${currentNode.consumerGroupId}: ${currentNode.offset}] -> `;
             currentNode = currentNode.next;
         }
         output += 'null';
         console.log(output);
     }
-
-
 }
 
 class ConsumerOffsetNode {
-    constructor (offset, consumerGroupName){
+    constructor (offset, consumerGroupId){
         this.next = null;
         this.offset = offset; // THIS IS A STRING for consistency with KafkaJS
-        this.consumerGroupName = consumerGroupName; // string
+        this.consumerGroupId = consumerGroupId; // string
     }
 }
 
@@ -300,7 +294,7 @@ const getTopicConfigurations = async (topicName) => {
             for (const partitionObj of partitionObjArr){
                 const { partition, offset } = partitionObj;
                 if (offset !== '-1'){
-                    topic.addConsumerGroupOffset(partition, offset, groupId);
+                    topic.addConsumerOffset(partition, offset, groupId);
                 }
             }
         }
