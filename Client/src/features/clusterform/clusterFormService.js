@@ -15,7 +15,7 @@ export const checkPromPortFromAPI = async (clusterPortData) => {
             },
             body: JSON.stringify(clusterPortData)
         });
-    
+
         const data = await response;
         //*TODO: make sure this throws a 404 on backend and check for it here too
         console.log('data', data)
@@ -29,24 +29,45 @@ export const checkPromPortFromAPI = async (clusterPortData) => {
     }
 };
 
-export const checkKafkaPortFromAPI = async (clusterPortData) => { // TODO: where are we passing kafka port data
+export const checkKafkaPortFromAPI = async (clusterPortData) => { 
     try {
-        const response = await fetch(API_URL + 'kafkaport', { // TODO: add path to connect to kafka
+        const { kafkaPort } = clusterPortData
+        const response = await fetch(API_URL + 'admin/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(clusterPortData)
+            body: JSON.stringify({seedBrokerUrl: kafkaPort})
         });
-    
-        const data = await response;
+
+        const data = await response.json();
         //*TODO: make sure this throws a 404 on backend and check for it here too
         console.log('data', data)
-        // if (data.success) {
-        //     return clusterPortData
-        // } else {
-        //     throw new Error('Failed to connect to port');
-        // }    
+
+        return data;
+    } catch (error) {
+        console.error('Error occurred in clusterFormService.js', error);
+    }
+};
+
+export const fetchPartitionDataFromAPI = async (state) => { 
+    try {
+        const kafkaPortUrl = state.clusterForm.kafkaPort;
+        const topic = state.clusterForm.selectedTopic;
+
+        console.log('inside fetch partition data')
+        console.log('selected Topic', topic)
+        const response = await fetch(API_URL + 'admin/partitions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({seedBrokerUrl: kafkaPortUrl, topicName: topic})
+        });
+
+        const data = await response.json();
+        console.log('data', data)
+        return data;
     } catch (error) {
         console.error('Error occurred in clusterFormService.js', error);
     }
@@ -54,7 +75,10 @@ export const checkKafkaPortFromAPI = async (clusterPortData) => { // TODO: where
 
 const clusterFormService = {
     checkPromPortFromAPI,
-    checkKafkaPortFromAPI
+    checkKafkaPortFromAPI,
+    fetchPartitionDataFromAPI
 };
 
+
 export default clusterFormService;
+

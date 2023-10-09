@@ -31,7 +31,7 @@ function PartitionForm() {
     const handleSubmit = (e) => {
       e.preventDefault();
       dispatch(setKafkaPort(partitionForm));
-      dispatch(checkKafkaPort(partitionForm)); // TODO: ask backend team about route to connect to kafka port
+      dispatch(checkKafkaPort(partitionForm)); 
       console.log(partitionForm.promPort)
     }
   

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { checkPromPortFromAPI, checkKafkaPortFromAPI } from './clusterFormService';
+import { checkPromPortFromAPI, checkKafkaPortFromAPI, fetchPartitionDataFromAPI } from './clusterFormService';
 import { fetchedClusterData } from '../kafkaCluster/kafkaClusterSlice';
 
 const initialState = {
@@ -7,6 +7,8 @@ const initialState = {
     promPort: '',
     kafkaPort: '',
     topics: [],
+    selectedTopic: '',
+    partitionData: [],
     interval: 5,
     status: 'off',
     error: null
@@ -24,6 +26,13 @@ export const checkKafkaPort = createAsyncThunk(
     'clusterForm/checkKafkaPort', checkKafkaPortFromAPI
 )
 
+export const checkPartitionData = createAsyncThunk(
+    'clusterForm/checkPartitionData',
+        async(_, thunkAPI) => {
+            const state = thunkAPI.getState();
+            return await fetchPartitionDataFromAPI(state);
+})
+
 // created state that shows if the port connected to the server
 const clusterFormSlice = createSlice({
     name: 'clusterForm',
@@ -36,25 +45,37 @@ const clusterFormSlice = createSlice({
         },
         setKafkaPort: (state, action) => {
             state.kafkaPort = action.payload.kafkaPort;
+        },
+        setSelectedTopic: (state, action) => {
+            state.selectedTopic = action.payload;
+            console.log('selected topic in slice', state.selectedTopic)
         }
     },
     extraReducers: (builder) => {
         builder
-        .addCase(checkPromPort.pending, (state) => {
-            state.status = 'pending';
-        })
-        .addCase(checkPromPort.fulfilled, (state, action) => {
-            state.status = 'on';
-            fetchedClusterData()
-        })
-        .addCase(checkPromPort.rejected, (state, action) => {
-            state.status = 'off';
-            state.error = action.error.message
-        }) // TODO: add extraReducers for checkKafkaPort. On fulfilled we'll fetch the data.
+            .addCase(checkPromPort.pending, (state) => {
+                state.status = 'pending';
+            })
+            .addCase(checkPromPort.fulfilled, (state, action) => {
+                state.status = 'on';
+                fetchedClusterData()
+            })
+            .addCase(checkPromPort.rejected, (state, action) => {
+                state.status = 'off';
+                state.error = action.error.message
+            })
+            .addCase(checkKafkaPort.fulfilled, (state, action) => {
+                state.topics = action.payload.topics;
+            })
+            .addCase(checkKafkaPort.rejected, (state, action) => {
+                state.error = action.error.message
+            })
+            .addCase(checkPartitionData.fulfilled, (state, action) => {
+                state.partitionData = action.payload.partitionData
+            })
     }
-    
 });
 
 
-export const { setClusterForm, setKafkaPort } = clusterFormSlice.actions;
+export const { setClusterForm, setKafkaPort, setSelectedTopic } = clusterFormSlice.actions;
 export default clusterFormSlice.reducer;

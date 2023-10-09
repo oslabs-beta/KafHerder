@@ -12,29 +12,29 @@ const adminController = {};
  * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
 adminController.connectAdmin = async (req, res, next) => {
-  try {
-    const { seedBrokerUrl } = req.body;
+    try {
+        const { seedBrokerUrl } = req.body;
 
-    const kafka = new Kafka({
-        clientId: 'my-admin',
-        brokers: [ seedBrokerUrl ]
-    });
-    
-    const admin = kafka.admin(); 
-    await admin.connect();
-    console.log('Connected admin to Kafka cluster.');
+        const kafka = new Kafka({
+            clientId: 'my-admin',
+            brokers: [seedBrokerUrl]
+        });
 
-    res.locals.connectedAdmin = admin;
+        const admin = kafka.admin();
+        await admin.connect();
+        console.log('Connected admin to Kafka cluster.');
 
-    return next();
-  }
-  catch (err) {
-    return next({
-        log: `Error in adminController.verifyPort: ${err}`,
-        status: 400,
-        message: { err: 'An error occured' }
-    })
-  }
+        res.locals.connectedAdmin = admin;
+
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.verifyPort: ${err}`,
+            status: 400,
+            message: { err: 'An error occured in adminController.connectAdmin' }
+        })
+    }
 };
 
 // @TODO: route should be connect ---> getClusterInfo ---> getTopics and ADD it to the ClusterInfo
@@ -71,7 +71,7 @@ adminController.getClusterInfo = async (req, res, next) => {
         return next({
             log: `Error in adminController.getClusterInfo: ${err}`,
             status: 400,
-            message: { err: 'An error occured' }
+            message: { err: 'An error occured in adminController.getClusterInfo' }
         })
     }
 }
@@ -101,7 +101,7 @@ adminController.getTopics = async (req, res, next) => {
         return next({
             log: `Error in adminController.getTopics: ${err}`,
             status: 400,
-            message: { err: 'An error occured' }
+            message: { err: 'An error occured in getTopics' }
         })
     }
 }
@@ -145,7 +145,7 @@ adminController.getPartitions = async (req, res, next) => {
         return next({
             log: `Error in adminController.getPartitions: ${err}`,
             status: 400,
-            message: { err: 'An error occured' }
+            message: { err: 'An error occured in getPartitions' }
         })
     }
 }
@@ -191,7 +191,7 @@ adminController.createTopic = async (req, res, next) => {
         return next({
             log: `Error in adminController.createTopic: ${err}`,
             status: 400,
-            message: { err: 'An error occured' }
+            message: { err: 'An error occuredin createTopic' }
         })
     }
 }
@@ -214,7 +214,7 @@ adminController.disconnectAdmin = async (req, res, next) => {
         return next({
             log: `Error in adminController.disconnect: ${err}`,
             status: 400,
-            message: { err: 'An error occured' }
+            message: { err: 'An error occured in disconnect' }
         })
     }
 };

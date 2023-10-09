@@ -2,6 +2,7 @@ const { Kafka } = require('kafkajs');
 
 const kafka = new Kafka({
     clientId: 'my-admin',
+    ssl: true, // TODO: added in cuz of stack overflow. do we need this?
     brokers: ['localhost:9092'] //, 'localhost:9094', 'localhost:9096']
     // apparently you only need to give one broker and kafkajs will find the rest
 })
@@ -92,7 +93,7 @@ const run = async () => {
 
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
-// createTopic('animals2', 3, 3)
+createTopic('animals2', 3, 3)
 getTopicInfo();
 // getClusterInfo()
 
