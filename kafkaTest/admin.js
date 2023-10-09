@@ -101,16 +101,26 @@ class Topic {
     }
 
     addConsumerGroupOffset(partition, offset, consumerGroupName){
+        this.partitions[partition].consumerOffsetLL.add(offset, consumerGroupName);
 
     }
 
 }
 
+// I am building a function that takes a partition and offset off of a partitionObj (for a given consumerGroupName), and then adds it to my linkedlist for that partition. There are several partitions for a topic.
+
+// What is the best data structure for my partitions on my Topic object? I have it as an array but I think something else would be better. I need more explicit keys 1, 2, 3, 4 but also want to be able to add partition 6 without needing to define 5 first.
+
+
+
 // you want to find the relevant partition of the topic
 // and ADD an offset to it
+// const topic;
 // const consumerGroupName;
 // for const partitionObj of partitionsArr:
-//  const {}
+//  const { partition, offset } = partitionObj;
+//  Topic.addConsumerGroupOffset(partition, offset, consumerGroupName);
+
 //  const partitionNumber = partitionObj.partition
 //  const offset = partitionObj.offset
 // animals.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupName)
@@ -130,21 +140,35 @@ class ConsumerOffsetLL {
     }
 
     // Method to add a new node to the linked list in sorted order
+    // or update an existing node's consumerGroupName
     add(offset, consumerGroupName) {
-        const newNode = new ConsumerOffsetNode(offset, consumerGroupName);
-        if (this.head === null || this.head.offset > offset) {
-            newNode.next = this.head;
-            this.head = newNode;
-            if (this.tail === null) {
-                this.tail = newNode;
-            }
+        if (this.head === null) {
+            this.head = new ConsumerOffsetNode(offset, consumerGroupName);
+            this.tail = this.head;
+            return;
+        }
+
+        let currentNode = this.head;
+        let previousNode = null;
+
+        while (currentNode !== null && currentNode.offset < offset) {
+            previousNode = currentNode;
+            currentNode = currentNode.next;
+        }
+
+        if (currentNode !== null && currentNode.offset === offset) {
+            // Update the existing node's consumerGroupName
+            currentNode.consumerGroupName += '/' + consumerGroupName;
         } else {
-            let currentNode = this.head;
-            while (currentNode.next !== null && currentNode.next.offset < offset) {
-                currentNode = currentNode.next;
+            // Insert a new node in sorted order
+            const newNode = new ConsumerOffsetNode(offset, consumerGroupName);
+            if (previousNode === null) {
+                newNode.next = this.head;
+                this.head = newNode;
+            } else {
+                newNode.next = currentNode;
+                previousNode.next = newNode;
             }
-            newNode.next = currentNode.next;
-            currentNode.next = newNode;
             if (newNode.next === null) {
                 this.tail = newNode;
             }
