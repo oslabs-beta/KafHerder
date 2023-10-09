@@ -97,19 +97,26 @@ const listConsumerGroupIds = async() => {
 class Topic {
     constructor (topicName){
         this.topicName = topicName;
-        this.partitions = {};
-        this.consumerOffsetConfigurations = new Map();
+        this.partitions = {}; // key: partitionNumber, value: Partition object
+        this.consumerOffsetConfigs = {}; // key: config, value: array of partitions that have it
     }
 
     addConsumerOffset(number, offset, consumerGroupId){
         if (!this.partitions[number]){
             this.partitions[number] = new Partition(number);
         }
-        this.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupId);
+        this.partitions[number].consumerOffsetLL.add(offset, consumerGroupId);
     }
 
-    getAllConsumerOffsetConfigurations(){
+    getAllConsumerOffsetConfigs(){
+        for (const [partitionNumber, partition] of Object.entries(this.partitions)){
+            const config = partition.getConsumerOffsetConfig();
 
+            if (!this.consumerOffsetConfigs[config]){
+                this.consumerOffsetConfigs[config] = [];
+            }
+            this.consumerOffsetConfigs[config].push(partitionNumber);
+        }
     }
 }
 
@@ -117,18 +124,19 @@ class Partition {
     constructor (partitionNumber){
         this.partitionNumber = partitionNumber;
         this.consumerOffsetLL = new ConsumerOffsetLL;
-        this.consumerOffsetConfiguration = '';
+        // this.consumerOffsetConfig = '';
     }
 
     // Method to generate string representing all the offsets in the list
-    getConsumerOffsetConfiguration() {
-        let output = 'config:';
+    getConsumerOffsetConfig() {
+        let consumerOffsetConfig = 'config:';
         let currentNode = this.consumerOffsetLL.head;
         while (currentNode !== null) {
-            output += `-${currentNode.consumerGroupId}`;
+            consumerOffsetConfig += `-${currentNode.consumerGroupId}`;
             currentNode = currentNode.next;
         };
-        this.consumerOffsetConfiguration = output;
+        // this.consumerOffsetConfig = consumerOffsetConfig;
+        return consumerOffsetConfig;
     }
 }
 
@@ -166,18 +174,6 @@ class ConsumerOffsetLL {
         if (newNode.next === null) {
             this.tail = newNode;
         }
-    }
-
-    // Method to generate string representing all the offsets in the list
-    getConfiguration() {
-        let output = 'config-';
-        let currentNode = this.head;
-        while (currentNode !== null) {
-            output += `${currentNode.consumerGroupId}: ${currentNode.offset}] -> `;
-            currentNode = currentNode.next;
-        }
-        output += 'null';
-        console.log(output);
     }
 }
 
@@ -273,7 +269,7 @@ const fetchAllOffsets = async( consumerGroupIds, topicName ) => {
     }
 }
 
-const getTopicConfigurations = async (topicName) => {
+const getTopicConfigs = async (topicName) => {
     const topic = new Topic(topicName);
 
     try {
@@ -338,7 +334,7 @@ const run = async () => {
 // const response = listConsumerGroupIds();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
 // fetchOffsets( 'consumer-group2', 'animals2'); // try this
-getTopicConfigurations('animals2');
+getTopicConfigs('animals2');
 
 
 //
