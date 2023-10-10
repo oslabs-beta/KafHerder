@@ -18,13 +18,13 @@ export class RepartitionerGroup {
     startAll(){
 
     }
-    checkIfAllPaused(){
+    allPaused(){
         for (const agent of this.agents){
             if (agent.isPaused === false) return false;
         }
         return true;
     }
-    unpauseAll(){
+    resumeAll(){
 
     }
 }
@@ -50,11 +50,14 @@ export class RepartitionerAgent {
         this.newPartitionNum = newPartitionNum;
         this.id = id;
 
-        this.isPaused;
-        this.stoppingPoint;
+        this.hasStarted = false;
+        this.stoppingPoint = this.oldTopic.partitions[oldPartitionNum].consumerOffsetLL.head; // consumerOffsetNode
+        this.isPaused; // should the below be defined later?
         this.producer;
+        this.producerOffset;
         this.consumer;
-        this.unpause;
+        this.consumerOffset;
+        this.resume;
     }
     async createProducer(){
         const kafka = new Kafka({
@@ -85,21 +88,35 @@ export class RepartitionerAgent {
         await this.createConsumer();
         
         await this.consumer.run({
-            eachMessage: async ({ topic, partition, message, pause }) => {
+            eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
                 const key = message.key.toString();
                 const value = message.value.toString();
-                const headers = message.headers;
+                this.consumerOffset = message.offset;
 
-                // pausing logic needed
+                if (this.consumerOffset === this.stoppingPoint.offset){
+                    this.resume = pause(); // no await needed?
+                    this.isPaused = true;
+                    this.stoppingPoint = this.stoppingPoint.next; // TODO: if null?
+
+                    if (this.rpGroup.allPaused()){
+                        // TODO: this means this Partition is the last one to pause
+                        // that means you can write the PRODUCER's offset on the partition
+                        // plus this.stoppingPoint.consumerGroupName as the NEW offset for the new partition
+                        // make sure the stoppingPoint.next is called below this, not above
+                        // and figure out how to get the producer's current offset
+                        this.rpGroup.resumeAll();
+                    }
+                }
 
                 // producer logic
-                await this.producer.send({ 
+                const result = await this.producer.send({ 
                     topic: this.newTopicName,
                     messages: [
                         { key, value, partition: this.newPartitionNum }
                     ],
-                })
-                
+                });
+                this.producerOffset = result.lastOffset;
+
             }
         })
     }
