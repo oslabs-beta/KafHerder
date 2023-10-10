@@ -1,6 +1,6 @@
 const { Kafka } = require('kafkajs');
-const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('./Topic.js');
-const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('./Repartitioner.js');
+const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('../server/variables/Topic.js');
+const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('../server/variables/Repartitioner.js');
 
 const kafka = new Kafka({
     clientId: 'my-admin',

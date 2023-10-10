@@ -1,4 +1,7 @@
 const { Kafka } = require('kafkajs');
+const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('../variables/Topic.js');
+const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('../variables/Repartitioner.js');
+
 const adminController = {};
 
 /**
