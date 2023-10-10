@@ -1,9 +1,10 @@
 const { Kafka } = require('kafkajs');
+const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('../server/variables/Topic.js');
+const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('../server/variables/Repartitioner.js');
 
 const kafka = new Kafka({
     clientId: 'my-admin',
-    brokers: ['localhost:9092'] //, 'localhost:9094', 'localhost:9096']
-    // apparently you only need to give one broker and kafkajs will find the rest
+    brokers: ['localhost:9092']
 })
 
 const admin = kafka.admin(); 
@@ -66,6 +67,151 @@ const getTopicInfo = async() => {
     }
 }
 
+
+const listConsumerGroupIds = async() => {
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log('fetching list of topics....');
+        const response = await admin.listGroups();
+
+        const consumerGroups = [];
+        for (group of response.groups){
+            if (group.protocolType === 'consumer'){
+                consumerGroups.push(group.groupId);
+            }
+        };
+        console.log('here are the consumer groups: ', consumerGroups);
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+        return consumerGroups;
+    }
+    catch (error) {
+        console.log('failed to consumer groups list');
+        console.error(error);
+    }
+}
+
+const fetchOffsets = async( groupId, topicName ) => {
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log(`fetching ${groupId}'s offsets...`);
+        const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+        const partitionsArr = response[0].partitions;
+        // console.log(partitionsArr);
+        // console.log(response);
+
+        // @example:
+        // [
+        //     { partition: 4, offset: '377', metadata: null },
+        //     { partition: 3, offset: '378', metadata: null },
+        //     { partition: 0, offset: '378', metadata: null },
+        //     { partition: 2, offset: '379', metadata: null },
+        //     { partition: 1, offset: '378', metadata: null }
+        //   ]
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+        return partitionsArr;
+    }
+    catch (error) {
+        console.log('failed to consumer groups list');
+        console.error(error);
+    }
+}
+
+
+// const fetchAllOffsets = async( consumerGroupIds, topicName ) => {
+//     const allConsumerGroupOffsets = {};
+//     try {
+//         console.log('connecting to Kafka cluster...');
+//         await admin.connect();
+//         console.log('successfully connected!');
+
+//         for (const groupId of consumerGroupIds){
+//             const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+//             const partitionsArr = response[0].partitions;    
+//             // @example:
+//             // [
+//             //     { partition: 4, offset: '377', metadata: null },
+//             //     { partition: 3, offset: '378', metadata: null },
+//             //     { partition: 0, offset: '-1', metadata: null },
+//             //     { partition: 2, offset: '379', metadata: null },
+//             //     { partition: 1, offset: '-1', metadata: null }
+//             //   ]
+//             // this will return ALL partitions, but -1 for the offset if it doesn't exist
+//             // what I'm realizing then is that it wouldn't be efficient to get all the ConsumerGroupOffsets first
+
+//             if (allConsumerGroupOffsets[groupId])
+
+
+//             allOffsets.push(response);
+//             // this is largely useless. we want consumerGroupId
+//         }
+
+//         console.log(`fetching ${groupId}'s offsets...`);
+//         const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+//         const partitionsArr = response[0].partitions;
+//         // console.log(partitionsArr);
+//         console.log(response);
+
+//         // @example:
+//         // [
+//         //     { partition: 4, offset: '377', metadata: null },
+//         //     { partition: 3, offset: '378', metadata: null },
+//         //     { partition: 0, offset: '378', metadata: null },
+//         //     { partition: 2, offset: '379', metadata: null },
+//         //     { partition: 1, offset: '378', metadata: null }
+//         //   ]
+
+//         console.log('disconnecting...');
+//         await admin.disconnect();
+//     }
+//     catch (error) {
+//         console.log('failed to consumer groups list');
+//         console.error(error);
+//     }
+// }
+
+const getTopicConfigs = async (topicName) => {
+    const topic = new Topic(topicName);
+
+    try {
+        // await admin.connect();
+        const consumerGroupIds = await listConsumerGroupIds();
+        // [ 'consumerGroupId1', 'consumerGroupId2', ... ]
+        // not all of these have read the topic
+        // if they haven't, all their offsets below will be -1
+
+        for (const groupId of consumerGroupIds){
+
+            const partitionObjArr = await fetchOffsets ( groupId, topicName );
+            // [
+            //     { partition: 0, offset: '377', metadata: null },
+            //     { partition: 1, offset: '-1', metadata: null }
+            // ]
+
+            for (const partitionObj of partitionObjArr){
+                const { partition, offset } = partitionObj;
+                if (offset !== '-1'){
+                    topic.addConsumerOffset(partition, offset, groupId);
+                }
+            }
+        }
+        console.log('topic: ', topic);
+        console.log('topic.partitions');
+        console.log(topic.partitions[0].consumerOffsetLL.head);
+        console.log(topic.getAllConsumerOffsetConfigs());
+    }
+    catch (err) {console.log(err)}
+}
+
 const getClusterInfo = async() => {
     try {
         console.log('connecting to Kafka cluster...');
@@ -93,9 +239,15 @@ const run = async () => {
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
 // createTopic('animals2', 3, 3)
-getTopicInfo();
+// getTopicInfo();
 // getClusterInfo()
+// const response = listConsumerGroupIds();
+// returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
+// fetchOffsets( 'consumer-group2', 'animals2'); // try this
+getTopicConfigs('animals2');
 
+
+//
 
 
 
