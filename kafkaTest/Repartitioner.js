@@ -52,6 +52,7 @@ export class RepartitionerAgent {
 
         this.hasStarted = false;
         this.stoppingPoint = this.oldTopic.partitions[oldPartitionNum].consumerOffsetLL.head; // consumerOffsetNode
+        // TODO: add logic if the above is ever null, or the stoppingPoint.consumerGroupId === __end;
         this.isPaused; // should the below be defined later?
         this.producer;
         this.producerOffset;
@@ -96,15 +97,13 @@ export class RepartitionerAgent {
                 if (this.consumerOffset === this.stoppingPoint.offset){
                     this.resume = pause(); // no await needed?
                     this.isPaused = true;
-                    this.stoppingPoint = this.stoppingPoint.next; // TODO: if null?
 
                     if (this.rpGroup.allPaused()){
-                        // TODO: this means this Partition is the last one to pause
-                        // that means you can write the PRODUCER's offset on the partition
-                        // plus this.stoppingPoint.consumerGroupName as the NEW offset for the new partition
-                        // make sure the stoppingPoint.next is called below this, not above
-                        // and figure out how to get the producer's current offset
+                        this.stoppingPoint = this.stoppingPoint.next;
+                        console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.producerOffset}`)
                         this.rpGroup.resumeAll();
+                    } else {
+                        this.stoppingPoint = this.stoppingPoint.next; // not very DRY
                     }
                 }
 
