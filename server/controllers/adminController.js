@@ -1,4 +1,7 @@
 const { Kafka } = require('kafkajs');
+const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('../variables/Topic.js');
+const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('../variables/Repartitioner.js');
+
 const adminController = {};
 
 /**
@@ -12,17 +15,17 @@ const adminController = {};
  * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
 adminController.connectAdmin = async (req, res, next) => {
-    try {
-        const { seedBrokerUrl } = req.body;
+  const { seedBrokerUrl } = req.body;
 
-        const kafka = new Kafka({
-            clientId: 'my-admin',
-            brokers: [seedBrokerUrl]
-        });
-
-        const admin = kafka.admin();
-        await admin.connect();
-        console.log('Connected admin to Kafka cluster.');
+  try {
+    const kafka = new Kafka({
+        clientId: 'my-admin',
+        brokers: [ seedBrokerUrl ]
+    });
+    
+    const admin = kafka.admin(); 
+    await admin.connect();
+    console.log('Connected admin to Kafka cluster.');
 
         res.locals.connectedAdmin = admin;
 
@@ -58,9 +61,9 @@ adminController.connectAdmin = async (req, res, next) => {
  * // }
  */
 adminController.getClusterInfo = async (req, res, next) => {
-    try {
-        const admin = res.locals.connectedAdmin;
+    const admin = res.locals.connectedAdmin;
 
+    try {
         const clusterInfo = await admin.describeCluster();
 
         res.locals.clusterInfo = clusterInfo;
@@ -88,9 +91,9 @@ adminController.getClusterInfo = async (req, res, next) => {
  * // [ 'animals2', 'animals', '__consumer_offsets' ]
  */
 adminController.getTopics = async (req, res, next) => {
-    try {
-        const admin = res.locals.connectedAdmin;
+    const admin = res.locals.connectedAdmin;
 
+    try {
         const topics = await admin.listTopics();
 
         res.locals.clusterInfo.topics = topics;
@@ -127,10 +130,10 @@ adminController.getTopics = async (req, res, next) => {
  * // ]
  */
 adminController.getPartitions = async (req, res, next) => {
-    try {
-        const admin = res.locals.connectedAdmin;
+    const admin = res.locals.connectedAdmin;
+    const { topicName } = req.body;
 
-        const { topicName } = req.body;
+    try {
 
         const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
         // * metadata structure: Metadata:  { topics: [ { name: topicName, partitions: [Array] } ] }
@@ -163,11 +166,10 @@ adminController.getPartitions = async (req, res, next) => {
  * @returns {Boolean} res.locals.wasCreated will be false if the topic already exists
  */
 adminController.createTopic = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const { topicName, numPartitions, replicationFactor } = req.body;
+
     try {
-        const admin = res.locals.connectedAdmin;
-
-        const { topicName, numPartitions, replicationFactor } = req.body;
-
         const wasCreated = await admin.createTopics({
             validateOnly: false, // default
             waitForLeaders: true, // default
@@ -204,8 +206,8 @@ adminController.createTopic = async (req, res, next) => {
  * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
  */
 adminController.disconnectAdmin = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
     try {
-        const admin = res.locals.connectedAdmin;
         await admin.disconnect();
         console.log('Disconnected admin from Kafka cluster.');
         return next();
@@ -218,5 +220,195 @@ adminController.disconnectAdmin = async (req, res, next) => {
         })
     }
 };
+
+
+// ~~~ getMinPartitions route: ~~~
+
+// MIDDLEWARE 1
+// takes in a connected admin
+// returns list of consumerGroupIds: [ 'consumerGroupId1', 'consumerGroupId2', ... ]
+adminController.fetchConsumerGroupIds = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+
+    try {
+        const response = await admin.listGroups();
+
+        const consumerGroupIds = [];
+        for (group of response.groups){
+            if (group.protocolType === 'consumer'){
+                consumerGroupIds.push(group.groupId);
+            }
+        };
+
+        res.locals.consumerGroupIds = consumerGroupIds;
+
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.fetchConsumerGroupIds: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+// MIDDLEWARE 2
+// takes in the consumerGroupIds from the previous middleware, as well as the connected admin
+// also takes the old topic name passed initially in the body
+// returns a Topic object with all the offset information you could possibly need
+// see Topic.js for more information about its shape
+// YOU CAN ACCESS THE NUMBER OF CONFIGS IN THE RESPONSE:
+// topicObj.numConfigs
+adminController.calculateTopicConfigs = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const consumerGroupIds = res.locals.consumerGroupIds;
+    const { topicName } = req.body;
+    const topic = new Topic(topicName);
+
+    // HELPER FUNCTION: fetches offsets on each partition of the topic for one consumerGroup
+    // TODO: JSDocs for this function
+    const fetchOffsets = async (groupId, topicName) => {
+        try {
+            const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+            const partitionObjArr = response[0].partitions;
+            // @example:
+            // [
+            //     { partition: 0, offset: '377', metadata: null },
+            //     { partition: 1, offset: '-1', metadata: null }
+            // ]
+            // if the consumer group has NOT read a partition, the offset will be '-1'
+            return partitionObjArr;
+        }
+        catch (err) {
+            return next({
+                log: `Failed to fetch ${groupId}'s offsets in adminController.calculateTopicConfigs: ${err}`,
+                status: 400,
+                message: { err: 'An error occured' }
+            })
+        }
+    }
+
+    try {
+        for (const groupId of consumerGroupIds){
+
+            const partitionObjArr = await fetchOffsets ( groupId, topicName );
+
+            for (const partitionObj of partitionObjArr){
+                const { partition, offset } = partitionObj;
+                if (offset !== '-1'){
+                    // this is where we build out the topic object:
+                    topic.addConsumerOffset(partition, offset, groupId);
+                }
+            }
+        }
+        topic.getAllConsumerOffsetConfigs(); // TODO: maybe this should happen automatically?
+        
+        res.locals.topicObj = topic;
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.calculateTopicConfigs: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+
+// ~~~ getMinPartitions route: ~~~
+
+// MIDDLEWARE 1
+// takes in a connected admin
+// returns list of consumerGroupIds: [ 'consumerGroupId1', 'consumerGroupId2', ... ]
+adminController.fetchConsumerGroupIds = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+
+    try {
+        const response = await admin.listGroups();
+
+        const consumerGroupIds = [];
+        for (group of response.groups){
+            if (group.protocolType === 'consumer'){
+                consumerGroupIds.push(group.groupId);
+            }
+        };
+
+        res.locals.consumerGroupIds = consumerGroupIds;
+
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.fetchConsumerGroupIds: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+// MIDDLEWARE 2
+// takes in the consumerGroupIds from the previous middleware, as well as the connected admin
+// also takes the old topic name passed initially in the body
+// returns a Topic object with all the offset information you could possibly need
+// see Topic.js for more information about its shape
+// YOU CAN ACCESS THE NUMBER OF CONFIGS IN THE RESPONSE:
+// topicObj.numConfigs
+adminController.calculateTopicConfigs = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const consumerGroupIds = res.locals.consumerGroupIds;
+    const { topicName } = req.body;
+    const topic = new Topic(topicName);
+
+    // HELPER FUNCTION: fetches offsets on each partition of the topic for one consumerGroup
+    // TODO: JSDocs for this function
+    const fetchOffsets = async (groupId, topicName) => {
+        try {
+            const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+            const partitionObjArr = response[0].partitions;
+            // @example:
+            // [
+            //     { partition: 0, offset: '377', metadata: null },
+            //     { partition: 1, offset: '-1', metadata: null }
+            // ]
+            // if the consumer group has NOT read a partition, the offset will be '-1'
+            return partitionObjArr;
+        }
+        catch (err) {
+            return next({
+                log: `Failed to fetch ${groupId}'s offsets in adminController.calculateTopicConfigs: ${err}`,
+                status: 400,
+                message: { err: 'An error occured' }
+            })
+        }
+    }
+
+    try {
+        for (const groupId of consumerGroupIds){
+
+            const partitionObjArr = await fetchOffsets ( groupId, topicName );
+
+            for (const partitionObj of partitionObjArr){
+                const { partition, offset } = partitionObj;
+                if (offset !== '-1'){
+                    // this is where we build out the topic object:
+                    topic.addConsumerOffset(partition, offset, groupId);
+                }
+            }
+        }
+        topic.getAllConsumerOffsetConfigs(); // TODO: maybe this should happen automatically?
+        
+        res.locals.topicObj = topic;
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.calculateTopicConfigs: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
 
 module.exports = adminController;
