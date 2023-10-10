@@ -117,6 +117,7 @@ class Topic {
             }
             this.consumerOffsetConfigs[config].push(partitionNumber);
         }
+        return this.consumerOffsetConfigs;
     }
 }
 
@@ -297,7 +298,7 @@ const getTopicConfigs = async (topicName) => {
         console.log('topic: ', topic);
         console.log('topic.partitions');
         console.log(topic.partitions[0].consumerOffsetLL.head);
-        return topic;
+        console.log(topic.getAllConsumerOffsetConfigs());
     }
     catch (err) {console.log(err)}
 }
