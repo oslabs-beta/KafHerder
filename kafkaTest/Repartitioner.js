@@ -26,7 +26,9 @@ export class RepartitionerGroup {
         return true;
     }
     resumeAll(){
-
+        for (const agent of this.agents){
+            if (this.resume) this.resume();
+        }
     }
     allFinished(){
         for (const agent of this.agents){
