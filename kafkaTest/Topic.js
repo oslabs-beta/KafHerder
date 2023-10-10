@@ -1,4 +1,4 @@
-export class Topic {
+class Topic {
     constructor (name){
         this.name = name;
         this.partitions = {}; // key: partitionNumber, value: Partition object
@@ -89,4 +89,11 @@ class ConsumerOffsetNode {
         this.offset = offset; // THIS IS A STRING for consistency with KafkaJS
         this.consumerGroupId = consumerGroupId; // string
     }
+}
+
+module.exports = {
+    Topic,
+    Partition,
+    ConsumerOffsetLL,
+    ConsumerOffsetNode
 }

@@ -1,6 +1,4 @@
-// you might need to export everything
-
-export class TopicRepartitioner {
+class TopicRepartitioner {
     constructor (props) {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
         this.groups = [];
@@ -170,4 +168,10 @@ export class RepartitionerAgent {
         await this.producer.disconnect();
         this.rpGroup.checkIfFinished();
     }
+}
+
+module.exports = {
+    TopicRepartitioner,
+    RepartitionerGroup,
+    RepartitionerAgent
 }

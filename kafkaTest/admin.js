@@ -1,9 +1,10 @@
 const { Kafka } = require('kafkajs');
+const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('./Topic.js');
+const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('./Repartitioner.js');
 
 const kafka = new Kafka({
     clientId: 'my-admin',
-    brokers: ['localhost:9092'] //, 'localhost:9094', 'localhost:9096']
-    // apparently you only need to give one broker and kafkajs will find the rest
+    brokers: ['localhost:9092']
 })
 
 const admin = kafka.admin(); 
@@ -94,98 +95,6 @@ const listConsumerGroupIds = async() => {
     }
 }
 
-class Topic {
-    constructor (topicName){
-        this.topicName = topicName;
-        this.partitions = {}; // key: partitionNumber, value: Partition object
-        this.consumerOffsetConfigs = {}; // key: config, value: array of partitions that have it
-    }
-
-    addConsumerOffset(number, offset, consumerGroupId){
-        if (!this.partitions[number]){
-            this.partitions[number] = new Partition(number);
-        }
-        this.partitions[number].consumerOffsetLL.add(offset, consumerGroupId);
-    }
-
-    getAllConsumerOffsetConfigs(){
-        for (const [partitionNumber, partition] of Object.entries(this.partitions)){
-            const config = partition.getConsumerOffsetConfig();
-
-            if (!this.consumerOffsetConfigs[config]){
-                this.consumerOffsetConfigs[config] = [];
-            }
-            this.consumerOffsetConfigs[config].push(partitionNumber);
-        }
-        return this.consumerOffsetConfigs;
-    }
-}
-
-class Partition {
-    constructor (partitionNumber){
-        this.partitionNumber = partitionNumber;
-        this.consumerOffsetLL = new ConsumerOffsetLL;
-        // this.consumerOffsetConfig = '';
-    }
-
-    // Method to generate string representing all the offsets in the list
-    getConsumerOffsetConfig() {
-        let consumerOffsetConfig = 'config:';
-        let currentNode = this.consumerOffsetLL.head;
-        while (currentNode !== null) {
-            consumerOffsetConfig += `-${currentNode.consumerGroupId}`;
-            currentNode = currentNode.next;
-        };
-        // this.consumerOffsetConfig = consumerOffsetConfig;
-        return consumerOffsetConfig;
-    }
-}
-
-class ConsumerOffsetLL {
-    constructor (){
-        this.head = null;
-        this.tail = null;
-    }
-
-    // Method to add a new node to the linked list in sorted order
-    add(offset, consumerGroupId) {
-        const newNode = new ConsumerOffsetNode(offset, consumerGroupId);
-        const numericOffset = parseInt(offset, 10);
-    
-        if (this.head === null || 
-            parseInt(this.head.offset, 10) > numericOffset || 
-            (parseInt(this.head.offset, 10) === numericOffset && this.head.consumerGroupId > consumerGroupId)) {
-            newNode.next = this.head;
-            this.head = newNode;
-            if (this.tail === null) {
-                this.tail = newNode;
-            }
-            return;
-        }
-    
-        let currentNode = this.head;
-        while (currentNode.next !== null &&
-               (parseInt(currentNode.next.offset, 10) < numericOffset ||
-               (parseInt(currentNode.next.offset, 10) === numericOffset && currentNode.next.consumerGroupId < consumerGroupId))) {
-            currentNode = currentNode.next;
-        }
-    
-        newNode.next = currentNode.next;
-        currentNode.next = newNode;
-        if (newNode.next === null) {
-            this.tail = newNode;
-        }
-    }
-}
-
-class ConsumerOffsetNode {
-    constructor (offset, consumerGroupId){
-        this.next = null;
-        this.offset = offset; // THIS IS A STRING for consistency with KafkaJS
-        this.consumerGroupId = consumerGroupId; // string
-    }
-}
-
 const fetchOffsets = async( groupId, topicName ) => {
     try {
         console.log('connecting to Kafka cluster...');
@@ -218,57 +127,57 @@ const fetchOffsets = async( groupId, topicName ) => {
 }
 
 
-const fetchAllOffsets = async( consumerGroupIds, topicName ) => {
-    const allConsumerGroupOffsets = {};
-    try {
-        console.log('connecting to Kafka cluster...');
-        await admin.connect();
-        console.log('successfully connected!');
+// const fetchAllOffsets = async( consumerGroupIds, topicName ) => {
+//     const allConsumerGroupOffsets = {};
+//     try {
+//         console.log('connecting to Kafka cluster...');
+//         await admin.connect();
+//         console.log('successfully connected!');
 
-        for (const groupId of consumerGroupIds){
-            const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
-            const partitionsArr = response[0].partitions;    
-            // @example:
-            // [
-            //     { partition: 4, offset: '377', metadata: null },
-            //     { partition: 3, offset: '378', metadata: null },
-            //     { partition: 0, offset: '-1', metadata: null },
-            //     { partition: 2, offset: '379', metadata: null },
-            //     { partition: 1, offset: '-1', metadata: null }
-            //   ]
-            // this will return ALL partitions, but -1 for the offset if it doesn't exist
-            // what I'm realizing then is that it wouldn't be efficient to get all the ConsumerGroupOffsets first
+//         for (const groupId of consumerGroupIds){
+//             const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+//             const partitionsArr = response[0].partitions;    
+//             // @example:
+//             // [
+//             //     { partition: 4, offset: '377', metadata: null },
+//             //     { partition: 3, offset: '378', metadata: null },
+//             //     { partition: 0, offset: '-1', metadata: null },
+//             //     { partition: 2, offset: '379', metadata: null },
+//             //     { partition: 1, offset: '-1', metadata: null }
+//             //   ]
+//             // this will return ALL partitions, but -1 for the offset if it doesn't exist
+//             // what I'm realizing then is that it wouldn't be efficient to get all the ConsumerGroupOffsets first
 
-            if (allConsumerGroupOffsets[groupId])
+//             if (allConsumerGroupOffsets[groupId])
 
 
-            allOffsets.push(response);
-            // this is largely useless. we want consumerGroupId
-        }
+//             allOffsets.push(response);
+//             // this is largely useless. we want consumerGroupId
+//         }
 
-        console.log(`fetching ${groupId}'s offsets...`);
-        const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
-        const partitionsArr = response[0].partitions;
-        // console.log(partitionsArr);
-        console.log(response);
+//         console.log(`fetching ${groupId}'s offsets...`);
+//         const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+//         const partitionsArr = response[0].partitions;
+//         // console.log(partitionsArr);
+//         console.log(response);
 
-        // @example:
-        // [
-        //     { partition: 4, offset: '377', metadata: null },
-        //     { partition: 3, offset: '378', metadata: null },
-        //     { partition: 0, offset: '378', metadata: null },
-        //     { partition: 2, offset: '379', metadata: null },
-        //     { partition: 1, offset: '378', metadata: null }
-        //   ]
+//         // @example:
+//         // [
+//         //     { partition: 4, offset: '377', metadata: null },
+//         //     { partition: 3, offset: '378', metadata: null },
+//         //     { partition: 0, offset: '378', metadata: null },
+//         //     { partition: 2, offset: '379', metadata: null },
+//         //     { partition: 1, offset: '378', metadata: null }
+//         //   ]
 
-        console.log('disconnecting...');
-        await admin.disconnect();
-    }
-    catch (error) {
-        console.log('failed to consumer groups list');
-        console.error(error);
-    }
-}
+//         console.log('disconnecting...');
+//         await admin.disconnect();
+//     }
+//     catch (error) {
+//         console.log('failed to consumer groups list');
+//         console.error(error);
+//     }
+// }
 
 const getTopicConfigs = async (topicName) => {
     const topic = new Topic(topicName);
