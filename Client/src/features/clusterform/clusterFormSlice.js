@@ -8,14 +8,15 @@ const initialState = {
     kafkaPort: '',
     topics: [],
     selectedTopic: 'Animals2',
-    partitionData: ['partition1', 'partition2', 'partition3', 'partition3', 'partition3', 'partition3', 'partition3', 'partition3'],
+    partitionData: {0:{}, 1:{}, 2:{}, 3:{}, 4:{}},
     offsetJSON: {},
-    mimNumOfPartitions: '4',
+    mimNumOfPartitions: '',
     newTopic: '',
     newMinPartitionNum: '',
     newReplicationFactor: '',
     interval: 5,
     status: 'off',
+    repartitionStatus: 'off',
     error: null
 }
 
@@ -27,10 +28,13 @@ export const checkPromPort = createAsyncThunk(
     'clusterForm/checkPromPort', checkPromPortFromAPI
 );
 
+// used to connect to kafkaPort, backend sends topic names in the response
 export const checkKafkaPort = createAsyncThunk(
     'clusterForm/checkKafkaPort', checkKafkaPortFromAPI
 )
 
+// used to send name of topic selected by user, and kafkaPort,
+// backend response will have partitions, minimum number of partitions, and offset data
 export const checkPartitionData = createAsyncThunk(
     'clusterForm/checkPartitionData',
         async(_, thunkAPI) => {
@@ -38,6 +42,54 @@ export const checkPartitionData = createAsyncThunk(
             return await fetchPartitionDataFromAPI(state);
 })
 
+// {
+//     name: "animals2",
+//     partitions: {
+//         0: {
+//             partitionNumber: 0,
+//             consumerOffsetLL: {
+//                 head: {
+//                     next: null,
+//                     offset: "378",
+//                     consumerGroupId: "consumer-group"
+//                 },
+//                 tail: {
+//                     next: null,
+//                     offset: "378",
+//                     consumerGroupId: "consumer-group"
+//                 }
+//             }
+//         }, 
+//         1: {
+//             partitionNumber: 1,
+//             consumerOffsetLL: {
+//                 head: {
+//                     next: null,
+//                     offset: "378",
+//                     consumerGroupId: "consumer-group"
+//                 },
+//                 tail: {
+//                     next: null,
+//                     offset: "378",
+//                     consumerGroupId: "consumer-group"
+//                 }
+//             }
+//         }} //… // 1, 2, 3, 4 hidden
+//     consumerOffsetConfigs: {
+//         config:-consumer-group: [ // this is the unique combination, like ‘config:S-D-X-Y’
+//             "0",
+//             "1",
+//             "2",
+//             "3",
+//             "4"
+//         ]
+//     },
+//     numConfigs: 1
+// }
+
+
+// used createAsyncThunk to send newTopic, newMinPartitionNum, newReplicationFactor to backend 
+// to start the repartitioning process
 export const checkRepartitionData = createAsyncThunk(
     'clusterForm/checkRepartitionData',
         async(_, thunkAPI) => {
@@ -66,6 +118,10 @@ const clusterFormSlice = createSlice({
             state.newTopic = action.payload.newTopic;
             state.newMinPartitionNum = action.payload.newMinPartitionNum;
             state.newReplicationFactor = action.payload.newReplicationFactor;
+        },
+        //* Set reducer to set state to off 
+        setStatusOff: (state) => {
+            state.status = 'off';
         }
     },
     extraReducers: (builder) => {
@@ -94,12 +150,18 @@ const clusterFormSlice = createSlice({
                 // I dont think that there is a key called partitionData. Lets check on that
                 // we are also going to get data regarding partition min number and offset data json
                 state.partitionData = action.payload.partitions
-                state.mimNumOfPartitions = action.payload.minNumOfPartitions // change name of variable
+                state.mimNumOfPartitions = action.payload.numConfigs // change name of variable
                 state.offsetData = action.payload.offsetData // change name of variable
-            }) // TODO: add cases for pending for checkRepartionData
-    }
+            }) 
+            .addCase(checkRepartitionData.pending, (state) => {
+                state.repartitionStatus = 'pending'
+            })
+            .addCase(checkRepartitionData.fulfilled, (state, action) => {
+                state.repartitionStatus = 'off'
+            })
+        }
 });
 
 
-export const { setClusterForm, setKafkaPort, setSelectedTopic, setRepartitionData } = clusterFormSlice.actions;
+export const { setClusterForm, setKafkaPort, setSelectedTopic, setRepartitionData, setStatusOff } = clusterFormSlice.actions;
 export default clusterFormSlice.reducer;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setClusterForm, checkPromPort } from '../features/clusterform/clusterFormSlice'
+import { setClusterForm, checkPromPort, setStatusOff } from '../features/clusterform/clusterFormSlice'
 
 
 
@@ -29,6 +29,11 @@ function ClusterForm() {
       ...prevState,
       [name]: value
     }));
+  }
+
+  //* Created a dispatch to set state to off when clicked
+  const handleStopClick = () => {
+    dispatch(setStatusOff())
   }
 
   // when the form is submitted, state is dispatched from the localForm to the redux store using setClusterForm
@@ -93,11 +98,11 @@ function ClusterForm() {
 
             <div className="form-group" id="buttons">
               {status === 'off' ? (
-                <button type='submit' className='btn btn-block'>Submit</button>
+                <button type='submit' className='btn'>Submit</button>
                ) : (
                 <>
-                <button type='submit' className='btn btn-block'>Submit</button>
-                <button type='stop' className='btn-stop'>Stop</button>
+                <button type='submit' className='btn'>Submit</button>
+                <button type='button' className='btn-stop' onClick={handleStopClick}>Stop</button>
                 </>
               )}
             </div>

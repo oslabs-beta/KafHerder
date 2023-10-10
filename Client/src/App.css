@@ -75,7 +75,7 @@ li:hover::before {
   height: 100vh;
   grid-gap: 10px;
   margin: 10px;
-  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+
   border-radius: 20px;
 }
 
@@ -145,11 +145,20 @@ li:hover::before {
   align-items: center;
   justify-content: center;
   width: 86%;
+  transition: transform 0.4s;
+}
+
+.btn:hover {
+  transform: scale(1.05)
 }
 
 .btn-stop {
   background: #fc6907;
   margin-top: 7px;
+}
+
+.btn-stop:hover {
+  transform: scale(1.05)
 }
 
 #buttons {
@@ -163,6 +172,7 @@ li:hover::before {
   min-width: 400px;
   border-radius: 20px;
   background-color: #E4E9DC;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   /* display: flex;
   flex-direction: column; */
 }
@@ -468,6 +478,17 @@ li:hover::before {
   color: white;
   font-weight: bold;
   width: 20%;
+  padding: 5px;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  appearance: button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 a {
@@ -622,7 +643,7 @@ a {
   mix-blend-mode: multiply;
   height: 60px;  /* or whatever height you want for your image */
   width: auto;   /* maintains aspect ratio */
-  margin-left: 20px; /* space between hamburger and the image */
+  margin-left: 80px; /* space between hamburger and the image */
   align-self: center; /* aligns vertically to the center, assuming parent has display: grid or flex */
 }
 
@@ -666,12 +687,12 @@ a {
 
 
 .TopicSubmitButton {
-  background-color: #e1ecf4;
+  background-color: #52aea5;
   border-radius: 3px;
   border: 1px solid #7aa7c7;
   box-shadow: rgba(255, 255, 255, .7) 0 1px 0 0 inset;
   box-sizing: border-box;
-  color: #39739d;
+  color: white;
   cursor: pointer;
   display: inline-block;
   font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
@@ -689,6 +710,17 @@ a {
   vertical-align: baseline;
   white-space: nowrap;
   margin: 10px;
+  width: 10%;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  appearance: button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .TopicSubmitButton:hover,
@@ -732,21 +764,24 @@ a {
 }
 
 .newTopicDetails {
-  margin-top: 10px;
+  margin: 10px 0px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   align-items: center;
 }
 
 .newTopicDetails > h3 {
   width: 200px;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 15pt;
 }
 
 .newTopicDetailsInput {
   width: 50%;
   border-radius: 10px;
   display: flex;
-  height: 35px;
+  height: 28px;
 }
 
 .newTopicDetailsInput::placeholder {
@@ -774,4 +809,24 @@ a {
   align-items: center;
   justify-content: center;
   width: 15%;
+  transition: transform 0.4s;
+}
+
+.newTopicDetails-button:hover {
+  transform: scale(1.05)
+}
+
+input[type=text] {
+  padding: 10px;
+  background: white;
+}
+
+input:focus::placeholder {
+  color: transparent;
+}
+
+input::placeholder {
+  color: #666666;
+  font-size: 14px;
+  transition: color 0.3s ease;
 }

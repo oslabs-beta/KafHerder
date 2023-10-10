@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../assets/kafHerder9-1.png'
+import kafHerderLogo1a from '../assets/kaf1.svg'
 
 
 
@@ -10,7 +10,7 @@ function NavBar() {
     return (
                 
         <div className='NavBar'>
-            <div><img className="navBarImage" src={logo} alt="Kafherder Logo" /></div>
+            <div><img className="navBarImage" src={kafHerderLogo1a} alt="Kafherder Logo" /></div>
             <div className='NavBarOptions'>
                 <ul>
                     <li>

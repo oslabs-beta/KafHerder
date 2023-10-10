@@ -6,7 +6,7 @@ function RepartitionForm() {
     const topicName = useSelector(state => state.clusterForm.selectedTopic);
     const minNumOfPartitions = useSelector(state=>state.clusterForm.mimNumOfPartitions);
     const partitions = useSelector(state=>state.clusterForm.partitionData);
-    const numOfpartitions = partitions.length;
+    const numOfpartitions = Object.keys(partitions).length;
 
     const dispatch = useDispatch();
 
@@ -77,7 +77,7 @@ function RepartitionForm() {
                 placeholder='Replication Factor' />
             </div>
             <div className='newTopicDetailsButton-container'>
-                <button className='newTopicDetails-button' onClick={handleSubmit}>Submit</button>
+                <button className='newTopicDetails-button' onClick={handleSubmit}>Start Repartition</button>
             </div>
         </div>
     </div>
