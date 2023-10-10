@@ -18,7 +18,7 @@ class TopicRepartitioner {
     }  
 }
 
-export class RepartitionerGroup {
+class RepartitionerGroup {
     constructor (props, topicRp, consumerOffsetConfig){
         this.props = props;
         this.consumerOffsetConfig = consumerOffsetConfig;
@@ -61,7 +61,7 @@ export class RepartitionerGroup {
 // TODO: for the LAST consumer to pause at the nth stopping point
 // make sure it records its offset position so the future consumer knows where to pick off from - DONE
 // TODO: make sure to add try catches
-export class RepartitionerAgent {
+class RepartitionerAgent {
     constructor (props, rpGroup, oldPartitionNum, newPartitionNum, id){
         this.seedBrokerUrl = props.seedBrokerUrl;
         this.oldTopic = props.oldTopic;
