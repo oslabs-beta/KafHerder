@@ -258,6 +258,8 @@ adminController.fetchConsumerGroupIds = async (req, res, next) => {
 // also takes the old topic name passed initially in the body
 // returns a Topic object with all the offset information you could possibly need
 // see Topic.js for more information about its shape
+// YOU CAN ACCESS THE NUMBER OF CONFIGS IN THE RESPONSE:
+// topicObj.numConfigs
 adminController.calculateTopicConfigs = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
     const consumerGroupIds = res.locals.consumerGroupIds;
@@ -300,8 +302,9 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
                 }
             }
         }
+        topic.getAllConsumerOffsetConfigs(); // TODO: maybe this should happen automatically?
+        
         res.locals.topicObj = topic;
-        console.log(topic.getAllConsumerOffsetConfigs());
         return next();
     }
     catch (err) {
