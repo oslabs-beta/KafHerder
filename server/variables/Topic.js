@@ -29,7 +29,7 @@ class Topic {
 
 class Partition {
     constructor (partitionNumber){
-        this.partitionNumber = partitionNumber;
+        this.partitionNumber = partitionNumber; // probably unnecessary
         this.consumerOffsetLL = new ConsumerOffsetLL;
         // this.length should be defined
         // then this.consumerOffsetLL.add(String(this.length), '__end')
