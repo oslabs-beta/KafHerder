@@ -204,10 +204,11 @@ const getTopicConfigs = async (topicName) => {
                 }
             }
         }
-        console.log('topic: ', topic);
-        console.log('topic.partitions');
-        console.log(topic.partitions[0].consumerOffsetLL.head);
-        console.log(topic.getAllConsumerOffsetConfigs());
+        // console.log('topic: ', topic);
+        // console.log('topic.partitions');
+        // console.log(topic.partitions[0].consumerOffsetLL.head);
+        topic.getAllConsumerOffsetConfigs();
+        return topic;
     }
     catch (err) {console.log(err)}
 }
@@ -236,15 +237,29 @@ const run = async () => {
     await getTopicInfo();
 }
 
+const repartition = async (oldTopicName, newTopicName) => {
+    try {
+        const oldTopic = await getTopicConfigs(oldTopicName);
+        const minPartitions = oldTopic.numConfigs;
+        const newTopic = await createTopic(newTopicName, minPartitions, 3);
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
+repartition('animals2', 'animals_test1');
+
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
-// createTopic('animals2', 3, 3)
+// createTopic('animals2_a', 1, 3)
 // getTopicInfo();
 // getClusterInfo()
 // const response = listConsumerGroupIds();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
 // fetchOffsets( 'consumer-group2', 'animals2'); // try this
-getTopicConfigs('animals2');
+// getTopicConfigs('animals2');
+
 
 
 //

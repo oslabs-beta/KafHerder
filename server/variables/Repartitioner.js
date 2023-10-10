@@ -1,4 +1,4 @@
-// require in KafkaJS!!!
+const { Kafka } = require('kafkajs');
 
 class TopicRepartitioner {
     constructor (props) {
@@ -17,7 +17,7 @@ class TopicRepartitioner {
                 const rpAgent = new RepartitionerAgent(props, this, oldPartitionNum, newPartitionNum, id);
                 rpGroup.agents.push(rpAgent);
                 newPartitionNum++;
-                // await rpAgent.start();
+                await rpAgent.start();
             }
         }
 
@@ -45,7 +45,7 @@ class RepartitionerGroup {
         // unnecessary
     }
     startAll(){
-
+        // unnecessary
     }
     allPaused(){
         for (const agent of this.agents){
