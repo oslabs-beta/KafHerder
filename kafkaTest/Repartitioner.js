@@ -4,14 +4,28 @@ export class TopicRepartitioner {
     constructor (props) {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
         this.groups = [];
+        this.hasFinished = false;
     }
+    run(){
+        // run everything
+        if (this.hasFinished){
+            // return final result
+        }
+    }
+    checkIfFinished(){
+        for (const group of this.groups){
+            if (!group.hasFinished) return false;
+        }
+        return this.hasFinished = true;
+    }  
 }
 
 export class RepartitionerGroup {
-    constructor (props, consumerOffsetConfig){
+    constructor (props, topicRp, consumerOffsetConfig){
         this.props = props;
         this.consumerOffsetConfig = consumerOffsetConfig;
         this.agents = [];
+        this.hasFinished = false;
     }
     addAgent(props, rpGroup, oldPartitionNum, newPartitionNum, id){
 
@@ -21,21 +35,21 @@ export class RepartitionerGroup {
     }
     allPaused(){
         for (const agent of this.agents){
-            if (agent.isPaused === false) return false;
+            if (!agent.isPaused) return false;
         }
-        return true;
+        return true; // resumeAll() will be called on agent level for clarity
     }
     resumeAll(){
         for (const agent of this.agents){
             if (this.resume) this.resume();
         }
     }
-    allFinished(){
+    checkIfFinished(){
         for (const agent of this.agents){
-            if (agent.hasFinished === false) return false;
+            if (!agent.hasFinished) return false;
         }
-        return true;
-    }
+        return this.hasFinished = true;
+    }  
 }
 
 // each RepartitionerAgent consists of one consumer reading from one partition in and old topic
@@ -154,8 +168,6 @@ export class RepartitionerAgent {
     async end(){
         await this.consumer.disconnect();
         await this.producer.disconnect();
-        if (this.rpGroup.allFinished()){
-            //
-        }
+        this.rpGroup.checkIfFinished();
     }
 }
