@@ -59,7 +59,7 @@ export class RepartitionerAgent {
     async createProducer(){
         const kafka = new Kafka({
             clientId: 'producer-'+id,
-            brokers: [this.props.seedBrokerUrl]
+            brokers: [this.seedBrokerUrl]
         })
         this.producer = kafka.producer({
             allowAutoTopicCreation: false,
@@ -70,15 +70,37 @@ export class RepartitionerAgent {
     async createConsumer(){
         const kafka = new Kafka({
             clientId: 'consumer-'+id,
-            brokers: [this.props.seedBrokerUrl]
+            brokers: [this.seedBrokerUrl]
         })
         this.consumer = kafka.consumer({
             groupId: 'repartitioning'
         });
         await this.consumer.connect();
-        await this.consumer.subscribe({ topics: this.props.oldTopic.name })
+        await this.consumer.subscribe({ topics: [this.oldTopic.name], fromBeginning: true });
+        // .assign() necessary to assign it to a specific partition
+        await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
     }
-    async initialize(){
+    async start(){
+        await this.createProducer();
+        await this.createConsumer();
+        
+        await this.consumer.run({
+            eachMessage: async ({ topic, partition, message, pause }) => {
+                const key = message.key.toString();
+                const value = message.value.toString();
+                const headers = message.headers;
 
+                // pausing logic needed
+
+                // producer logic
+                await this.producer.send({ 
+                    topic: this.newTopicName,
+                    messages: [
+                        { key, value, partition: this.newPartitionNum }
+                    ],
+                })
+                
+            }
+        })
     }
 }
