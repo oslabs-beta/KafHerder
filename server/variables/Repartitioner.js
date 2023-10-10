@@ -1,10 +1,26 @@
+// require in KafkaJS!!!
+
 class TopicRepartitioner {
     constructor (props) {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
         this.groups = [];
         this.hasFinished = false;
+        this.oldTopic = props.oldTopic;
     }
-    run(){
+    async run(){
+        for (const [consumerOffsetConfig, partitionNumArr] of Object.entries(this.oldTopic.consumerOffsetConfigs)){
+            const rpGroup = new RepartitionerGroup(props, this, consumerOffsetConfig);
+            this.groups.push(rpGroup);
+            let newPartitionNum = 0;
+            for (const oldPartitionNum of partitionNumArr){
+                const id = `${consumerOffsetConfig}-${oldPartitionNum}/${newPartitionNum}`;
+                const rpAgent = new RepartitionerAgent(props, this, oldPartitionNum, newPartitionNum, id);
+                rpGroup.agents.push(rpAgent);
+                newPartitionNum++;
+                // await rpAgent.start();
+            }
+        }
+
         // run everything
         if (this.hasFinished){
             // return final result
@@ -12,7 +28,7 @@ class TopicRepartitioner {
     }
     checkIfFinished(){
         for (const group of this.groups){
-            if (!group.hasFinished) return false;
+            if (group.hasFinished === false) return false;
         }
         return this.hasFinished = true;
     }  
@@ -26,25 +42,28 @@ class RepartitionerGroup {
         this.hasFinished = false;
     }
     addAgent(props, rpGroup, oldPartitionNum, newPartitionNum, id){
-
+        // unnecessary
     }
     startAll(){
 
     }
     allPaused(){
         for (const agent of this.agents){
-            if (!agent.isPaused) return false;
+            if (agent.isPaused === false) return false;
         }
         return true; // resumeAll() will be called on agent level for clarity
     }
     resumeAll(){
         for (const agent of this.agents){
-            if (this.resume) this.resume();
+            if (this.resume){
+                this.isPaused = false;
+                this.resume();
+            }
         }
     }
     checkIfFinished(){
         for (const agent of this.agents){
-            if (!agent.hasFinished) return false;
+            if (agent.hasFinished === false) return false;
         }
         return this.hasFinished = true;
     }  
@@ -75,7 +94,7 @@ class RepartitionerAgent {
         this.hasStarted = false;
         this.stoppingPoint = this.oldTopic.partitions[oldPartitionNum].consumerOffsetLL.head; // consumerOffsetNode
         // TODO: add logic if the above is ever null, or the stoppingPoint.consumerGroupId === __end;
-        this.isPaused; // should the below be defined later?
+        this.isPaused = false; // should the below be defined later?
         this.hasFinished = false;
         this.producer;
         this.producerOffset;
@@ -108,9 +127,12 @@ class RepartitionerAgent {
         await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
     }
     async start(){
+        console.log('creating producer...');
         await this.createProducer();
+        console.log('creating consumer...');
         await this.createConsumer();
         
+        console.log('reading messages...');
         await this.consumer.run({
             eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
 
@@ -121,11 +143,15 @@ class RepartitionerAgent {
 
                 // pausing and resuming logic
                 if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
+                    console.log('reached stopping point');
 
-                    if (this.stoppingPoint.consumerGroupId === '__end'){ // the stopping point is the end
+                    // TODO: change from null to '__end'
+                    if (this.stoppingPoint === null){ // the stopping point is the end
+                        console.log('finished!')
                         this.hasFinished === true;
                     }
                     else { // the stopping point is NOT the end
+                        console.log('pausing...')
                         this.resume = pause(); // pause() returns a resuming function
                         this.isPaused = true;
 
