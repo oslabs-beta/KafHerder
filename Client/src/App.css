@@ -163,6 +163,8 @@ li:hover::before {
   min-width: 400px;
   border-radius: 20px;
   background-color: #E4E9DC;
+  /* display: flex;
+  flex-direction: column; */
 }
 
 .KafkaContainer {
@@ -422,6 +424,26 @@ li:hover::before {
   border-radius: 10px;
 }
 
+.modalRepartitionPage {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 8; 
+  padding: 20px;
+  width: 70%; 
+  height: 25%;
+  max-width: 500px;
+  background-color: #fff;
+  border: 1px solid #888;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  border-radius: 10px;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -438,6 +460,14 @@ li:hover::before {
   top: 5px;
   cursor: pointer;
   font-size: 24px;
+}
+
+.modal-close-button {
+  position: right;
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  width: 20%;
 }
 
 a {
@@ -675,4 +705,73 @@ a {
   background-color: #a0c7e4;
   box-shadow: none;
   color: #2c5777;
+}
+
+.repartitionForm-container {
+  min-width: 600px;
+  min-height: 600px;
+  width: 80%;
+  height: 50%;
+  border: solid black 1px;
+  border-radius: 10px;
+  background-color: #f3aa3c;
+  margin: 5% 10% 0%;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+.currentTopicDetails {
+  border: solid rgb(128, 89, 4) 1px;
+  border-radius: 10px;
+  background-color: white;
+  padding: 1em;
+  margin: 2em;
+}
+
+.newTopicDetails-container {
+  margin-top: 40px;
+}
+
+.newTopicDetails {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.newTopicDetails > h3 {
+  width: 200px;
+}
+
+.newTopicDetailsInput {
+  width: 50%;
+  border-radius: 10px;
+  display: flex;
+  height: 35px;
+}
+
+.newTopicDetailsInput::placeholder {
+  margin-left: 20px;
+}
+
+.newTopicDetailsButton-container {
+  display: flex;
+  justify-content: right;
+}
+
+.newTopicDetails-button {
+  padding: 10px;
+  margin: 20px 60px 20px 20px;
+  border: 1px solid white;
+  border-radius: 5px;
+  background: #72D1C8;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  appearance: button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15%;
 }

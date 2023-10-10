@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { checkPromPortFromAPI, checkKafkaPortFromAPI, fetchPartitionDataFromAPI } from './clusterFormService';
+import { checkPromPortFromAPI, checkKafkaPortFromAPI, fetchPartitionDataFromAPI, fetchRepartitionDataToAPI } from './clusterFormService';
 import { fetchedClusterData } from '../kafkaCluster/kafkaClusterSlice';
 
 const initialState = {
@@ -7,8 +7,13 @@ const initialState = {
     promPort: '',
     kafkaPort: '',
     topics: [],
-    selectedTopic: '',
-    partitionData: [],
+    selectedTopic: 'Animals2',
+    partitionData: ['partition1', 'partition2', 'partition3', 'partition3', 'partition3', 'partition3', 'partition3', 'partition3'],
+    offsetJSON: {},
+    mimNumOfPartitions: '4',
+    newTopic: '',
+    newMinPartitionNum: '',
+    newReplicationFactor: '',
     interval: 5,
     status: 'off',
     error: null
@@ -33,6 +38,13 @@ export const checkPartitionData = createAsyncThunk(
             return await fetchPartitionDataFromAPI(state);
 })
 
+export const checkRepartitionData = createAsyncThunk(
+    'clusterForm/checkRepartitionData',
+        async(_, thunkAPI) => {
+            const state = thunkAPI.getState();
+            return await fetchRepartitionDataToAPI(state);
+})
+
 // created state that shows if the port connected to the server
 const clusterFormSlice = createSlice({
     name: 'clusterForm',
@@ -49,6 +61,11 @@ const clusterFormSlice = createSlice({
         setSelectedTopic: (state, action) => {
             state.selectedTopic = action.payload;
             console.log('selected topic in slice', state.selectedTopic)
+        },
+        setRepartitionData: (state, action) => {
+            state.newTopic = action.payload.newTopic;
+            state.newMinPartitionNum = action.payload.newMinPartitionNum;
+            state.newReplicationFactor = action.payload.newReplicationFactor;
         }
     },
     extraReducers: (builder) => {
@@ -71,11 +88,18 @@ const clusterFormSlice = createSlice({
                 state.error = action.error.message
             })
             .addCase(checkPartitionData.fulfilled, (state, action) => {
-                state.partitionData = action.payload.partitionData
-            })
+                // is this returned data key partitionData? or should we be calling it just the action.payload
+                // depends on how the data returned from calling checkPartitionData is returned. 
+                // adminController.js returns res.locals.partitions
+                // I dont think that there is a key called partitionData. Lets check on that
+                // we are also going to get data regarding partition min number and offset data json
+                state.partitionData = action.payload.partitions
+                state.mimNumOfPartitions = action.payload.minNumOfPartitions // change name of variable
+                state.offsetData = action.payload.offsetData // change name of variable
+            }) // TODO: add cases for pending for checkRepartionData
     }
 });
 
 
-export const { setClusterForm, setKafkaPort, setSelectedTopic } = clusterFormSlice.actions;
+export const { setClusterForm, setKafkaPort, setSelectedTopic, setRepartitionData } = clusterFormSlice.actions;
 export default clusterFormSlice.reducer;
