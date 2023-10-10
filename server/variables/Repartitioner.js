@@ -8,15 +8,19 @@ class TopicRepartitioner {
         this.oldTopic = props.oldTopic;
     }
     async run(){
+        console.log('now running repartitioning process');
         for (const [consumerOffsetConfig, partitionNumArr] of Object.entries(this.oldTopic.consumerOffsetConfigs)){
-            const rpGroup = new RepartitionerGroup(props, this, consumerOffsetConfig);
+            console.log('creating rpGroup');
+            const rpGroup = new RepartitionerGroup(this.props, this, consumerOffsetConfig);
             this.groups.push(rpGroup);
             let newPartitionNum = 0;
             for (const oldPartitionNum of partitionNumArr){
                 const id = `${consumerOffsetConfig}-${oldPartitionNum}/${newPartitionNum}`;
-                const rpAgent = new RepartitionerAgent(props, this, oldPartitionNum, newPartitionNum, id);
+                console.log('creating rpAgent');
+                const rpAgent = new RepartitionerAgent(this.props, this, oldPartitionNum, newPartitionNum, id);
                 rpGroup.agents.push(rpAgent);
                 newPartitionNum++;
+                console.log('starting rpAgent');
                 await rpAgent.start();
             }
         }
@@ -104,22 +108,22 @@ class RepartitionerAgent {
     }
     async createProducer(){
         const kafka = new Kafka({
-            clientId: 'producer-'+id,
+            clientId: 'producer-'+this.id,
             brokers: [this.seedBrokerUrl]
         })
         this.producer = kafka.producer({
             allowAutoTopicCreation: false,
             transactionTimeout: 300000
         });
-        await producer.connect();
+        await this.producer.connect();
     }
     async createConsumer(){
         const kafka = new Kafka({
-            clientId: 'consumer-'+id,
+            clientId: 'consumer-'+this.id,
             brokers: [this.seedBrokerUrl]
         })
         this.consumer = kafka.consumer({
-            groupId: 'repartitioning'
+            groupId: `repartitioning-${Math.floor(10000*Math.random())}`
         });
         await this.consumer.connect();
         await this.consumer.subscribe({ topics: [this.oldTopic.name], fromBeginning: true });
