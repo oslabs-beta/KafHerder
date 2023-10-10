@@ -2,13 +2,13 @@
 
 export class TopicRepartitioner {
     constructor (props) {
-        this.props = props; // seedBrokerUrl, oldTopic, newTopicName
+        this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
     }
 }
 
 export class RepartitionerGroup {
     constructor (props, consumerOffsetConfig){
-        this.props = props; // seedBrokerUrl, oldTopic, newTopicName
+        this.props = props;
         this.consumerOffsetConfig = consumerOffsetConfig;
         this.agents = [];
     }
