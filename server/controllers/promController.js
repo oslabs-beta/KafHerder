@@ -6,6 +6,11 @@ const promController = {}
 
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
 
+// !Broker queries/ related stuff
+// kafka_server_replicamanager_partitioncount{broker="<broker_id>"}
+// kafka_server_replicamanager_offlinereplicacount{broker="<broker_id>"}
+
+
 // console.log(clusterMetricNames);
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
@@ -59,7 +64,7 @@ promController.verifyPort = async (req, res, next) => {
 
 promController.getBrokerMetrics = async (req, res, next) => {
     try {
-        const {port} = req.query; 
+        const { port } = req.query; 
         console.log('getBrokerMetrics port is', port);
         if (!port) return next({ err: `Port doesn't exist` });
         const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
@@ -172,7 +177,7 @@ promController.getAllMetricNames = async (req, res, next) => {
         const response = await axios.get('http://localhost:9090/api/v1/label/__name__/values');
         console.log('these are the metric names: ', response.data.data);
         res.locals.metricNames = response.data.data;
-        await fs.writeFile('metricNames3.txt', res.locals.metricNames.join('\n'), (err) => {
+        await fs.writeFile('newMetrics.txt', res.locals.metricNames.join('\n'), (err) => {
             if (err)
               console.log(err);
             else {
@@ -189,7 +194,10 @@ promController.getAllMetricNames = async (req, res, next) => {
 }
 
 promController.getRandomMetric = async (req, res, next) => {
-    const randomMetric = 'kafka_log_log_size';
+    const randomMetric = 'kafka_server_sessionexpirelistener_zookeeperdisconnects_total';
+    // kafka_server_replicamanager_partitioncount{broker="2"}
+    // 'kafka_server_kafkaserver_brokerstate'
+    // kafka_server_replicamanager_partitioncount{server="3"}
     // const randomMetric = 'kafka_server_brokertopicmetrics_totalproducerequests_total';
     // const randomMetric = res.locals.metricNames[Math.floor(Math.random()*res.locals.metricNames.length)];
     try {        
