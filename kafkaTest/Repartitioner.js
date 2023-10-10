@@ -28,6 +28,12 @@ export class RepartitionerGroup {
     resumeAll(){
 
     }
+    allFinished(){
+        for (const agent of this.agents){
+            if (agent.hasFinished === false) return false;
+        }
+        return true;
+    }
 }
 
 // each RepartitionerAgent consists of one consumer reading from one partition in and old topic
