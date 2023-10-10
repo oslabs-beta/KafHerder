@@ -239,7 +239,6 @@ adminController.fetchConsumerGroupIds = async (req, res, next) => {
                 consumerGroupIds.push(group.groupId);
             }
         };
-        console.log('here are the consumer groups: ', consumerGroupIds);
 
         res.locals.consumerGroupIds = consumerGroupIds;
 
@@ -269,7 +268,6 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
     // TODO: JSDocs for this function
     const fetchOffsets = async (groupId, topicName) => {
         try {
-            console.log(`fetching ${groupId}'s offsets...`);
             const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
             const partitionObjArr = response[0].partitions;
             // @example:

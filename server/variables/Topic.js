@@ -3,6 +3,7 @@ class Topic {
         this.name = name;
         this.partitions = {}; // key: partitionNumber, value: Partition object
         this.consumerOffsetConfigs = {}; // key: config, value: array of partitions that have it
+        this.numberOfConfigs = 0;
     }
 
     addConsumerOffset(number, offset, consumerGroupId){
@@ -21,6 +22,7 @@ class Topic {
             }
             this.consumerOffsetConfigs[config].push(partitionNumber);
         }
+        this.numberOfConfigs = Object.keys(this.consumerOffsetConfigs).length;
         return this.consumerOffsetConfigs;
     }
 }
