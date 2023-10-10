@@ -219,4 +219,80 @@ adminController.disconnectAdmin = async (req, res, next) => {
     }
 };
 
+// WHAT ROUTE ARE YOU BUILDING???
+// getMinPartitions
+// step 2: we need port url, and the oldTopic that will be repartitioned
+// we will in turn calculate the number of ConsumerGroupOffsetConfigs which involves:
+//  M1: fetching all the consumerGroupIds in the cluster
+//  call this fetchConsumerGroupIds
+//  M2: for each groupId, fetching it's offsets in the topic of question
+//  while updating a massive Topic object with all the information we could possibly need
+//  call this calculateTopicConfigs
+// 
+// we will send back 
+
+// VERIFY - add params to body and pass forward admin. WHAT ROUTE ARE YOU BUILDING?
+// ADD NEXT
+adminController.listConsumerGroupIds = async (req, res, next) => {
+    // no params
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log('fetching list of topics....');
+        const response = await admin.listGroups();
+
+        const consumerGroups = [];
+        for (group of response.groups){
+            if (group.protocolType === 'consumer'){
+                consumerGroups.push(group.groupId);
+            }
+        };
+        console.log('here are the consumer groups: ', consumerGroups);
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+        return consumerGroups;
+    }
+    catch (error) {
+        console.log('failed to consumer groups list');
+        console.error(error);
+    }
+}
+
+// VERIFY - add params to body and pass forward admin. WHAT ROUTE ARE YOU BUILDING?
+// ADD NEXT
+// actually, this should just be a HELPER FUNCTION
+adminController.fetchOffsets = async (req, res, next) => {
+    // groupId, topicName
+    try {
+        console.log('connecting to Kafka cluster...');
+        await admin.connect();
+        console.log('successfully connected!');
+
+        console.log(`fetching ${groupId}'s offsets...`);
+        const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+        const partitionsArr = response[0].partitions;
+        // console.log(partitionsArr);
+        // console.log(response);
+
+        // @example:
+        // [
+        //     { partition: 4, offset: '377', metadata: null },
+        //     { partition: 3, offset: '378', metadata: null },
+        //     { partition: 0, offset: '378', metadata: null },
+        //     { partition: 2, offset: '379', metadata: null },
+        //     { partition: 1, offset: '378', metadata: null }
+        //   ]
+
+        console.log('disconnecting...');
+        await admin.disconnect();
+        return partitionsArr;
+    }
+    catch (error) {
+        console.log('failed to consumer groups list');
+        console.error(error);
+    }
+}
 module.exports = adminController;
