@@ -1,6 +1,7 @@
 const { Kafka } = require('kafkajs');
 const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('../server/variables/Topic.js');
 const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('../server/variables/Repartitioner.js');
+const repartition = require('./admin.js');
 
 const kafka = new Kafka({
     clientId: 'testing',
@@ -125,16 +126,18 @@ const setTestOffsets = async (topic) => {
 }
 
 // TODO: add delete topic, create new topic, run producers as well
-const reset = async (topic) => {
+const retest = async (topic) => {
+    // wait at least 20 seconds after ending the repartitioning before resuming this
     try {
         await connectAdmin();
         await deleteAllConsumerGroups();
         await createTestConsumers(topic);
         await setTestOffsets(topic);
         await disconnectAdmin();
+        await repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
     }
     catch (error) { console.error(error) }
 }
 
 
-reset('animals2');
+retest('animals2');

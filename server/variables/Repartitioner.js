@@ -155,19 +155,45 @@ class RepartitionerAgent {
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
 
+                // UNCOMMENT THIS IF YOU WANT TO SEE THE MESSAGES BEING MOVED:
                 // console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
+                if (Number(this.consumerOffset) > 375) console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
 
-                // pausing and resuming logic
+                // terminating logic
+                if (this.stoppingPoint.consumerGroupId === '__end' && Number(this.consumerOffset) === Number(this.stoppingPoint.offset)-1){ // the stopping point has been reached
+                    console.log('finished!')
+                    this.hasFinished = true; // this will enable the disconnection at the end of the run
+
+                    // check if all have finished
+                    if (this.rpGroup.allFinished()){
+                        this.rpGroup.hasFinished = true;
+                        console.log(`All agents in rpGroup ${rpGroup.consumerOffsetConfig} have finished.`);
+                    }
+                    // the disconnection will happen at the very end
+                }
+
+
+
+
+
+                // FIRST, CHECK IF CONSUMER HAS REACHED A STOPPING POINT
+                // If so, we are going to pause it and wait to resume
+                // when it resumes, it will write the message
                 if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
-                    console.log('reached stopping point');
+                    console.log('reached stopping point at: ', this.stoppingPoint);
+                    console.log('the next stopping point is: ', this.stoppingPoint.next);
 
                     if (this.stoppingPoint.consumerGroupId === '__end'){ // the stopping point is the end
-                        // TODO: '__end' might not be the best name
-                        // what if others are also at the end, and __end is placed before them?
+                        // note: I fixed the "add" logic so that __end will always be the true end
                         console.log('finished!')
                         this.hasFinished = true;
                         // terminating point
                         // check if all have finished
+                        if (this.rpGroup.allFinished()){
+                            this.rpGroup.hasFinished = true;
+                            console.log(`All agents in rpGroup ${rpGroup.consumerOffsetConfig} have finished.`);
+                        }
+                        // the disconnection will happen at the very end
                     }
                     else { // the stopping point is NOT the end
                         console.log('pausing...')
@@ -203,7 +229,7 @@ class RepartitionerAgent {
 
 
                 // ending logic
-                if (this.hasFinished) this.end();
+                if (this.hasFinished) await this.end();
                 // edge case: what if all three consumer groups are at the end?
                 // I think this is handled, because if they have reached the end
                 // they will NOT pause, they will change to hasFinished = true

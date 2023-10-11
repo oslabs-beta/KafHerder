@@ -200,7 +200,7 @@ const repartition = async (oldTopicName, newTopicName) => {
 }
 
 
-repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
+// repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
 // deleteAllConsumerGroups(); // MAKE SURE YOU ARE DISCONNECTED!!!
 
 
@@ -255,3 +255,5 @@ repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
 // run();
 // const topicsMetadata = run2();
 // run3(topics);
+
+module.exports = repartition;
