@@ -19,7 +19,6 @@ class TopicRepartitioner {
                 console.log('creating rpAgent');
                 const rpAgent = new RepartitionerAgent(this.props, rpGroup, oldPartitionNum, newPartitionNum, id);
                 rpGroup.agents.push(rpAgent);
-                newPartitionNum++;
                 console.log('starting rpAgent');
                 await rpAgent.start();
             }
