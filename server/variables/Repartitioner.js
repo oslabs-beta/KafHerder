@@ -66,7 +66,7 @@ class RepartitionerGroup {
             agent.resume();
         }
     }
-    checkIfFinished(){
+    allFinished(){
         for (const agent of this.agents){
             if (agent.hasFinished === false) return false;
         }
@@ -91,20 +91,21 @@ class RepartitionerAgent {
         this.oldTopic = props.oldTopic;
         this.newTopicName = props.newTopicName;
 
-        this.rpGroup = rpGroup; // required to access checkIfAllPaused and unpauseAll methods
-        this.oldPartitionNum = Number(oldPartitionNum); // TODO: WHY IS THIS A STRING???
+        this.rpGroup = rpGroup; // required to access allPaused, resumeAll, and allFinished methods
+        this.oldPartitionNum = Number(oldPartitionNum); // TODO: WHY IS THIS A STRING?
         this.newPartitionNum = newPartitionNum; // this ISN'T a string
         this.id = id;
 
         this.hasStarted = false;
         this.stoppingPoint = this.oldTopic.partitions[oldPartitionNum].consumerOffsetLL.head; // consumerOffsetNode
-        // TODO: add logic if the above is ever null, or the stoppingPoint.consumerGroupId === __end;
-        this.isPaused = false; // should the below be defined later?
+        this.endNode = this.oldTopic.partitions[oldPartitionNum].consumerOffsetLL.tail;
+        this.isPaused = false;
         this.hasFinished = false;
         this.producer;
         this.consumer;
         this.consumerOffset;
         this.resume;
+        this.allMessagesProcessed = false;
     }
     async createProducer(){
         const clientIdProducer = 'producer-'+this.id;
@@ -125,7 +126,7 @@ class RepartitionerAgent {
             brokers: [this.seedBrokerUrl]
         })
         // NOTE: every consumer must have its own group in order to guarantee one consumer per partition
-        // this will be explained more in consumer.seek() below
+        // this will be explained more in consumer.seek() at the end of this.start()
         this.consumer = kafka.consumer({
             groupId: clientIdConsumer,
         });
@@ -133,130 +134,91 @@ class RepartitionerAgent {
 
         // for consumer.subscribe(), do NOT use fromBeginning: true
         // we are deliberately setting the offsets for this consumer group for every partition to the end
-        // then, we are going to change the offset of just the desired partition to 0 in consumer.seek() below
-        await this.consumer.subscribe({ topics: [this.oldTopic.name] }); // fromBeginning: true
-
-        // hopefully KafkaJS eventually comes out with a simple partition assigner function like below:
-        // await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
+        // then, we are going to change the offset of just the desired partition to 0 in consumer.seek() at the end of this.start() below
+        await this.consumer.subscribe({ topics: [this.oldTopic.name] }); // fromBeginning should be false
     }
-    async start(){
-        console.log('creating producer...');
-        await this.createProducer();
-        console.log('creating consumer...');
-        await this.createConsumer();
+    pauseAndResumeWhenReady(){
+        this.resume = pause(); // pause() returns a resuming function
+        this.isPaused = true;
+
+        if (this.rpGroup.allPaused()){
+            // this is where you would write the logic for the new consumer offsets. currently a console.log:
+            console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.rpGroup.producerOffset}`) // +1?
+            this.stoppingPoint = this.stoppingPoint.next;
+            // resume all if all paused
+            this.rpGroup.resumeAll();
+        } else {
+            // if they are not all paused, remain paused but move the stopping point
+            this.stoppingPoint = this.stoppingPoint.next; // not very DRY
+        }            
+    }
+
+    async end(){
+        this.hasFinished = true;
         
-        console.log('reading messages...');
-        this.consumer.run({ // this is NOT await according to the requirements of consumer.seek() below
+        if (this.rpGroup.allFinished()){
+            console.log(`All agents in rpGroup ${rpGroup.consumerOffsetConfig} have finished.`);
+        }
+        await this.consumer.disconnect();
+        await this.producer.disconnect();
+    }
+
+    async writeMessage(value){ // you can add in key later
+        const result = await this.producer.send({ 
+            topic: this.newTopicName,
+            messages: [
+                { value, partition: this.newPartitionNum } 
+            ],
+        });
+        this.rpGroup.producerOffset++;
+    }
+
+    // MAIN FUNCTION
+    async start(){
+        await this.createProducer();
+        await this.createConsumer();
+
+        // processing messages:
+        this.consumer.run({ // do not put await here according to the requirements of consumer.seek() after this
             eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
 
-                // consumer logic - extracting message from old partition
-                
-                // const key = message.key.toString(); // this can be null and toString will cause issues
+                // reading message
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
-
-                // UNCOMMENT THIS IF YOU WANT TO SEE THE MESSAGES BEING MOVED:
                 // console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
-                if (Number(this.consumerOffset) > 375) console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
+                if (Number(this.consumerOffset) > 375) console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset });
 
-                // terminating logic
-                if (this.stoppingPoint.consumerGroupId === '__end' && Number(this.consumerOffset) === Number(this.stoppingPoint.offset)-1){ // the stopping point has been reached
-                    console.log('finished!')
-                    this.hasFinished = true; // this will enable the disconnection at the end of the run
 
-                    // check if all have finished
-                    if (this.rpGroup.allFinished()){
-                        this.rpGroup.hasFinished = true;
-                        console.log(`All agents in rpGroup ${rpGroup.consumerOffsetConfig} have finished.`);
-                    }
-                    // the disconnection will happen at the very end
+                // MAIN LOGIC
+                if (this.consumerOffset === this.stoppingPoint.offset) { // has reached stopping point
+                    this.pauseAndResumeWhenReady(); // this breaks out of eachMessage, moves the stopping point, and resumes when all have reached the previous stopping point
                 }
-
-
-
-
-
-                // FIRST, CHECK IF CONSUMER HAS REACHED A STOPPING POINT
-                // If so, we are going to pause it and wait to resume
-                // when it resumes, it will write the message
-                if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
-                    console.log('reached stopping point at: ', this.stoppingPoint);
-                    console.log('the next stopping point is: ', this.stoppingPoint.next);
-
-                    if (this.stoppingPoint.consumerGroupId === '__end'){ // the stopping point is the end
-                        // note: I fixed the "add" logic so that __end will always be the true end
-                        console.log('finished!')
-                        this.hasFinished = true;
-                        // terminating point
-                        // check if all have finished
-                        if (this.rpGroup.allFinished()){
-                            this.rpGroup.hasFinished = true;
-                            console.log(`All agents in rpGroup ${rpGroup.consumerOffsetConfig} have finished.`);
-                        }
-                        // the disconnection will happen at the very end
+                else if (Number(this.consumerOffset) === Number(this.endNode.consumerOffset)-1) { // is last message
+                    if (!this.allMessagesProcessed){ // write the message if it hasn't been written
+                        await this.writeMessage(value);
+                        this.allMessagesProcessed = true;
                     }
-                    else { // the stopping point is NOT the end
-                        console.log('pausing...')
-                        this.resume = pause(); // pause() returns a resuming function
-                        this.isPaused = true;
-
-                        // TODO: this logic is if this is the last agent to pause in the group
-                        // in which case, we can resume all
-                        // but we should also record the new consumer group offset in the new partition for future reference
-                        // right now I just console.log... figure out a better approach here
-                        // preferably writing into an object that KafkaJS can later on accept to set new offsets
-                        if (this.rpGroup.allPaused()){
-                            // TODO you probably also need a similar thing for allFinished()
-                            console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.rpGroup.producerOffset}`)
-                            this.stoppingPoint = this.stoppingPoint.next;
-                            this.rpGroup.resumeAll();
-                        } else {
-                            // if they are not all paused, remain paused but move the stopping point
-                            this.stoppingPoint = this.stoppingPoint.next; // not very DRY
-                        }
+                    if (this.stoppingPoint !== this.endNode){ // there are other nodes at the end
+                        this.pauseAndResumeWhenReady();
+                    }
+                    else { // it has reached the end
+                        this.end(); // this breaks out of run, and logs a message when all in the group have ended
                     }
                 }
-                
-                // producer logic - writing message to new partition
-                const result = await this.producer.send({ 
-                    topic: this.newTopicName,
-                    messages: [
-                        { value, partition: this.newPartitionNum } // key excluded
-                    ],
-                });
-                this.rpGroup.producerOffset++;
-                // this will only work if it is first defined in the rpGroup
-
-
-                // ending logic
-                if (this.hasFinished) await this.end();
-                // edge case: what if all three consumer groups are at the end?
-                // I think this is handled, because if they have reached the end
-                // they will NOT pause, they will change to hasFinished = true
-                // and therefore all initiate the finishing sequences
+                else { // if it has NOT reached a stopping point nor the end
+                    await this.writeMessage(value);
+                }
             }
-        })
-        console.log('did it reach the seek?')
+        });
+
+        // the purpose of this is to ensure the consumer reads from only one partition
+        // this is not natively supported by KafkaJS
+        // so what I had to do was make a new consumer group for every customer and have it read from the end (not beginning) of the topic
+        // then seek moves the reading position for the relevant topic back to zero
+        // TODO: 0 might not necessarily be the earlieset offset
         this.consumer.seek({ 
             topic: this.oldTopic.name, partition: this.oldPartitionNum, offset: 0
         })
-        // TODO: NOTE: the offset might not necessarily start at 0. if they read 10,000 messages but after 7 days it starts deleting old messages
-        // perhaps the earliest offset is actually 1,000
-        // it seems though that 0 can still work
-        // TODO: note on above: we have now in the Topic something called partitionEnds that have a low and high for each partition
-        
-        // SEEK is how we set the consumer to only read from a single partition
-        // recap:
-        // 1. make a new consumer group for every consumer
-        // 2. make that consumer/group read from the end of every partition
-        // 3. do consumer.run without async
-        // 4. use consumer.seek to set the offset for the desired partition to 0
-        // we need step 1 to ensure no reassignments if we add more consumers to the same group
-    }
-    async end(){
-        await this.consumer.disconnect();
-        await this.producer.disconnect();
-        this.rpGroup.checkIfFinished();
     }
 }
 
