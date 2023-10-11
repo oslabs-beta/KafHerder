@@ -1,8 +1,5 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchInitialData } from '../../features/kafkaCluster/kafkaClusterSlice'
-
-
+import React from 'react'
+import { useSelector } from 'react-redux'
 
 function ClusterActiveBrokers() {
 

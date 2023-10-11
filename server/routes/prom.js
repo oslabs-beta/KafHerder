@@ -5,7 +5,10 @@ const promController = require('../controllers/promController.js');
 const router = express.Router();
 
 router.get('/', promController.getClusterMetrics, promController.getBrokerMetrics, (req, res) => {
-    return res.status(200).json({ ...res.locals.clusterMetrics, ...res.locals.obj });
+    return res.status(200).json({
+        clusterMetrics: res.locals.clusterMetrics, 
+        brokerMetrics: res.locals.obj
+    });
 });
 
 router.get('/broker', promController.getBrokerMetrics, (req, res) => {

@@ -1,7 +1,5 @@
 const API_URL = 'http://localhost:3000/';
 
-
-
 /**
  * * We want to do an initial fetch request for KafkaCluster Data here
  * @returns Initial data from a get request to the server
@@ -23,10 +21,10 @@ export const fetchClusterDataFromAPI = async (state) => {
         if (!response.ok) {
             throw new Error('Failed to fetch Broker data');
         }
-        const data = await response.json();
-        console.log('data from fetchClusterDataFromAPI', data)
 
+        const data = await response.json()
         return data;
+
     } catch (error) {
         console.error(`Error occurred when fetching data from ${port}`)
     }

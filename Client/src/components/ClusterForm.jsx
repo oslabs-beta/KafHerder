@@ -8,7 +8,6 @@ function ClusterForm() {
 
   const status = useSelector(state => state.clusterForm.status)
 
-
   // Creating local state for input data
   const [localForm, setLocalForm] = useState({
     clusterName: '',
@@ -22,7 +21,6 @@ function ClusterForm() {
   // Example: This it the input from the form div vor the ClusterName input bar
   // name='ClusterName'
   // value={localForm.ClusterName}
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setLocalForm(prevState => ({
@@ -37,8 +35,6 @@ function ClusterForm() {
   }
 
   // when the form is submitted, state is dispatched from the localForm to the redux store using setClusterForm
-  // *We still need to create a clusterFormService to get data from the API
-
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(setClusterForm(localForm));
@@ -65,9 +61,9 @@ function ClusterForm() {
                 onChange={handleInputChange}
                 placeholder='Enter your ClusterName'
               />) : (
-                // <div> {localForm.clusterName} </div>
-                // just a place holder right now. need to style as well
-                <p>Cluster Name</p>
+                <div>{localForm.clusterName}</div>
+                // Need to style
+                // <p>Cluster Name</p>
               )}
           </div>
           <div className='form-group'>
@@ -81,9 +77,11 @@ function ClusterForm() {
               onChange={handleInputChange}
               placeholder='Port'
               /> ) : (
-          // <div> {localForm.clusterName} </div>
-          // just a place holder right now. need to style as well
-            <p>Port Number</p>
+          <div> 
+            <p>{localForm.promPort} </p>
+          </div>
+            // Need to style
+            // <p>Port Number</p>
               )}
           </div>
           <div className='form-group'>

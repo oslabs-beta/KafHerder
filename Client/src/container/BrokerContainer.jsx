@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 // import { fetchBrokerData } from '../features/broker/brokerSlice';
 import BrokerCard from '../components/BrokerComponents/BrokerCard'
 
 
 /**
- * TODO: currently passing testData into sortedData as data stream
  * Need to change that once we get streaming data. 
  */
 // const testData = [
@@ -19,80 +18,67 @@ import BrokerCard from '../components/BrokerComponents/BrokerCard'
 
 function BrokerContainer() {
 
+  /** 
+   * Todo: Uncomment dispatch, useEffect, brokerData, status after server is up.
+   * Created a dispatch variable and set it to useDispatch.
+   * Will be used in the useEffect(todo after render) to fetch broker data. 
+   * ?fetchBrokerData is a createAsyncThunk function in brokerSlice. Look there to find more info.
+   */
 
-/** 
- * Todo: Uncomment dispatch, useEffect, brokerData, status after server is up.
- * Created a dispatch variable and set it to useDispatch.
- * Will be used in the useEffect(todo after render) to fetch broker data. 
- * ?fetchBrokerData is a createAsyncThunk function in brokerSlice. Look there to find more info.
- */
+  // once the broker data is fetched, Redux state will be updated with data from server
+  const brokers = useSelector(state => state.broker.brokers);
+  const allBrokers = brokers.allIds;
 
-// const dispatch = useDispatch();
-
-// // fetching data once the component mounts but might want to change this to fetching data once the cluster form is active?
-// useEffect(() => {
-//   dispatch(fetchBrokerData());
-// }, [dispatch]);
-
-// // once the broker data is fetched, Redux state will be updated with data from server
-const brokers = useSelector(state => state.broker.brokers);
-const allBrokers = brokers.allIds;
-// const status = useSelector(state => state.status);
-
-// create local state for sort criteria and set the initial state to 'BrokerIdAscending'
-const [sortCriteria, setSortCriteria] = useState('BrokerIdAscending');
+  // create local state for sort criteria and set the initial state to 'BrokerIdAscending'
+  const [sortCriteria, setSortCriteria] = useState('BrokerIdAscending');
 
 
-/** SORTING THE DATA
- * TODO: change testData to brokerData when server is up
- * Creates a sortedData variable and sets it to an array.
- * The array will sort the brokerData (currently testData) and sort it to what the current local state's setting
- * */
-const sortedData = [...allBrokers].sort((a, b) => {
-  const aPort = parseInt(a.split(':')[1]);
-  const bPort = parseInt(b.split(':')[1]);
-  if (sortCriteria === 'BrokerIdAscending') {
-    return aPort - bPort;
-  }
-  if (sortCriteria === 'BrokerIdDescending') {
-    return bPort - aPort;
-  }
-  // we can add more criteria here
-  return 0;
-})
-
+  /** SORTING THE DATA
+   * Creates a sortedData variable and sets it to an array.
+   * The array will sort the brokerData and sort it to what the current local state's setting
+   * */
+  const sortedData = [...allBrokers].sort((a, b) => {
+    const aPort = parseInt(a.split(':')[1]);
+    const bPort = parseInt(b.split(':')[1]);
+    if (sortCriteria === 'BrokerIdAscending') {
+      return aPort - bPort;
+    }
+    if (sortCriteria === 'BrokerIdDescending') {
+      return bPort - aPort;
+    }
+    // we can add more criteria here
+    return 0;
+  })
 
   /**
-   * This part of the code is rendering the hardcoded brokerData from above. 
    * Created a select element and set it to the id 'sortbydrop'
    * It currently has 2 options, BrokerIdAscending and BrokerIdDescending
-   * We can add more for Partition count or any other metric
+   * We can add more for Partition count or any other metrics
    * Whichever one is selected sets off an onChange that will set the local state to whatever was selected
    * Whatever was selected triggers a rerender from the onChange event handler
    */
-  const renderedBrokerCards = sortedData.map( id => {
+  const renderedBrokerCards = sortedData.map(id => {
     const brokerData = brokers.byId[id];
     return <BrokerCard key={id} data={brokerData} />
   }
   )
 
-
   return (
     <>
-    <div className='BrokerContainer'>
-      <div id='BrokerContainerTitle'>
-        <h1 id='brokerheader' style={{ color: '#101010' }}> Current Brokers: {sortedData.length} </h1>
-        {/* <label id='sortby'>Sort by:</label> */}
+      <div className='BrokerContainer'>
+        <div id='BrokerContainerTitle'>
+          <h1 id='brokerheader' style={{ color: '#101010' }}> Current Brokers: {sortedData.length} </h1>
+          {/* <label id='sortby'>Sort by:</label> */}
           <select id='sortbydrop' value={sortCriteria} onChange={e => setSortCriteria(e.target.value)}>
             <option value="BrokerIdAscending">Sort By: Broker ID Ascending</option>
             <option value="BrokerIdDescending">Sort By: Broker ID Descending</option>
             {/* Add more options as needed */}
           </select>
+        </div>
+        <section className='CardContainer'>
+          {renderedBrokerCards}
+        </section>
       </div>
-      <section className='CardContainer'>
-        {renderedBrokerCards}
-      </section>
-    </div>
     </>
   )
 }

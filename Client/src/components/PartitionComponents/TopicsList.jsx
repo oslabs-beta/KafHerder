@@ -2,16 +2,12 @@ import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { checkPartitionData, setSelectedTopic } from '../../features/clusterform/clusterFormSlice'
 
-// receiving an object with key: topics with value of array
-// const topicsTest = { topics: ['topic1', 'topic2', 'topic3', 'kafka1', 'kafka2', 'kafka3', 'test1', 'test2', 'test3', 'test4', 'test5', 'test6', 'test7', 'test8', 'test9'] }
-
 
 function TopicsList() {
 
     const dispatch = useDispatch();
 
     const topics = useSelector(state => state.clusterForm.topics)
-    // const topicName = useSelector(state => state.clusterForm.selectedTopic)
 
     const [filter, setFilter] = useState('');
     const [selectedTopicLocal, setSelectedTopicLocal] = useState('');
@@ -21,16 +17,15 @@ function TopicsList() {
     );
 
     // will set local state to topic selected from table
-    // will also set global state of selectedTopic to topic user clicked on
+    // will also set global state of selectedTopic to topic selected by user via setSelectedTopic
     const clickTopic = (topic) => {
         console.log(topic)
-        setSelectedTopicLocal(topic) // for css
+        setSelectedTopicLocal(topic)
         dispatch(setSelectedTopic(topic))
     }
 
     const handleTopicSubmit = (e) => {
         e.preventDefault();
-        // console.log(topicName)
         dispatch(checkPartitionData())
     }
 
@@ -56,7 +51,3 @@ function TopicsList() {
 }
 
 export default TopicsList
-
-// input bar
-// another div that will hold topics list
-// submit button
