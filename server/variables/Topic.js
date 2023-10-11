@@ -1,16 +1,25 @@
 class Topic {
-    constructor (name){
+    constructor (name, partitionEnds){
         this.name = name;
         this.partitions = {}; // key: partitionNumber, value: Partition object
         this.consumerOffsetConfigs = {}; // key: config, value: array of partitions that have it
         this.numConfigs = 0;
+        this.partitionEnds = partitionEnds;
+        this.addEnds();
     }
 
-    addConsumerOffset(number, offset, consumerGroupId){
-        if (!this.partitions[number]){
-            this.partitions[number] = new Partition(number);
+    addConsumerOffset(partitionNumber, offset, consumerGroupId){
+        if (!this.partitions[partitionNumber]){
+            this.partitions[partitionNumber] = new Partition(partitionNumber);
         }
-        this.partitions[number].consumerOffsetLL.add(offset, consumerGroupId);
+        this.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupId);
+    }
+
+    addEnds(){ // this adds the __end nodes to the linkedlists
+        for (const partitionEnd of this.partitionEnds){
+            const { partition, high } = partitionEnd;
+            this.addConsumerOffset(partition, high, '__end');
+        }
     }
 
     getAllConsumerOffsetConfigs(){

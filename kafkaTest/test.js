@@ -136,4 +136,5 @@ const reset = async (topic) => {
     catch (error) { console.error(error) }
 }
 
+
 reset('animals2');

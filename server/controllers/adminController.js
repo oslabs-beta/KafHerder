@@ -254,7 +254,34 @@ adminController.fetchConsumerGroupIds = async (req, res, next) => {
 }
 
 // MIDDLEWARE 2
-// takes in the consumerGroupIds from the previous middleware, as well as the connected admin
+// this is to know what the offset of the last message is
+// we need this for our Topic object to put __end nodes so we can stop
+//
+// returns an array of highs and lows of offsets for each partition
+// the high is where new messages are being produced to
+// the offset is the consumer offset of the furthest consumer
+// TODO: the difference between high - offset is actually the consumer lag!
+// [
+//  { partition: 0, offset: '378', high: '378', low: '0' },
+//  { partition: 1, offset: '379', high: '379', low: '0' },
+// ]
+adminController.fetchPartitionEnds = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const { topicName } = req.body;
+
+    try {
+        const response = await admin.fetchTopicOffsets(topicName);
+        res.locals.partitionEnds = response;
+        return next();
+    }
+    catch (error) {
+        console.log('failed to fetch partition ends');
+        console.error(error);
+    }
+}
+
+// MIDDLEWARE 3
+// takes in the consumerGroupIds/partitionEnds from the previous middleware, as well as the connected admin
 // also takes the old topic name passed initially in the body
 // returns a Topic object with all the offset information you could possibly need
 // see Topic.js for more information about its shape
@@ -263,8 +290,9 @@ adminController.fetchConsumerGroupIds = async (req, res, next) => {
 adminController.calculateTopicConfigs = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
     const consumerGroupIds = res.locals.consumerGroupIds;
+    const partitionEnds = res.locals.partitionEnds;
     const { topicName } = req.body;
-    const topic = new Topic(topicName);
+    const topic = new Topic(topicName, partitionEnds);
 
     // HELPER FUNCTION: fetches offsets on each partition of the topic for one consumerGroup
     // TODO: JSDocs for this function

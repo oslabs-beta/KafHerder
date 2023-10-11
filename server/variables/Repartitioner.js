@@ -158,11 +158,17 @@ class RepartitionerAgent {
                 console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
 
                 // pausing and resuming logic
-                if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
+                // TODO: delete this if block. the __end logic should handle finishing
+                // this if block should also wrap everything including the producer, it runs for one more message currently
+                if (this.stoppingPoint === null){ // the stopping point is the end
+                    console.log('finished!')
+                    this.hasFinished = true;
+                }
+                else if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
                     console.log('reached stopping point');
 
                     // TODO: change from null to '__end'
-                    if (this.stoppingPoint === null){ // the stopping point is the end
+                    if (this.stoppingPoint === '__end'){ // the stopping point is the end
                         console.log('finished!')
                         this.hasFinished = true;
                     }
@@ -177,7 +183,7 @@ class RepartitionerAgent {
                         // right now I just console.log... figure out a better approach here
                         // preferably writing into an object that KafkaJS can later on accept to set new offsets
                         if (this.rpGroup.allPaused()){
-                            // TODO replace the console log with new offset recording
+                            // TODO you probably also need a similar thing for allFinished()
                             console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.rpGroup.producerOffset}`)
                             this.stoppingPoint = this.stoppingPoint.next;
                             this.rpGroup.resumeAll();
@@ -214,6 +220,7 @@ class RepartitionerAgent {
         // TODO: NOTE: the offset might not necessarily start at 0. if they read 10,000 messages but after 7 days it starts deleting old messages
         // perhaps the earliest offset is actually 1,000
         // it seems though that 0 can still work
+        // TODO: note on above: we have now in the Topic something called partitionEnds that have a low and high for each partition
         
         // SEEK is how we set the consumer to only read from a single partition
         // recap:

@@ -117,9 +117,11 @@ const fetchOffsets = async( groupId, topicName ) => {
 }
 
 const getTopicConfigs = async (topicName) => {
-    const topic = new Topic(topicName);
-
     try {
+        const partitionEnds = await admin.fetchTopicOffsets(topicName);
+        const topic = new Topic(topicName, partitionEnds);
+
+
         const consumerGroupIds = await listConsumerGroupIds();
         // [ 'consumerGroupId1', 'consumerGroupId2', ... ]
         // not all of these have read the topic
@@ -197,49 +199,6 @@ const repartition = async (oldTopicName, newTopicName) => {
     }
 }
 
-const setTestOffsetsABC5 = async (topic) => {
-    try {
-        await connectAdmin();
-        await admin.setOffsets({
-            groupId: 'A',
-            topic,
-            partitions: [
-                { partition: 0, offset: '20'},
-                { partition: 1, offset: '30'},
-                { partition: 2, offset: '40'},
-                { partition: 3, offset: '50'},
-                { partition: 4, offset: '60'},
-            ]
-        });
-        await admin.setOffsets({
-            groupId: 'B',
-            topic,
-            partitions: [
-                { partition: 0, offset: '30'},
-                { partition: 1, offset: '40'},
-                { partition: 2, offset: '50'},
-                { partition: 3, offset: '20'},
-                { partition: 4, offset: '70'},
-            ]
-        });
-        await admin.setOffsets({
-            groupId: 'C',
-            topic,
-            partitions: [
-                { partition: 0, offset: '40'},
-                { partition: 1, offset: '50'},
-                { partition: 2, offset: '60'},
-                { partition: 3, offset: '70'},
-                { partition: 4, offset: '20'},
-            ]
-        });
-        await disconnectAdmin();
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-// setTestOffsetsABC5('animals2');
 
 repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
 // deleteAllConsumerGroups(); // MAKE SURE YOU ARE DISCONNECTED!!!
