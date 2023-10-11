@@ -9,11 +9,11 @@ class TopicRepartitioner {
     }
     async run(){
         console.log('now running repartitioning process');
+        let newPartitionNum = 0;
         for (const [consumerOffsetConfig, partitionNumArr] of Object.entries(this.oldTopic.consumerOffsetConfigs)){
             console.log('creating rpGroup');
             const rpGroup = new RepartitionerGroup(this.props, this, consumerOffsetConfig);
             this.groups.push(rpGroup);
-            let newPartitionNum = 0;
             for (const oldPartitionNum of partitionNumArr){
                 const id = `${consumerOffsetConfig}-${oldPartitionNum}/${newPartitionNum}`;
                 console.log('creating rpAgent');
@@ -23,6 +23,7 @@ class TopicRepartitioner {
                 console.log('starting rpAgent');
                 await rpAgent.start();
             }
+            newPartitionNum++;
         }
 
         // run everything
