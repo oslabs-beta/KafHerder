@@ -44,6 +44,8 @@ class RepartitionerGroup {
         this.consumerOffsetConfig = consumerOffsetConfig;
         this.agents = [];
         this.hasFinished = false;
+        this.producerOffset = 0; // defined here because all its agents will always be writing to one partition
+        // even if we have multiple ABC configs, you need to split them up in the Topic object, not here
     }
     addAgent(props, rpGroup, oldPartitionNum, newPartitionNum, id){
         // unnecessary
@@ -101,7 +103,6 @@ class RepartitionerAgent {
         this.isPaused = false; // should the below be defined later?
         this.hasFinished = false;
         this.producer;
-        this.producerOffset;
         this.consumer;
         this.consumerOffset;
         this.resume;
@@ -178,7 +179,7 @@ class RepartitionerAgent {
                         // preferably writing into an object that KafkaJS can later on accept to set new offsets
                         if (this.rpGroup.allPaused()){
                             this.stoppingPoint = this.stoppingPoint.next;
-                            console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.producerOffset}`)
+                            console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.rpGroup.producerOffset}`)
                             this.rpGroup.resumeAll();
                         } else {
                             // if they are not all paused, remain paused but move the stopping point
@@ -194,9 +195,9 @@ class RepartitionerAgent {
                         { value, partition: this.newPartitionNum } // key excluded
                     ],
                 });
-                this.producerOffset = result.lastOffset;
-                // TODO: lastOffset doesn't work/exist. we need a way to find the last offset of the producer... at least when we have paused the last consumer before resumeAll
-                // I think the way to do that would be to fetch the current length of the new partition before resuming. because that's the offset
+                this.rpGroup.producerOffset++;
+                // this will only work if it is first defined in the rpGroup
+
 
                 // ending logic
                 if (this.hasFinished) this.end();
