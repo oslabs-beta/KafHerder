@@ -59,6 +59,9 @@ const Modal = ({ closeModal }) => {
  * We use the modal prop for the onclick on the span element
  * Todo: probably need to have data propped down to the modal because current items are hardcoded. 
  */
+
+
+
 function BrokerCard({ data }) {
     const [showModal, setModal] = useState(false);
     
