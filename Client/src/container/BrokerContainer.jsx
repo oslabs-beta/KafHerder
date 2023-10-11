@@ -8,14 +8,14 @@ import BrokerCard from '../components/BrokerComponents/BrokerCard'
  * TODO: currently passing testData into sortedData as data stream
  * Need to change that once we get streaming data. 
  */
-const testData = [
-  {BrokerId: 1, ActiveControllerCount: 1, TotalPartitionCount: 10, OnlinePartitions: 10, OfflinePartitions: 0},
-  {BrokerId: 2, ActiveControllerCount: 1, TotalPartitionCount: 8, OnlinePartitions: 6, OfflinePartitions: 2},
-  {BrokerId: 3, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 3, OfflinePartitions: 4},
-  {BrokerId: 4, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 7, OfflinePartitions: 0},
-  {BrokerId: 5, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 6, OfflinePartitions: 1},
-  {BrokerId: 6, ActiveControllerCount: 1, TotalPartitionCount: 9, OnlinePartitions: 6, OfflinePartitions: 3}
-]
+// const testData = [
+//   {BrokerId: 1, ActiveControllerCount: 1, TotalPartitionCount: 10, OnlinePartitions: 10, OfflinePartitions: 0},
+//   {BrokerId: 2, ActiveControllerCount: 1, TotalPartitionCount: 8, OnlinePartitions: 6, OfflinePartitions: 2},
+//   {BrokerId: 3, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 3, OfflinePartitions: 4},
+//   {BrokerId: 4, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 7, OfflinePartitions: 0},
+//   {BrokerId: 5, ActiveControllerCount: 1, TotalPartitionCount: 7, OnlinePartitions: 6, OfflinePartitions: 1},
+//   {BrokerId: 6, ActiveControllerCount: 1, TotalPartitionCount: 9, OnlinePartitions: 6, OfflinePartitions: 3}
+// ]
 
 function BrokerContainer() {
 
@@ -35,7 +35,8 @@ function BrokerContainer() {
 // }, [dispatch]);
 
 // // once the broker data is fetched, Redux state will be updated with data from server
-// const brokerData = useSelector(state => state.broker);
+const brokers = useSelector(state => state.broker.brokers);
+const allBrokers = brokers.allIds;
 // const status = useSelector(state => state.status);
 
 // create local state for sort criteria and set the initial state to 'BrokerIdAscending'
@@ -47,12 +48,14 @@ const [sortCriteria, setSortCriteria] = useState('BrokerIdAscending');
  * Creates a sortedData variable and sets it to an array.
  * The array will sort the brokerData (currently testData) and sort it to what the current local state's setting
  * */
-const sortedData = [...testData].sort((a, b) => {
+const sortedData = [...allBrokers].sort((a, b) => {
+  const aPort = parseInt(a.split(':')[1]);
+  const bPort = parseInt(b.split(':')[1]);
   if (sortCriteria === 'BrokerIdAscending') {
-    return a.BrokerId - b.BrokerId;
+    return aPort - bPort;
   }
   if (sortCriteria === 'BrokerIdDescending') {
-    return b.BrokerId - a.BrokerId;
+    return bPort - aPort;
   }
   // we can add more criteria here
   return 0;
@@ -67,9 +70,11 @@ const sortedData = [...testData].sort((a, b) => {
    * Whichever one is selected sets off an onChange that will set the local state to whatever was selected
    * Whatever was selected triggers a rerender from the onChange event handler
    */
-  const renderedBrokerCards = sortedData.map((data) => (
-  <BrokerCard key={data.BrokerId} data={data} />
-  ))
+  const renderedBrokerCards = sortedData.map( id => {
+    const brokerData = brokers.byId[id];
+    return <BrokerCard key={id} data={brokerData} />
+  }
+  )
 
 
   return (

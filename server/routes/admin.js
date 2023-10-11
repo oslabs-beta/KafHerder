@@ -19,4 +19,8 @@ router.post('/create', adminController.connectAdmin, adminController.createTopic
     return res.status(200).json(res.locals.wasCreated);
 });
 
+router.post('/minPartitions', adminController.connectAdmin, adminController.fetchConsumerGroupIds, adminController.calculateTopicConfigs, adminController.disconnectAdmin, (req, res) => {
+    return res.status(200).json(res.locals.topicObj);
+})
+
 module.exports = router;

@@ -1,18 +1,48 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchBrokerDataFromAPI } from './brokerService';
+import { fetchedClusterData } from '../kafkaCluster/kafkaClusterSlice';
+
+
 
 // set initial state for ClusterName
 // will be fetching data from server with ClusterName and Port
 // Initial State data points are TBD
 const initialState = {
-    brokerId: null,
+    brokers: {
+        byId: {
+            "kafka1:9992": {
+                id: "kafka1:9992",
+                kafka_server_brokertopicmetrics_bytesin_total: "540593",
+                kafka_server_brokertopicmetrics_bytesout_total: "567481",
+                kafka_server_kafkaserver_brokerstate: "3",
+                kafka_server_replicamanager_offlinereplicacount: "0",
+                kafka_server_replicamanager_partitioncount: "22",
+                kafka_server_sessionexpirelistener_zookeeperdisconnects_total: "7"
+              },
+              "kafka2:9993": {
+                id: "kafka2:9993",
+                kafka_server_brokertopicmetrics_bytesin_total: "39517",
+                kafka_server_brokertopicmetrics_bytesout_total: "26784",
+                kafka_server_kafkaserver_brokerstate: "3",
+                kafka_server_replicamanager_offlinereplicacount: "0",
+                kafka_server_replicamanager_partitioncount: "24",
+                kafka_server_sessionexpirelistener_zookeeperdisconnects_total: "7"
+              },
+              "kafka3:9994": {
+                id: "kafka3:9994",
+                kafka_server_brokertopicmetrics_bytesin_total: "6232",
+                kafka_server_brokertopicmetrics_bytesout_total: "1109024",
+                kafka_server_kafkaserver_brokerstate: "3",
+                kafka_server_replicamanager_offlinereplicacount: "0",
+                kafka_server_replicamanager_partitioncount: "23",
+                kafka_server_sessionexpirelistener_zookeeperdisconnects_total: "7"
+              },
+        },
+        allIds: ["kafka1:9992", "kafka2:9993", "kafka3:9994"]
+    },
     activeControllerCount: 0,
     partitionCount: 0,
-    // OfflinePartitionsCount: '',
-    // UncleanLeaderElectionsPerSec: '',
-    // BytesInPerSec: '',
-    // BytesOutPerSec: '',
-    // RequestsPerSec: '',
+    
     status: 'idle',
     error: null
 };
@@ -34,8 +64,7 @@ export const fetchBrokerData = createAsyncThunk(
 
 
 /**
- * commented out the other state keys because it was too much to type. 
- * Todo: Update the data that will be requested in
+ * Todo: getBrokerMetrics sends back an object but does not have a name
  */
 const brokerSlice = createSlice({
     name: 'broker',
@@ -51,30 +80,27 @@ const brokerSlice = createSlice({
             state.status = 'loading';
         })
         .addCase(fetchBrokerData.fulfilled, (state, action) => {
-            const { brokerId,
-                 activeControllerCount, 
-                 partitionCount, 
-                //  OfflinePartitionsCount, 
-                //  UncleanLeaderElectionsPerSec, 
-                //  BytesInPerSec, 
-                //  BytesOutPerSec, 
-                //  RequestsPerSec 
-                } = action.payload;
-
-            state.brokerId = brokerId;
-            state.activeControllerCount = activeControllerCount;
-            state.partitionCount = partitionCount;
-            // state.OfflinePartitionsCount = OfflinePartitionsCount;
-            // state.UncleanLeaderElectionsPerSec = UncleanLeaderElectionsPerSec;
-            // state.BytesInPerSec = BytesInPerSec;
-            // state.BytesOutPerSec = BytesOutPerSec;
-            // state.RequestsPerSec = RequestsPerSec;
+            state.brokerIds = action.payload
             state.status = 'success';
         })
         .addCase(fetchBrokerData.rejected, (state, action) => {
             state.status = 'failed';
             state.error = action.error.message;
         })
+        //? Adding in an addCase here to check to see if fetchedClusterData is fulfilled. 
+        .addCase(fetchedClusterData.fulfilled, (state, action) => {
+            const incomingData = action.payload;
+            state.brokers.allIds = Object.keys(incomingData);
+            for (let brokerId in incomingData) {
+                state.brokers.byId[brokerId] = {
+                    id: brokerId,
+                    ...incomingData[brokerId]
+                };
+            }
+
+            state.status = 'success';
+        
+        }) 
     }
     
 });
