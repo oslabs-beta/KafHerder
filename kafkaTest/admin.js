@@ -167,6 +167,19 @@ const getClusterInfo = async() => {
 //     await getTopicInfo();
 // }
 
+const deleteAllConsumerGroups = async () => {
+    try {
+        await connectAdmin();
+        const groupIds = await listConsumerGroupIds();
+        await admin.deleteGroups(groupIds);
+        console.log('All consumer groups deleted successfully');
+        await disconnectAdmin();
+    }
+    catch (error) {
+        console.error('Error deleting groups: ', error)
+    }
+};
+
 const repartition = async (oldTopicName, newTopicName) => {
     try {
         await connectAdmin();
@@ -184,7 +197,56 @@ const repartition = async (oldTopicName, newTopicName) => {
     }
 }
 
+const setTestOffsetsABC5 = async (topic) => {
+    try {
+        await connectAdmin();
+        await admin.setOffsets({
+            groupId: 'A',
+            topic,
+            partitions: [
+                { partition: 0, offset: '20'},
+                { partition: 1, offset: '30'},
+                { partition: 2, offset: '40'},
+                { partition: 3, offset: '50'},
+                { partition: 4, offset: '60'},
+            ]
+        });
+        await admin.setOffsets({
+            groupId: 'B',
+            topic,
+            partitions: [
+                { partition: 0, offset: '30'},
+                { partition: 1, offset: '40'},
+                { partition: 2, offset: '50'},
+                { partition: 3, offset: '20'},
+                { partition: 4, offset: '70'},
+            ]
+        });
+        await admin.setOffsets({
+            groupId: 'C',
+            topic,
+            partitions: [
+                { partition: 0, offset: '40'},
+                { partition: 1, offset: '50'},
+                { partition: 2, offset: '60'},
+                { partition: 3, offset: '70'},
+                { partition: 4, offset: '20'},
+            ]
+        });
+        await disconnectAdmin();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// setTestOffsetsABC5('animals2');
+
 repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
+// deleteAllConsumerGroups(); // MAKE SURE YOU ARE DISCONNECTED!!!
+
+
+
+
 
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO

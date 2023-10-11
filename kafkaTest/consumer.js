@@ -5,8 +5,7 @@ const kafka = new Kafka({
     brokers: ['localhost:9092'] //, 'localhost:9094', 'localhost:9096']
 })
 
-const consumer = kafka.consumer({ groupId: 'consumer-group-12' });
-const consumer2 = kafka.consumer({ groupId: 'consumer-group-12' });
+const consumer = kafka.consumer({ groupId: 'A' });
 
 // const run = async (topic) => {
 //     await consumer.connect();
@@ -24,7 +23,7 @@ const consumer2 = kafka.consumer({ groupId: 'consumer-group-12' });
 
 const run2 = async (topic) => {
     await consumer.connect();
-    await consumer.subscribe({ topic  }); // fromBeginning: true
+    await consumer.subscribe({ topics: [topic]  }); // fromBeginning: true
 
     // consumer.on(consumer.events.GROUP_JOIN, (e) => {
     //     console.log(`HELLO? Consumer Member ID: ${e.payload.memberId}`);
@@ -56,8 +55,30 @@ const run2 = async (topic) => {
     // the solution to this? would be making a new consumer group for EVERY consumer
 }
 
-run2('animals2');
+const createTestConsumers = async (topic) => {
+    const consumerB = kafka.consumer({ groupId: 'B' });
+    const consumerC = kafka.consumer({ groupId: 'C' });
+
+    try {
+        await consumer.connect();
+        await consumer.subscribe({ topics: [topic] });
+        await consumerB.connect();
+        await consumerB.subscribe({ topics: [topic] });
+        await consumerC.connect();
+        await consumerC.subscribe({ topics: [topic] });
+        await consumer.disconnect();
+        await consumerB.disconnect();
+        await consumerC.disconnect();
+        console.log('successfully subscribed 3 consumer groups');
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
+// run2('animals2');
 // run('animals2');
+createTestConsumers('animals2');
 
 
 // HOW TO MAKE A CONSUMER READ FROM A SINGLE PARTITION

@@ -17,7 +17,7 @@ class TopicRepartitioner {
             for (const oldPartitionNum of partitionNumArr){
                 const id = `${consumerOffsetConfig}-${oldPartitionNum}/${newPartitionNum}`;
                 console.log('creating rpAgent');
-                const rpAgent = new RepartitionerAgent(this.props, this, oldPartitionNum, newPartitionNum, id);
+                const rpAgent = new RepartitionerAgent(this.props, rpGroup, oldPartitionNum, newPartitionNum, id);
                 rpGroup.agents.push(rpAgent);
                 newPartitionNum++;
                 console.log('starting rpAgent');
@@ -119,7 +119,7 @@ class RepartitionerAgent {
         await this.producer.connect();
     }
     async createConsumer(){
-        const clientIdConsumer = 'Aconsumer-'+this.id;
+        const clientIdConsumer = 'Bconsumer-'+this.id;
         const kafka = new Kafka({
             clientId: clientIdConsumer,
             brokers: [this.seedBrokerUrl]
@@ -155,7 +155,7 @@ class RepartitionerAgent {
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
 
-                console.log({ partition, value, consumerOffset: this.consumerOffset })
+                console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
 
                 // pausing and resuming logic
                 if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
@@ -195,6 +195,8 @@ class RepartitionerAgent {
                     ],
                 });
                 this.producerOffset = result.lastOffset;
+                // TODO: lastOffset doesn't work/exist. we need a way to find the last offset of the producer... at least when we have paused the last consumer before resumeAll
+                // I think the way to do that would be to fetch the current length of the new partition before resuming. because that's the offset
 
                 // ending logic
                 if (this.hasFinished) this.end();
@@ -208,9 +210,11 @@ class RepartitionerAgent {
         this.consumer.seek({ 
             topic: this.oldTopic.name, partition: this.oldPartitionNum, offset: 0
         })
-        console.log('type of partitionNum: ', typeof(this.oldPartitionNum) );
-        console.log('it should now be reading: ', { topic: this.oldTopic.name, partition: Number(this.oldPartitionNum), offset: 0});
-        // this is how we set the consumer to only read from a single partition
+        // TODO: NOTE: the offset might not necessarily start at 0. if they read 10,000 messages but after 7 days it starts deleting old messages
+        // perhaps the earliest offset is actually 1,000
+        // it seems though that 0 can still work
+        
+        // SEEK is how we set the consumer to only read from a single partition
         // recap:
         // 1. make a new consumer group for every consumer
         // 2. make that consumer/group read from the end of every partition
