@@ -137,7 +137,7 @@ class RepartitionerAgent {
         // then, we are going to change the offset of just the desired partition to 0 in consumer.seek() at the end of this.start() below
         await this.consumer.subscribe({ topics: [this.oldTopic.name] }); // fromBeginning should be false
     }
-    pauseAndResumeWhenReady(){
+    pauseAndResumeWhenReady(pause){
         this.resume = pause(); // pause() returns a resuming function
         this.isPaused = true;
 
@@ -157,8 +157,9 @@ class RepartitionerAgent {
         this.hasFinished = true;
         
         if (this.rpGroup.allFinished()){
-            console.log(`All agents in rpGroup ${rpGroup.consumerOffsetConfig} have finished.`);
+            console.log(`All agents in rpGroup ${this.rpGroup.consumerOffsetConfig} have finished.`);
         }
+        console.log('disconnecting consumer and producer');
         await this.consumer.disconnect();
         await this.producer.disconnect();
     }
@@ -186,26 +187,33 @@ class RepartitionerAgent {
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
                 // console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
-                if (Number(this.consumerOffset) > 375) console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset });
+                // if (Number(this.consumerOffset) > 375) console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset });
+                if (Number(this.consumerOffset) > 375) console.log(`end node offset: ${Object.keys(this.endNode)}`);
 
 
                 // MAIN LOGIC
                 if (this.consumerOffset === this.stoppingPoint.offset) { // has reached stopping point
-                    this.pauseAndResumeWhenReady(); // this breaks out of eachMessage, moves the stopping point, and resumes when all have reached the previous stopping point
+                    console.log('reached stopping point: ', this.stoppingPoint)
+                    this.pauseAndResumeWhenReady(pause); // this breaks out of eachMessage, moves the stopping point, and resumes from the same message when all have reached the previous stopping point
                 }
-                else if (Number(this.consumerOffset) === Number(this.endNode.consumerOffset)-1) { // is last message
+                else if (Number(this.consumerOffset) === Number(this.endNode.offset)-1) { // is last message
+                    console.log('reached last message: ', this.consumerOffset);
                     if (!this.allMessagesProcessed){ // write the message if it hasn't been written
+                        console.log('writing the last message: ', value);
                         await this.writeMessage(value);
                         this.allMessagesProcessed = true;
                     }
                     if (this.stoppingPoint !== this.endNode){ // there are other nodes at the end
-                        this.pauseAndResumeWhenReady();
+                        console.log('more nodes at end: ', this.stoppingPoint);
+                        this.pauseAndResumeWhenReady(pause);
                     }
                     else { // it has reached the end
+                        console.log('reached last node: ', this.stoppingPoint);
                         this.end(); // this breaks out of run, and logs a message when all in the group have ended
                     }
                 }
                 else { // if it has NOT reached a stopping point nor the end
+                    // console.log(`Does ${Number(this.consumerOffset)} === ${Number(this.endNode.consumerOffset)-1}`)
                     await this.writeMessage(value);
                 }
             }
