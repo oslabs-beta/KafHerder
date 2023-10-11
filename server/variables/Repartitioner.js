@@ -155,7 +155,7 @@ class RepartitionerAgent {
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
 
-                console.log({ value, consumerOffset: this.consumerOffset })
+                console.log({ partition, value, consumerOffset: this.consumerOffset })
 
                 // pausing and resuming logic
                 if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
