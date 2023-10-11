@@ -61,10 +61,8 @@ class RepartitionerGroup {
     }
     resumeAll(){
         for (const agent of this.agents){
-            if (this.resume){
-                this.isPaused = false;
-                this.resume();
-            }
+            agent.isPaused = false;
+            agent.resume();
         }
     }
     checkIfFinished(){
