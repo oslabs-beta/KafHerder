@@ -67,10 +67,16 @@ class ConsumerOffsetLL {
     add(offset, consumerGroupId) {
         const newNode = new ConsumerOffsetNode(offset, consumerGroupId);
         const numericOffset = parseInt(offset, 10);
-    
+
+        const shouldInsertBefore = (a, b) => {
+            if (a.consumerGroupId === '__end') return false;
+            if (b.consumerGroupId === '__end') return true;
+            return a.consumerGroupId > b.consumerGroupId;
+        };
+
         if (this.head === null || 
             parseInt(this.head.offset, 10) > numericOffset || 
-            (parseInt(this.head.offset, 10) === numericOffset && this.head.consumerGroupId > consumerGroupId)) {
+            (parseInt(this.head.offset, 10) === numericOffset && shouldInsertBefore(this.head, newNode))) {
             newNode.next = this.head;
             this.head = newNode;
             if (this.tail === null) {
@@ -78,14 +84,15 @@ class ConsumerOffsetLL {
             }
             return;
         }
-    
+
         let currentNode = this.head;
         while (currentNode.next !== null &&
                (parseInt(currentNode.next.offset, 10) < numericOffset ||
-               (parseInt(currentNode.next.offset, 10) === numericOffset && currentNode.next.consumerGroupId < consumerGroupId))) {
+               (parseInt(currentNode.next.offset, 10) === numericOffset && 
+               !shouldInsertBefore(currentNode.next, newNode)))) {
             currentNode = currentNode.next;
         }
-    
+
         newNode.next = currentNode.next;
         currentNode.next = newNode;
         if (newNode.next === null) {

@@ -155,22 +155,19 @@ class RepartitionerAgent {
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
 
-                console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
+                // console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
 
                 // pausing and resuming logic
-                // TODO: delete this if block. the __end logic should handle finishing
-                // this if block should also wrap everything including the producer, it runs for one more message currently
-                if (this.stoppingPoint === null){ // the stopping point is the end
-                    console.log('finished!')
-                    this.hasFinished = true;
-                }
-                else if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
+                if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
                     console.log('reached stopping point');
 
-                    // TODO: change from null to '__end'
-                    if (this.stoppingPoint === '__end'){ // the stopping point is the end
+                    if (this.stoppingPoint.consumerGroupId === '__end'){ // the stopping point is the end
+                        // TODO: '__end' might not be the best name
+                        // what if others are also at the end, and __end is placed before them?
                         console.log('finished!')
                         this.hasFinished = true;
+                        // terminating point
+                        // check if all have finished
                     }
                     else { // the stopping point is NOT the end
                         console.log('pausing...')
