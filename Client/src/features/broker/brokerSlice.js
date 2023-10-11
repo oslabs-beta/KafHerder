@@ -9,8 +9,36 @@ import { fetchedClusterData } from '../kafkaCluster/kafkaClusterSlice';
 // Initial State data points are TBD
 const initialState = {
     brokers: {
-        byId: {},
-        allIds: []
+        byId: {
+            "kafka1:9992": {
+                id: "kafka1:9992",
+                kafka_server_brokertopicmetrics_bytesin_total: "540593",
+                kafka_server_brokertopicmetrics_bytesout_total: "567481",
+                kafka_server_kafkaserver_brokerstate: "3",
+                kafka_server_replicamanager_offlinereplicacount: "0",
+                kafka_server_replicamanager_partitioncount: "22",
+                kafka_server_sessionexpirelistener_zookeeperdisconnects_total: "7"
+              },
+              "kafka2:9993": {
+                id: "kafka2:9993",
+                kafka_server_brokertopicmetrics_bytesin_total: "39517",
+                kafka_server_brokertopicmetrics_bytesout_total: "26784",
+                kafka_server_kafkaserver_brokerstate: "3",
+                kafka_server_replicamanager_offlinereplicacount: "0",
+                kafka_server_replicamanager_partitioncount: "24",
+                kafka_server_sessionexpirelistener_zookeeperdisconnects_total: "7"
+              },
+              "kafka3:9994": {
+                id: "kafka3:9994",
+                kafka_server_brokertopicmetrics_bytesin_total: "6232",
+                kafka_server_brokertopicmetrics_bytesout_total: "1109024",
+                kafka_server_kafkaserver_brokerstate: "3",
+                kafka_server_replicamanager_offlinereplicacount: "0",
+                kafka_server_replicamanager_partitioncount: "23",
+                kafka_server_sessionexpirelistener_zookeeperdisconnects_total: "7"
+              },
+        },
+        allIds: ["kafka1:9992", "kafka2:9993", "kafka3:9994"]
     },
     activeControllerCount: 0,
     partitionCount: 0,
