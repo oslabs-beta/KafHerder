@@ -1,23 +1,3 @@
-const metrics = [
-    // * Broker underreplicated partitions
-    'kafka_server_replicamanager_underreplicatedpartitions',
-    // * ISR Expands/Sec & ISR Shrinks/Sec 
-    'kafka_server_replicamanager_isrexpands_total',
-    'kafka_server_replicamanager_isrshrinks_total',
-    // * Leader Election Rate and Time Ms
-    'kafka_controller_controllerstats_leaderelectionrateandtimems',
-    // * Unclean Leader Elections Per Sec
-    'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems',
-    'kafka_controller_controllerstats_uncleanleaderelectionenablerateandtimems_count',
-    'kafka_controller_controllerstats_uncleanleaderelections_total',
-    // * Total Time Ms (Producer, FetchConsumer, FetchFollower)
-    'kafka_network_requestmetrics_totaltimems',
-    // * Purgatory Size
-    'kafka_server_delayedoperationpurgatory_purgatorysize',
-    // * Requests Per Second
-    'kafka_network_requestmetrics_requests_total'
-];
-
 const clusterMetricNames = [
     // * Under replicated partitions
     'kafka_cluster_partition_underreplicated',

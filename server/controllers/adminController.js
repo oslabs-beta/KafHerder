@@ -18,14 +18,13 @@ adminController.connectAdmin = async (req, res, next) => {
   const { seedBrokerUrl } = req.body;
 
   try {
-    const kafka = new Kafka({
-        clientId: 'my-admin',
-        brokers: [ seedBrokerUrl ]
-    });
-    
-    const admin = kafka.admin(); 
-    await admin.connect();
-    console.log('Connected admin to Kafka cluster.');
+        const kafka = new Kafka({
+            clientId: 'my-admin',
+            brokers: [ seedBrokerUrl ]
+        });
+        
+        const admin = kafka.admin(); 
+        await admin.connect();
 
         res.locals.connectedAdmin = admin;
 
@@ -33,14 +32,12 @@ adminController.connectAdmin = async (req, res, next) => {
     }
     catch (err) {
         return next({
-            log: `Error in adminController.verifyPort: ${err}`,
+            log: `Error in adminController.connectAdmin: ${err}`,
             status: 400,
-            message: { err: 'An error occured in adminController.connectAdmin' }
+            message: { err: 'An error occured: Unable to connect to cluster.' }
         })
     }
 };
-
-// @TODO: route should be connect ---> getClusterInfo ---> getTopics and ADD it to the ClusterInfo
 
 /**
  * Retrieves cluster information from a Kafka cluster.
@@ -74,7 +71,7 @@ adminController.getClusterInfo = async (req, res, next) => {
         return next({
             log: `Error in adminController.getClusterInfo: ${err}`,
             status: 400,
-            message: { err: 'An error occured in adminController.getClusterInfo' }
+            message: { err: 'An error occured: Unable to get retrieve cluster information.' }
         })
     }
 }
@@ -104,7 +101,7 @@ adminController.getTopics = async (req, res, next) => {
         return next({
             log: `Error in adminController.getTopics: ${err}`,
             status: 400,
-            message: { err: 'An error occured in getTopics' }
+            message: { err: 'An error occured: Unable to retrieve topics.' }
         })
     }
 }
@@ -134,9 +131,8 @@ adminController.getPartitions = async (req, res, next) => {
     const { topicName } = req.body;
 
     try {
-
-        const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
         // * metadata structure: Metadata:  { topics: [ { name: topicName, partitions: [Array] } ] }
+        const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
 
         const topicsArr = metadata.topics;
         const partitions = topicsArr[0].partitions;
@@ -148,12 +144,12 @@ adminController.getPartitions = async (req, res, next) => {
         return next({
             log: `Error in adminController.getPartitions: ${err}`,
             status: 400,
-            message: { err: 'An error occured in getPartitions' }
+            message: { err: 'An error occured: Unable to retrieve partitions.' }
         })
     }
 }
 
-// @TODO: stretch feature would be allowing user to provide additional configurations
+//TODO: STRETCH: allowing user to provide additional configurations
 /**
  * Creates a topic in the Kafka cluster given provided information.
  * 
@@ -193,7 +189,7 @@ adminController.createTopic = async (req, res, next) => {
         return next({
             log: `Error in adminController.createTopic: ${err}`,
             status: 400,
-            message: { err: 'An error occuredin createTopic' }
+            message: { err: 'An error occured: Unable to create topic.' }
         })
     }
 }
@@ -209,14 +205,14 @@ adminController.disconnectAdmin = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
     try {
         await admin.disconnect();
-        console.log('Disconnected admin from Kafka cluster.');
+
         return next();
     }
     catch (err) {
         return next({
             log: `Error in adminController.disconnect: ${err}`,
             status: 400,
-            message: { err: 'An error occured in disconnect' }
+            message: { err: 'An error occured: Unable to disconnect from cluster.' }
         })
     }
 };
@@ -397,9 +393,11 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
                 }
             }
         }
+
         topic.getAllConsumerOffsetConfigs(); // TODO: maybe this should happen automatically?
         
         res.locals.topicObj = topic;
+
         return next();
     }
     catch (err) {

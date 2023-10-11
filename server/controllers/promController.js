@@ -8,16 +8,19 @@ const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNa
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 
+/**
+ * Checks to see if a connection can be made to the user's Prometheus port.
+ * 
+ * @async
+ * @function
+ * @param {String} req.body.promPort should be the entire URL (ex. 'http://localhost:9090') 
+ */
+// TODO: If port isn't found, should send back 404
 promController.verifyPort = async (req, res, next) => {
     try {
         const { promPort } = req.body;
 
-        const connection = await axios.get(`http://localhost:${promPort}`);
-        if (!connection) return next({
-            log: `Error in promController.verifyPort: ${connection}. User entered an unverified port.`,
-            status: 404,
-            message: { err: 'Please enter a verified port.' }
-        })
+        await axios.get(promPort);
 
         return next();
     }
@@ -25,164 +28,114 @@ promController.verifyPort = async (req, res, next) => {
         return next({
             log: `Error in promController.verifyPort: ${err}`,
             status: 400,
-            message: { err: 'An error occured. Please try again later.' }
+            message: { err: 'An error occurred: Unable to connect to prometheus port.' }
         })
     }
 };
 
-
-promController.getBrokerMetrics = async (req, res, next) => {
-    try {
-        const { promPort } = req.query; 
-        console.log('getBrokerMetrics port is', promPort);
-        if (!promPort) return next({ err: `Port doesn't exist` });
-
-        const response = await axios.get(`http://localhost:${promPort}/api/v1/query`, {
-            params: {
-                query: buildQuery(brokerMetricNames)
-            }
-        });
-
-        const results = response.data.data.result;
-        const obj = {};
-        for (const result of results) {
-            if (!obj[result.metric.instance]) obj[result.metric.instance] = {};
-            obj[result.metric.instance][result.metric.__name__] = result.value[1];
-        };
-        
-        res.locals.obj = obj
-
-        return next();
-    }
-    catch (err) {
-        return next({
-            log: `Error in promController.getBrokerMetrics: ${err}`,
-            status: 400,
-            message: { err: 'An error occured. Please try again later.' }
-        })
-    }
-};
-
-// promController.getClusterMetrics = (param) => {
-//     return async (req, res, next) => {
-//         try {
-//             if (!param) return next({ err: `Port doesn't exist` });
-//             const response = await axios.get(`http://localhost:${param}/api/v1/query`, {
-//                 params: {
-//                     query: buildQuery(clusterMetricNames)
-//                 }
-//             });
-//             res.locals.clusterMetrics = {};
-//             const results = response.data.data.result;
-//             for (const result of results) {
-//                 res.locals.clusterMetrics[result.metric.__name__] = result.value[1];
-//             }
-//             console.log('now printing cluster metrics')
-//             console.log(res.locals.clusterMetrics);
-//             return next();
-//         }
-//         catch (err) {
-//             return next({
-//                 log: `Error in promController.getClusterMetrics: ${err}`,
-//                 status: 400,
-//                 message: { err: 'An error ocurred' }
-//             })
-//         }
-//     }
-// };
-
+/**
+ * Retrieves a list of cluster-related metrics from Prometheus.
+ * 
+ * @async
+ * @function
+ * @param {String} req.query.promPort should be the entire URL, including the endpoint '/api/v1/query' (ex. 'http://localhost:9090/api/v1/query') 
+ * @returns {Object} res.locals.clusterMetrics will have the following shape:
+ * // {   
+ * //   "kafka_cluster_partition_insyncreplicascount": "1",
+ * //   "kafka_cluster_partition_replicascount": "1",
+ * //   "kafka_cluster_partition_underreplicated": "0",
+ * //   "kafka_controller_kafkacontroller_activecontrollercount": "0",
+ * //   "kafka_controller_kafkacontroller_globalpartitioncount": "0",
+ * //   "kafka_controller_kafkacontroller_offlinepartitionscount": "0",
+ * //   "kafka_server_brokertopicmetrics_bytesin_total": "0",
+ * //   "kafka_server_brokertopicmetrics_bytesout_total": "0",
+ * //   "kafka_server_brokertopicmetrics_messagesin_total": "0"
+ * // }
+ */
 promController.getClusterMetrics = async (req, res, next) => {
     try {
-        const { promPort } = req.query; // TODO: fix from this being number to Url
-        console.log('query: ', buildQuery(clusterMetricNames));
+        const { promPort } = req.query; 
+        console.log(req.query);
+        // ! This error handling doesn't work. When an invalid port is entered, GEH is triggered and not the following one.
         if (!promPort) return next({ err: `Port doesn't exist` });
-        const response = await axios.get(`http://localhost:${promPort}/api/v1/query`, {
+       
+        const response = await axios.get(promPort, {
             params: {
                 query: buildQuery(clusterMetricNames)
             }
         });
+        
         res.locals.clusterMetrics = {};
         const results = response.data.data.result;
         for (const result of results) {
             res.locals.clusterMetrics[result.metric.__name__] = result.value[1];
         }
-        console.log('now printing cluster metrics')
-        console.log(res.locals.clusterMetrics);
+        
         return next();
     }
     catch (err) {
         return next({
             log: `Error in promController.getClusterMetrics: ${err}`,
             status: 400,
-            message: { err: 'An error occured. Please try again later.' }
+            message: { err: 'An error occured: Unable to retrieve metrics at the moment.' }
         })
     }
 };
 
-// promController.getAllMetrics = async (req, res, next) => {
-//     try {        
-//         console.log('about to make request');
-//         const response = await axios.get(`http://localhost:${PROMPORT}/api/v1/query`, {
-//             params: {
-//                 query: buildQuery(metrics)
-//             }
-//         });
-//         res.locals.allMetrics = {};
-//         const results = response.data.data.result;
-//         for (const result of results){
-//             res.locals.allMetrics[result.metric.__name__] = result.value[1];
-//         }
+/**
+ * Retrieves a list of broker-related metrics from Prometheus.
+ * 
+ * @async
+ * @function
+ * @param {String} req.query.promPort should be the entire URL, including the endpoint '/api/v1/query' (ex. 'http://localhost:9090/api/v1/query') 
+ * @returns {Object} res.locals.brokerMetrics will separate the metrics by their corresponding broker. Will have the following shape:
+ * // kafka1:9992: {
+ * //   "kafka_server_brokertopicmetrics_bytesin_total": "0",
+ * //   "kafka_server_brokertopicmetrics_bytesout_total": "0",
+ * //   "kafka_server_kafkaserver_brokerstate": "3",
+ * //   "kafka_server_replicamanager_offlinereplicacount": "0",
+ * //   "kafka_server_replicamanager_partitioncount": "23",
+ * //   "kafka_server_sessionexpirelistener_zookeeperdisconnects_total": "0"
+ * // }
+ * // kafka2:9993: {
+ * //   "kafka_server_brokertopicmetrics_bytesin_total": "0",
+ * //   "kafka_server_brokertopicmetrics_bytesout_total": "0",
+ * //   "kafka_server_kafkaserver_brokerstate": "3",
+ * //   "kafka_server_replicamanager_offlinereplicacount": "0",
+ * //   "kafka_server_replicamanager_partitioncount": "23",
+ * //   "kafka_server_sessionexpirelistener_zookeeperdisconnects_total": "0"
+ * // }
+ */
 
-//         console.log(res.locals.allMetrics);
-//         //res.locals.allMetrics = response.data.data // { metric: metric1, value: response.data.data };
-//         return next();
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return next(err);
-//     }
-// } 
+promController.getBrokerMetrics = async (req, res, next) => {
+    try {
+        const { promPort } = req.query; 
+        // ! Same issue as getClusterMetrics
+        if (!promPort) return next({ err: `Port doesn't exist` });
 
-promController.getAllMetricNames = async (req, res, next) => {
-    try {        
-        console.log('about to make request');
-        const response = await axios.get('http://localhost:9090/api/v1/label/__name__/values');
-        console.log('these are the metric names: ', response.data.data);
-        res.locals.metricNames = response.data.data;
-        await fs.writeFile('newMetrics.txt', res.locals.metricNames.join('\n'), (err) => {
-            if (err)
-              console.log(err);
-            else {
-              console.log("File written successfully\n");
-              console.log("The written has the following contents:");
-              console.log(fs.readFileSync("metricNames.txt", "utf8"));
-            }});
-        return next();
-    }
-    catch (err) {
-        console.log(err);
-        return next(err);
-    }
-}
-
-promController.getRandomMetric = async (req, res, next) => {
-    const randomMetric = 'kafka_server_brokertopics';
-    try {        
-        console.log('about to make request');
-        const response = await axios.get(`http://localhost:9090/api/v1/query`, {
+        const response = await axios.get(promPort, {
             params: {
-                query: randomMetric
+                query: buildQuery(brokerMetricNames)
             }
         });
-        console.log(response.data);
-        res.locals.metric = { metric: randomMetric, value: response.data.data }; // .result[0].value[0]
-        console.log(res.locals.metric.value.result);
+
+        res.locals.brokerMetrics = {};
+        const results = response.data.data.result;
+        for (const result of results) {
+            if (!res.locals.brokerMetrics[result.metric.instance]) res.locals.brokerMetrics[result.metric.instance] = {};
+            res.locals.brokerMetrics[result.metric.instance][result.metric.__name__] = result.value[1];
+        };
+        
         return next();
     }
     catch (err) {
-        console.log(err);
-        return next(err);
+        return next({
+            log: `Error in promController.getBrokerMetrics: ${err}`,
+            status: 400,
+            message: { err: 'An error occured: Unable to retrieve metrics at the moment.' }
+        })
     }
-}
+};
+
 
 module.exports = promController;
