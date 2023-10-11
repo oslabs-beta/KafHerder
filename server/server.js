@@ -8,7 +8,9 @@ const adminRouter = require('./routes/admin.js');
 const promRouter = require('./routes/prom.js');
 const rpRouter = require('./routes/rp.js');
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173'
+}));
 app.use(express.json());
 
 app.use('/prometheus', promRouter);

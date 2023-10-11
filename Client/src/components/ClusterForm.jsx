@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setClusterForm, checkPort } from '../features/clusterform/clusterFormSlice'
+import { setClusterForm, checkPromPort, setStatusOff } from '../features/clusterform/clusterFormSlice'
 
 
 
@@ -12,7 +12,7 @@ function ClusterForm() {
   // Creating local state for input data
   const [localForm, setLocalForm] = useState({
     clusterName: '',
-    port: '',
+    promPort: '',
     interval: ''
   });
 
@@ -31,14 +31,19 @@ function ClusterForm() {
     }));
   }
 
+  //* Created a dispatch to set state to off when clicked
+  const handleStopClick = () => {
+    dispatch(setStatusOff())
+  }
+
   // when the form is submitted, state is dispatched from the localForm to the redux store using setClusterForm
   // *We still need to create a clusterFormService to get data from the API
 
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(setClusterForm(localForm));
-    dispatch(checkPort(localForm));
-    console.log(localForm.clusterName, localForm.port, localForm.interval)
+    dispatch(checkPromPort(localForm));
+    console.log(localForm.clusterName, localForm.promPort, localForm.interval)
   }
 
 
@@ -70,9 +75,9 @@ function ClusterForm() {
               <input
               type='text'
               className='form-control'
-              id='port'
-              name='port'
-              value={localForm.port}
+              id='promPort'
+              name='promPort'
+              value={localForm.promPort}
               onChange={handleInputChange}
               placeholder='Port'
               /> ) : (
@@ -93,11 +98,11 @@ function ClusterForm() {
 
             <div className="form-group" id="buttons">
               {status === 'off' ? (
-                <button type='submit' className='btn btn-block'>Submit</button>
+                <button type='submit' className='btn'>Submit</button>
                ) : (
                 <>
-                <button type='submit' className='btn btn-block'>Submit</button>
-                <button type='stop' className='btn-stop'>Stop</button>
+                <button type='submit' className='btn'>Submit</button>
+                <button type='button' className='btn-stop' onClick={handleStopClick}>Stop</button>
                 </>
               )}
             </div>

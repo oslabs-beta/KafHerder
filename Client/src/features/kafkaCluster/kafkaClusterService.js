@@ -10,7 +10,7 @@ const API_URL = 'http://localhost:3000/';
 export const fetchClusterDataFromAPI = async (state) => {
     // we want to take in state here and pass it into the param
     // we set a port variable and set it equal to state.clusterForm.port
-    const port = state.clusterForm.port;
+    const port = state.clusterForm.promPort;
 
     try {
         const response = await fetch(`${API_URL}?port=${port}`, {
