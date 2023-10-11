@@ -59,18 +59,22 @@ const Modal = ({ closeModal }) => {
  * We use the modal prop for the onclick on the span element
  * Todo: probably need to have data propped down to the modal because current items are hardcoded. 
  */
+
+
+
 function BrokerCard({ data }) {
     const [showModal, setModal] = useState(false);
     
     return (
         <>
             <div className='BrokerCard' onClick={() => setModal(!showModal)}>
-                <h1>Broker #{data.BrokerId}</h1>
+                <h1>Broker: {data.id}</h1>
                 <DoughnutChart chartData={data}/>
-                <div> Broker ID: {data.BrokerId} </div>
-                <div> Active Controller Count: {data.ActiveControllerCount} </div>
-                <div> Partition Count: {data.TotalPartitionCount} </div>
-                <div> % of Partitions Up: {((data.OnlinePartitions / data.TotalPartitionCount) * 100).toFixed(2)}% </div>
+                <div> <p></p> </div>
+                <div> Broker ID: {data.id} </div>
+                <div> Total Bytes In: {data.kafka_server_brokertopicmetrics_bytesin_total} </div>
+                <div> Total Bytes Out: {data.kafka_server_brokertopicmetrics_bytesout_total} </div>
+                <div> Disconnects: {data.kafka_server_sessionexpirelistener_zookeeperdisconnects_total}</div>
             </div>
             {showModal && <div className="modal-overlay" onClick={() => setModal(false)}></div>}
             {showModal && <Modal closeModal={() => setModal(false)} />} 
