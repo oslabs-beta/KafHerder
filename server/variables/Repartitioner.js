@@ -127,6 +127,12 @@ class RepartitionerAgent {
         });
         await this.consumer.connect();
         await this.consumer.subscribe({ topics: [this.oldTopic.name], fromBeginning: true });
+
+        // !IMPORTANT: this is where all the logic fails
+        // consumer.assign() which would usually assign a consumer to a specific partition
+        // doesn't seem to be offered by KafkaJS :-( only the other JS utility
+        // I don't know what the workaround here would be.
+        
         // consumer.assign() necessary to assign it to a specific partition
         await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
     }

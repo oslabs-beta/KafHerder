@@ -175,7 +175,7 @@ const repartition = async (oldTopicName, newTopicName) => {
 
         const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl: 'localhost:9092', oldTopic, newTopicName  }); // seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String></String>
         await topicRepartitioner.run();
-        
+
         await disconnectAdmin();
     }
     catch (error) {
@@ -183,7 +183,7 @@ const repartition = async (oldTopicName, newTopicName) => {
     }
 }
 
-repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
+// repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
 
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
