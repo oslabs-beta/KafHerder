@@ -13,10 +13,10 @@ export const fetchClusterDataFromAPI = async (state) => {
     const port = state.clusterForm.promPort;
 
     try {
-        const response = await fetch(`${API_URL}?port=${port}`, {
+        const response = await fetch(`${API_URL}prometheus/?promPort=${port}`, {
             method: 'GET',
             headers: {
-                'Content-Type' : 'application/json',
+                'Content-Type': 'application/json',
             },
         });
 
@@ -24,7 +24,7 @@ export const fetchClusterDataFromAPI = async (state) => {
             throw new Error('Failed to fetch Broker data');
         }
         const data = await response.json();
-        console.log(data)
+        console.log('data from fetchClusterDataFromAPI', data)
 
         return data;
     } catch (error) {

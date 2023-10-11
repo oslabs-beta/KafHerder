@@ -1,7 +1,7 @@
 const { Kafka } = require('kafkajs');
 const Chance = require('chance');
 
-const topic = 'animals2';
+const topic = 'animals3';
 
 const chance = new Chance();
 
@@ -33,7 +33,7 @@ const run = async () => {
     setInterval(produceMessage, 1000)
 }
 
-run('animals2');
+run('animals3');
 
 // const run = async () => {
 //     console.log('Entering producer');

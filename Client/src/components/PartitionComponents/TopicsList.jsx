@@ -30,7 +30,7 @@ function TopicsList() {
 
     const handleTopicSubmit = (e) => {
         e.preventDefault();
-        console.log(topicName)
+        // console.log(topicName)
         dispatch(checkPartitionData())
     }
 

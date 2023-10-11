@@ -39,6 +39,7 @@ const kafkaClusterSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchedClusterData.fulfilled, (state, action) => {
+                // console.log('action payload', action.payload)
                 state.globalPartitionCount = action.payload.kafka_controller_kafkacontroller_globalpartitioncount;
                 // state.ActiveBrokers = action.payload.
                 state.underReplicatedPartitions = action.payload.kafka_cluster_partition_underreplicated;
@@ -50,7 +51,6 @@ const kafkaClusterSlice = createSlice({
                 // state.ErrorRate = action.payload.
                 state.partitionReplicaCount = action.payload.kafka_cluster_partition_replicascount;
                 state.partitionInSyncReplicaCount = action.payload.kafka_cluster_partition_insyncreplicascount;
-
             })
     }
 })

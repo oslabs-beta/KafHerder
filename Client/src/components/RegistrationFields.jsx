@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../assets/logo.png'
+import logo from '../assets/kaf1.svg'
 function RegistrationFields () {
     return (
         <div> 

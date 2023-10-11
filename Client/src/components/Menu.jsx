@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../assets/kafHerder9-1.png'
+import logo from '../assets/kaf1.svg'
 
 
 // creating dropdown functionalitity.

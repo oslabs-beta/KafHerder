@@ -7,8 +7,9 @@ const initialState = {
     promPort: '',
     kafkaPort: '',
     topics: [],
-    selectedTopic: 'Animals2',
-    partitionData: {0:{}, 1:{}, 2:{}, 3:{}, 4:{}},
+    selectedTopic: '',
+    // partitionData: {0:{}, 1:{}, 2:{}, 3:{}, 4:{}},
+    partitionData: [],
     offsetJSON: {},
     mimNumOfPartitions: '',
     newTopic: '',
@@ -149,7 +150,8 @@ const clusterFormSlice = createSlice({
                 // adminController.js returns res.locals.partitions
                 // I dont think that there is a key called partitionData. Lets check on that
                 // we are also going to get data regarding partition min number and offset data json
-                state.partitionData = action.payload.partitions
+                state.partitionData = action.payload
+                console.log('partitionData', state.partitionData)
                 state.mimNumOfPartitions = action.payload.numConfigs // change name of variable
                 state.offsetData = action.payload.offsetData // change name of variable
             }) 

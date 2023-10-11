@@ -8,17 +8,19 @@ const API_URL = 'http://localhost:3000/';
  */
 export const checkPromPortFromAPI = async (clusterPortData) => {
     try {
-        const response = await fetch(API_URL, {
+        const { promPort } = clusterPortData
+        console.log('checkPromPortFromAPI', promPort)
+        const response = await fetch(API_URL + 'prometheus/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(clusterPortData)
+            body: JSON.stringify({ promPort })
         });
 
         const data = await response;
         //*TODO: make sure this throws a 404 on backend and check for it here too
-        console.log('data', data)
+        console.log('data from checkPromPortFromAPI', data)
         // if (data.success) {
         //     return clusterPortData
         // } else {
@@ -29,7 +31,7 @@ export const checkPromPortFromAPI = async (clusterPortData) => {
     }
 };
 
-export const checkKafkaPortFromAPI = async (clusterPortData) => { 
+export const checkKafkaPortFromAPI = async (clusterPortData) => {
     try {
         const { kafkaPort } = clusterPortData
         const response = await fetch(API_URL + 'admin/', {
@@ -37,7 +39,7 @@ export const checkKafkaPortFromAPI = async (clusterPortData) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({seedBrokerUrl: kafkaPort})
+            body: JSON.stringify({ seedBrokerUrl: kafkaPort })
         });
 
         const data = await response.json();
@@ -50,7 +52,7 @@ export const checkKafkaPortFromAPI = async (clusterPortData) => {
     }
 };
 
-export const fetchPartitionDataFromAPI = async (state) => { 
+export const fetchPartitionDataFromAPI = async (state) => {
     try {
         const kafkaPortUrl = state.clusterForm.kafkaPort;
         const topic = state.clusterForm.selectedTopic;
@@ -62,7 +64,7 @@ export const fetchPartitionDataFromAPI = async (state) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({seedBrokerUrl: kafkaPortUrl, topicName: topic})
+            body: JSON.stringify({ seedBrokerUrl: kafkaPortUrl, topicName: topic })
         });
 
         const data = await response.json();
@@ -73,24 +75,26 @@ export const fetchPartitionDataFromAPI = async (state) => {
     }
 };
 
-export const fetchRepartitionDataToAPI = async (state) => { 
+export const fetchRepartitionDataToAPI = async (state) => {
     try {
         const kafkaPortUrl = state.clusterForm.kafkaPort;
         const topic = state.clusterForm.selectedTopic;
         const newTopic = state.clusterForm.newTopic;
         const newMinPartitionNum = state.clusterForm.newMinPartitionNum;
         const newReplicationFactor = state.clusterForm.newReplicationFactor;
-        
+
         const response = await fetch(API_URL + 'admin/partitions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({seedBrokerUrl: kafkaPortUrl, 
-                                    topicName: topic,
-                                    newTopicName: newTopic,
-                                    newMinPartitionNumber: newMinPartitionNum,
-                                    newReplicationFactorNumber: newReplicationFactor})
+            body: JSON.stringify({
+                seedBrokerUrl: kafkaPortUrl,
+                topicName: topic,
+                newTopicName: newTopic,
+                newMinPartitionNumber: newMinPartitionNum,
+                newReplicationFactorNumber: newReplicationFactor
+            })
         });
 
         const data = await response.json();
