@@ -107,8 +107,9 @@ class RepartitionerAgent {
         this.resume;
     }
     async createProducer(){
+        const clientIdProducer = 'producer-'+this.id;
         const kafka = new Kafka({
-            clientId: 'producer-'+this.id,
+            clientId: clientIdProducer,
             brokers: [this.seedBrokerUrl]
         })
         this.producer = kafka.producer({
@@ -118,23 +119,25 @@ class RepartitionerAgent {
         await this.producer.connect();
     }
     async createConsumer(){
+        const clientIdConsumer = 'consumer-'+this.id;
         const kafka = new Kafka({
-            clientId: 'consumer-'+this.id,
+            clientId: clientIdConsumer,
             brokers: [this.seedBrokerUrl]
         })
+        // NOTE: every consumer must have its own group in order to guarantee one consumer per partition
+        // this will be explained more in consumer.seek() below
         this.consumer = kafka.consumer({
-            groupId: `repartitioning-${Math.floor(10000*Math.random())}`
+            groupId: clientIdConsumer,
         });
         await this.consumer.connect();
-        await this.consumer.subscribe({ topics: [this.oldTopic.name], fromBeginning: true });
 
-        // !IMPORTANT: this is where all the logic fails
-        // consumer.assign() which would usually assign a consumer to a specific partition
-        // doesn't seem to be offered by KafkaJS :-( only the other JS utility
-        // I don't know what the workaround here would be.
-        
-        // consumer.assign() necessary to assign it to a specific partition
-        await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
+        // for consumer.subscribe(), do NOT use fromBeginning: true
+        // we are deliberately setting the offsets for this consumer group for every partition to the end
+        // then, we are going to change the offset of just the desired partition to 0 in consumer.seek() below
+        await this.consumer.subscribe({ topics: [this.oldTopic.name] });
+
+        // hopefully KafkaJS eventually comes out with a simple partition assigner function like below:
+        // await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
     }
     async start(){
         console.log('creating producer...');
@@ -143,7 +146,7 @@ class RepartitionerAgent {
         await this.createConsumer();
         
         console.log('reading messages...');
-        await this.consumer.run({
+        this.consumer.run({ // this is NOT await according to the requirements of consumer.seek() below
             eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
 
                 // consumer logic - extracting message from old partition
@@ -198,6 +201,16 @@ class RepartitionerAgent {
                 // and therefore all initiate the finishing sequences
             }
         })
+        this.consumer.seek({ 
+            topic: this.oldTopic.name, partition: this.oldPartitionNum, offset: 0
+        })
+        // this is how we set the consumer to only read from a single partition
+        // recap:
+        // 1. make a new consumer group for every consumer
+        // 2. make that consumer/group read from the end of every partition
+        // 3. do consumer.run without async
+        // 4. use consumer.seek to set the offset for the desired partition to 0
+        // we need step 1 to ensure no reassignments if we add more consumers to the same group
     }
     async end(){
         await this.consumer.disconnect();
