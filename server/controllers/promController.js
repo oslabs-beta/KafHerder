@@ -11,9 +11,9 @@ const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 
 promController.verifyPort = async (req, res, next) => {
     try {
-        const { port } = req.body;
-        const connection = await axios.get(`http://localhost:${port}`);
-        console.log(`Successfully connected to http://localhost:${port}`);
+        const { promPort } = req.body;
+        const connection = await axios.get(`http://localhost:${promPort}`);
+        console.log(`Successfully connected to http://localhost:${promPort}`);
         return next();
     }
     // TODO: if does not find port, should send back 404
@@ -29,11 +29,11 @@ promController.verifyPort = async (req, res, next) => {
 
 promController.getBrokerMetrics = async (req, res, next) => {
     try {
-        const { port } = req.query; 
-        console.log('getBrokerMetrics port is', port);
-        if (!port) return next({ err: `Port doesn't exist` });
+        const { promPort } = req.query; 
+        console.log('getBrokerMetrics port is', promPort);
+        if (!promPort) return next({ err: `Port doesn't exist` });
 
-        const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
+        const response = await axios.get(`http://localhost:${promPort}/api/v1/query`, {
             params: {
                 query: buildQuery(brokerMetricNames)
             }
@@ -89,10 +89,10 @@ promController.getBrokerMetrics = async (req, res, next) => {
 
 promController.getClusterMetrics = async (req, res, next) => {
     try {
-        const { port } = req.query; // TODO: fix from this being number to Url
+        const { promPort } = req.query; // TODO: fix from this being number to Url
         console.log('query: ', buildQuery(clusterMetricNames));
-        if (!port) return next({ err: `Port doesn't exist` });
-        const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
+        if (!promPort) return next({ err: `Port doesn't exist` });
+        const response = await axios.get(`http://localhost:${promPort}/api/v1/query`, {
             params: {
                 query: buildQuery(clusterMetricNames)
             }
