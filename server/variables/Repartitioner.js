@@ -61,6 +61,7 @@ class RepartitionerGroup {
     }
     resumeAll(){
         for (const agent of this.agents){
+            console.log(`resuming agent ${agent.id}`);
             agent.isPaused = false;
             agent.resume();
         }
@@ -176,8 +177,9 @@ class RepartitionerAgent {
                         // right now I just console.log... figure out a better approach here
                         // preferably writing into an object that KafkaJS can later on accept to set new offsets
                         if (this.rpGroup.allPaused()){
-                            this.stoppingPoint = this.stoppingPoint.next;
+                            // TODO replace the console log with new offset recording
                             console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.rpGroup.producerOffset}`)
+                            this.stoppingPoint = this.stoppingPoint.next;
                             this.rpGroup.resumeAll();
                         } else {
                             // if they are not all paused, remain paused but move the stopping point
