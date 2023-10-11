@@ -144,6 +144,7 @@ const getTopicConfigs = async (topicName) => {
         // console.log('topic.partitions');
         // console.log(topic.partitions[0].consumerOffsetLL.head);
         topic.getAllConsumerOffsetConfigs();
+        console.log(topic.numConfigs);
         return topic;
     }
     catch (err) {console.log(err)}
@@ -183,7 +184,7 @@ const repartition = async (oldTopicName, newTopicName) => {
     }
 }
 
-// repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
+repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
 
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO

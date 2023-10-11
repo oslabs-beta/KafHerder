@@ -91,8 +91,8 @@ class RepartitionerAgent {
         this.newTopicName = props.newTopicName;
 
         this.rpGroup = rpGroup; // required to access checkIfAllPaused and unpauseAll methods
-        this.oldPartitionNum = oldPartitionNum;
-        this.newPartitionNum = newPartitionNum;
+        this.oldPartitionNum = Number(oldPartitionNum); // TODO: WHY IS THIS A STRING???
+        this.newPartitionNum = newPartitionNum; // this ISN'T a string
         this.id = id;
 
         this.hasStarted = false;
@@ -119,7 +119,7 @@ class RepartitionerAgent {
         await this.producer.connect();
     }
     async createConsumer(){
-        const clientIdConsumer = 'consumer-'+this.id;
+        const clientIdConsumer = 'Aconsumer-'+this.id;
         const kafka = new Kafka({
             clientId: clientIdConsumer,
             brokers: [this.seedBrokerUrl]
@@ -134,7 +134,7 @@ class RepartitionerAgent {
         // for consumer.subscribe(), do NOT use fromBeginning: true
         // we are deliberately setting the offsets for this consumer group for every partition to the end
         // then, we are going to change the offset of just the desired partition to 0 in consumer.seek() below
-        await this.consumer.subscribe({ topics: [this.oldTopic.name] });
+        await this.consumer.subscribe({ topics: [this.oldTopic.name] }); // fromBeginning: true
 
         // hopefully KafkaJS eventually comes out with a simple partition assigner function like below:
         // await this.consumer.assign([{ topic: this.oldTopic.name, partition: this.oldPartitionNum }])
@@ -150,9 +150,12 @@ class RepartitionerAgent {
             eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
 
                 // consumer logic - extracting message from old partition
-                const key = message.key.toString();
+                
+                // const key = message.key.toString(); // this can be null and toString will cause issues
                 const value = message.value.toString();
                 this.consumerOffset = message.offset;
+
+                console.log({ value, consumerOffset: this.consumerOffset })
 
                 // pausing and resuming logic
                 if (this.consumerOffset === this.stoppingPoint.offset){ // reached the stopping point
@@ -161,7 +164,7 @@ class RepartitionerAgent {
                     // TODO: change from null to '__end'
                     if (this.stoppingPoint === null){ // the stopping point is the end
                         console.log('finished!')
-                        this.hasFinished === true;
+                        this.hasFinished = true;
                     }
                     else { // the stopping point is NOT the end
                         console.log('pausing...')
@@ -188,7 +191,7 @@ class RepartitionerAgent {
                 const result = await this.producer.send({ 
                     topic: this.newTopicName,
                     messages: [
-                        { key, value, partition: this.newPartitionNum }
+                        { value, partition: this.newPartitionNum } // key excluded
                     ],
                 });
                 this.producerOffset = result.lastOffset;
@@ -201,9 +204,12 @@ class RepartitionerAgent {
                 // and therefore all initiate the finishing sequences
             }
         })
+        console.log('did it reach the seek?')
         this.consumer.seek({ 
             topic: this.oldTopic.name, partition: this.oldPartitionNum, offset: 0
         })
+        console.log('type of partitionNum: ', typeof(this.oldPartitionNum) );
+        console.log('it should now be reading: ', { topic: this.oldTopic.name, partition: Number(this.oldPartitionNum), offset: 0});
         // this is how we set the consumer to only read from a single partition
         // recap:
         // 1. make a new consumer group for every consumer

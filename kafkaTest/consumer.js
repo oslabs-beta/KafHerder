@@ -32,7 +32,7 @@ const run2 = async (topic) => {
     // // reason being: you use it AS you are making the consumers
     // // which is very silly... how do you know their memberIds after?
 
-    consumer.run({
+    await consumer.run({
         eachMessage: async ({ topic, partition, message, pause }) => {
             console.log({
                 name: 'c1',
