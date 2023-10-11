@@ -40,12 +40,6 @@ const clusterMetricNames = [
 ];
 
 const brokerMetricNames = [
-    // ? In cluster
-    // * Offline partition count
-    'kafka_controller_kafkacontroller_offlinepartitionscount',
-    // ? In cluster
-    // * Global partition count
-    'kafka_controller_kafkacontroller_globalpartitioncount',
     // * Broker state (shows if broker is a leader)
         // 0: The broker is not running.
         // 1: The broker is starting.
@@ -59,7 +53,9 @@ const brokerMetricNames = [
     'kafka_server_replicamanager_offlinereplicacount',
     // * Total broker disconnects from zookeper
     'kafka_server_sessionexpirelistener_zookeeperdisconnects_total',
-    
+    // * Bytes in * out per broker
+    'kafka_server_brokertopicmetrics_bytesin_total',
+    'kafka_server_brokertopicmetrics_bytesout_total'
 ];
 
 module.exports = {

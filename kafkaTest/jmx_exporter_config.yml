@@ -121,6 +121,23 @@ rules:
   type: GAUGE
   labels:
     "$4": "$5"
+
+# //! Delete
+# - pattern: kafka.consumer<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>MaxLag
+#   name: kafka_consumer_$1_$2_max_lag
+#   type: GAUGE
+#   labels:
+#     clientId: "$3"
+#     topic: "$4"
+#     partition: "$5"
+
+# - pattern: kafka.consumer<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>MinFetchRate 
+#   name: kafka_consumer_$1_$2_min_fetch_rate 
+#   type: GAUGE 
+#   labels: 
+#     clientId: "$3" 
+#     topic: "$4" 
+#     partition: "$5"
     
 # rules:
 #   # Broker Disk Usage

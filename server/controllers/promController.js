@@ -3,15 +3,8 @@ const fs = require('fs');
 
 const promController = {}
 
-
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
 
-// !Broker queries/ related stuff
-// kafka_server_replicamanager_partitioncount{broker="<broker_id>"}
-// kafka_server_replicamanager_offlinereplicacount{broker="<broker_id>"}
-
-
-// console.log(clusterMetricNames);
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 // {__name__=~"partitioncount|brokercount|partitioncount2|partitioncount3|partitioncount"}
@@ -33,53 +26,28 @@ promController.verifyPort = async (req, res, next) => {
     }
 };
 
-// promController.getBrokerMetrics = (param) => {
-//     return async (req, res, next) => {
-//         try {
-//             if (!param) return next({ err: `Port doesn't exist` });
-//             const response = await axios.get(`http://localhost:${param}/api/v1/query`, {
-//                 params: {
-//                     query: buildQuery(brokerMetricNames)
-//                 }
-//             });
-//             res.locals.brokerMetrics = {};
-//             const results = response.data.data.result;
-//             for (const result of results) {
-//                 res.locals.brokerMetrics[result.metric.__name__] = result.value[1];
-//             }
-//             console.log('now printing broker metrics');
-
-//             console.log(res.locals.brokerMetrics);
-//             return next();
-//         }
-//         catch (err) {
-//             return next({
-//                 log: `Error in promController.getBrokerMetrics: ${err}`,
-//                 status: 400,
-//                 message: { err: 'An error ocurred' }
-//             })
-//         }
-//     }
-// };
 
 promController.getBrokerMetrics = async (req, res, next) => {
     try {
         const { port } = req.query; 
         console.log('getBrokerMetrics port is', port);
         if (!port) return next({ err: `Port doesn't exist` });
+
         const response = await axios.get(`http://localhost:${port}/api/v1/query`, {
             params: {
                 query: buildQuery(brokerMetricNames)
             }
         });
-        res.locals.brokerMetrics = {};
-        const results = response.data.data.result;
-        for (const result of results) {
-            res.locals.brokerMetrics[result.metric.__name__] = result.value[1];
-        }
-        console.log('now printing broker metrics');
 
-        console.log(res.locals.brokerMetrics);
+        const results = response.data.data.result;
+        const obj = {};
+        for (const result of results) {
+            if (!obj[result.metric.instance]) obj[result.metric.instance] = {};
+            obj[result.metric.instance][result.metric.__name__] = result.value[1];
+        };
+        
+        res.locals.obj = obj
+
         return next();
     }
     catch (err) {
@@ -194,7 +162,7 @@ promController.getAllMetricNames = async (req, res, next) => {
 }
 
 promController.getRandomMetric = async (req, res, next) => {
-    const randomMetric = 'kafka_server_sessionexpirelistener_zookeeperdisconnects_total';
+    const randomMetric = 'kafka_server_brokertopics';
     // kafka_server_replicamanager_partitioncount{broker="2"}
     // 'kafka_server_kafkaserver_brokerstate'
     // kafka_server_replicamanager_partitioncount{server="3"}
@@ -207,6 +175,7 @@ promController.getRandomMetric = async (req, res, next) => {
                 query: randomMetric
             }
         });
+        console.log(response.data);
         res.locals.metric = { metric: randomMetric, value: response.data.data }; // .result[0].value[0]
         console.log(res.locals.metric.value.result);
         return next();

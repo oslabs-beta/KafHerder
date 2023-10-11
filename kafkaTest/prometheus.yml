@@ -8,3 +8,10 @@ scrape_configs:
           - 'kafka1:9992'
           - 'kafka2:9993'
           - 'kafka3:9994'
+# //! Delete
+    - job_name: 'kafka-consumers'
+      static_configs:
+        - targets:
+          - 'kafka1:9992'
+          - 'kafka2:9993'
+          - 'kafka3:9994'
