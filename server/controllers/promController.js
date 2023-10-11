@@ -3,25 +3,29 @@ const fs = require('fs');
 
 const promController = {}
 
+// TODO: STRETCH: allow users to specify what metric names they want
 const { clusterMetricNames, brokerMetricNames } = require('../variables/metricNames.js');
-// @TODO: stretch: allow users to specify what metric names they want
 
 const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
-// {__name__=~"partitioncount|brokercount|partitioncount2|partitioncount3|partitioncount"}
 
 promController.verifyPort = async (req, res, next) => {
     try {
         const { promPort } = req.body;
+
         const connection = await axios.get(`http://localhost:${promPort}`);
-        console.log(`Successfully connected to http://localhost:${promPort}`);
+        if (!connection) return next({
+            log: `Error in promController.verifyPort: ${connection}. User entered an unverified port.`,
+            status: 404,
+            message: { err: 'Please enter a verified port.' }
+        })
+
         return next();
     }
-    // TODO: if does not find port, should send back 404
     catch (err) {
         return next({
             log: `Error in promController.verifyPort: ${err}`,
             status: 400,
-            message: { err: 'An error occured inside verifyport' }
+            message: { err: 'An error occured. Please try again later.' }
         })
     }
 };
@@ -54,7 +58,7 @@ promController.getBrokerMetrics = async (req, res, next) => {
         return next({
             log: `Error in promController.getBrokerMetrics: ${err}`,
             status: 400,
-            message: { err: 'An error ocurred' }
+            message: { err: 'An error occured. Please try again later.' }
         })
     }
 };
@@ -110,7 +114,7 @@ promController.getClusterMetrics = async (req, res, next) => {
         return next({
             log: `Error in promController.getClusterMetrics: ${err}`,
             status: 400,
-            message: { err: 'An error occurred' }
+            message: { err: 'An error occured. Please try again later.' }
         })
     }
 };
@@ -163,11 +167,6 @@ promController.getAllMetricNames = async (req, res, next) => {
 
 promController.getRandomMetric = async (req, res, next) => {
     const randomMetric = 'kafka_server_brokertopics';
-    // kafka_server_replicamanager_partitioncount{broker="2"}
-    // 'kafka_server_kafkaserver_brokerstate'
-    // kafka_server_replicamanager_partitioncount{server="3"}
-    // const randomMetric = 'kafka_server_brokertopicmetrics_totalproducerequests_total';
-    // const randomMetric = res.locals.metricNames[Math.floor(Math.random()*res.locals.metricNames.length)];
     try {        
         console.log('about to make request');
         const response = await axios.get(`http://localhost:9090/api/v1/query`, {
