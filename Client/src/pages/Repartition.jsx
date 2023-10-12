@@ -32,7 +32,7 @@ function Repartition() {
           <LeftContainer />
           <div className='rightContainer' style={{ minWidth: '400px' }}>
             {(partitionArray.length === 0)  ?
-              <TopicsList /> :
+              <TopicsList />  :
               <RepartitionForm />}
           </div>
         </div>
