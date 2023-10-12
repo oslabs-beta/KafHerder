@@ -7,8 +7,8 @@ const initialState = {
     promPort: '',
     kafkaPort: '',
     topics: [],
-    selectedTopic: 'Animals2',
-    partitionData: {0:{}, 1:{}, 2:{}, 3:{}, 4:{}},
+    selectedTopic: '',
+    partitionData: [],
     offsetJSON: {},
     mimNumOfPartitions: '',
     newTopic: '',
@@ -20,27 +20,27 @@ const initialState = {
     error: null
 }
 
-// used createAsyncThunk to check if the port connection went through
+
+// checkPromPort: used to check if connection to prometheus server is successful
 // if connection went through, we change the status to 'On'
 // else we give an error that says that port could not be connected
-
 export const checkPromPort = createAsyncThunk(
     'clusterForm/checkPromPort', checkPromPortFromAPI
 );
 
-// used to connect to kafkaPort, backend sends topic names in the response
+// checkKafkaPort: used to connect to kafkaPort, backend sends topic names as a response
 export const checkKafkaPort = createAsyncThunk(
     'clusterForm/checkKafkaPort', checkKafkaPortFromAPI
 )
 
-// used to send name of topic selected by user, and kafkaPort,
+// checkPartitionData: using thunkAPI getState to access whole state
 // backend response will have partitions, minimum number of partitions, and offset data
 export const checkPartitionData = createAsyncThunk(
     'clusterForm/checkPartitionData',
-        async(_, thunkAPI) => {
-            const state = thunkAPI.getState();
-            return await fetchPartitionDataFromAPI(state);
-})
+    async (_, thunkAPI) => {
+        const state = thunkAPI.getState();
+        return await fetchPartitionDataFromAPI(state);
+    })
 
 // {
 //     name: "animals2",
@@ -92,10 +92,10 @@ export const checkPartitionData = createAsyncThunk(
 // to start the repartitioning process
 export const checkRepartitionData = createAsyncThunk(
     'clusterForm/checkRepartitionData',
-        async(_, thunkAPI) => {
-            const state = thunkAPI.getState();
-            return await fetchRepartitionDataToAPI(state);
-})
+    async (_, thunkAPI) => {
+        const state = thunkAPI.getState();
+        return await fetchRepartitionDataToAPI(state);
+    })
 
 // created state that shows if the port connected to the server
 const clusterFormSlice = createSlice({
@@ -119,7 +119,6 @@ const clusterFormSlice = createSlice({
             state.newMinPartitionNum = action.payload.newMinPartitionNum;
             state.newReplicationFactor = action.payload.newReplicationFactor;
         },
-        //* Set reducer to set state to off 
         setStatusOff: (state) => {
             state.status = 'off';
         }
@@ -153,14 +152,14 @@ const clusterFormSlice = createSlice({
                 state.partitionData = action.payload.partitions
                 state.mimNumOfPartitions = action.payload.numConfigs // change name of variable
                 state.offsetData = action.payload.offsetData // change name of variable
-            }) 
+            })
             .addCase(checkRepartitionData.pending, (state) => {
                 state.repartitionStatus = 'pending'
             })
             .addCase(checkRepartitionData.fulfilled, (state, action) => {
                 state.repartitionStatus = 'off'
             })
-        }
+    }
 });
 
 

@@ -160,14 +160,14 @@ adminController.getPartitions = async (req, res, next) => {
  * @async
  * @function
  * @param {Object} res.locals.connectedAdmin should be a KafkaJS admin client connected to a Kafka cluster
- * @param {String} req.body.topicName specifies the name of the new topic
- * @param {Number} req.body.numPartitions specifies the number of partitions for the new topic
- * @param {Number} req.body.topicName specifies the replication factor for the new topic
+ * @param {String} req.body.newTopicName specifies the name of the new topic
+ * @param {Number} req.body.newMinPartitionNumber specifies the number of partitions for the new topic
+ * @param {Number} req.body.newReplicationFactorNumber specifies the replication factor for the new topic
  * @returns {Boolean} res.locals.wasCreated will be false if the topic already exists
  */
 adminController.createTopic = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
-    const { topicName, numPartitions, replicationFactor } = req.body;
+    const { newTopicName, newMinPartitionNumber, newReplicationFactorNumber } = req.body;
 
     try {
         const wasCreated = await admin.createTopics({
@@ -176,9 +176,9 @@ adminController.createTopic = async (req, res, next) => {
             timeout: 5000, // default
             topics: [
                 {
-                    topic: topicName,
-                    numPartitions,
-                    replicationFactor,
+                    topic: newTopicName,
+                    newMinPartitionNumber,
+                    newReplicationFactorNumber,
                     replicaAssignment: [], // default
                     configEntries: [] // default
                 }

@@ -2,6 +2,7 @@ import React from 'react'
 import KafkaCard from '../components/KafkaCard'
 
 function KafkaContainer() {
+  
   return (
     <>
     <div className='KafkaContainer'>

@@ -231,20 +231,20 @@ const getClusterInfo = async() => {
     }
 }
 
-const run = async () => {
-    await createTopic('animals2', 3, 3);
-    await getTopicInfo();
-}
+// const run = async () => {
+//     await createTopic('animals2', 3, 3);
+//     await getTopicInfo();
+// }
 
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
-// createTopic('animals2', 3, 3)
+createTopic('animals3', 3, 3)
 // getTopicInfo();
 // getClusterInfo()
 // const response = listConsumerGroupIds();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
 // fetchOffsets( 'consumer-group2', 'animals2'); // try this
-getTopicConfigs('animals2');
+// getTopicConfigs('animals2');
 
 
 //

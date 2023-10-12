@@ -10,6 +10,7 @@ const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
 // {__name__=~"partitioncount|brokercount|partitioncount2|partitioncount3|partitioncount"}
 
 promController.verifyPort = async (req, res, next) => {
+    console.log('req.body', req.body)
     try {
         const { promPort } = req.body;
         const connection = await axios.get(`http://localhost:${promPort}`);
@@ -54,7 +55,7 @@ promController.getBrokerMetrics = async (req, res, next) => {
         return next({
             log: `Error in promController.getBrokerMetrics: ${err}`,
             status: 400,
-            message: { err: 'An error ocurred' }
+            message: { err: 'An error ocurred in getBrokerMetrics' }
         })
     }
 };
@@ -97,8 +98,12 @@ promController.getClusterMetrics = async (req, res, next) => {
                 query: buildQuery(clusterMetricNames)
             }
         });
+        console.log('response #1', response)
         res.locals.clusterMetrics = {};
+        console.log('response.data.data', response.data.data);
         const results = response.data.data.result;
+        
+        console.log('results', typeof results)
         for (const result of results) {
             res.locals.clusterMetrics[result.metric.__name__] = result.value[1];
         }
@@ -110,7 +115,7 @@ promController.getClusterMetrics = async (req, res, next) => {
         return next({
             log: `Error in promController.getClusterMetrics: ${err}`,
             status: 400,
-            message: { err: 'An error occurred' }
+            message: { err: 'An error occurred in getClusterMetrics' }
         })
     }
 };
@@ -140,19 +145,20 @@ promController.getClusterMetrics = async (req, res, next) => {
 // } 
 
 promController.getAllMetricNames = async (req, res, next) => {
-    try {        
+    try {
         console.log('about to make request');
         const response = await axios.get('http://localhost:9090/api/v1/label/__name__/values');
         console.log('these are the metric names: ', response.data.data);
         res.locals.metricNames = response.data.data;
         await fs.writeFile('newMetrics.txt', res.locals.metricNames.join('\n'), (err) => {
             if (err)
-              console.log(err);
+                console.log(err);
             else {
-              console.log("File written successfully\n");
-              console.log("The written has the following contents:");
-              console.log(fs.readFileSync("metricNames.txt", "utf8"));
-            }});
+                console.log("File written successfully\n");
+                console.log("The written has the following contents:");
+                console.log(fs.readFileSync("metricNames.txt", "utf8"));
+            }
+        });
         return next();
     }
     catch (err) {
@@ -168,7 +174,7 @@ promController.getRandomMetric = async (req, res, next) => {
     // kafka_server_replicamanager_partitioncount{server="3"}
     // const randomMetric = 'kafka_server_brokertopicmetrics_totalproducerequests_total';
     // const randomMetric = res.locals.metricNames[Math.floor(Math.random()*res.locals.metricNames.length)];
-    try {        
+    try {
         console.log('about to make request');
         const response = await axios.get(`http://localhost:9090/api/v1/query`, {
             params: {

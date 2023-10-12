@@ -9,13 +9,16 @@ function RepartitionForm() {
     const numOfpartitions = Object.keys(partitions).length;
 
     const dispatch = useDispatch();
-
+    
+    // Creating local state for input data
     const [partitionForm, setPartitionForm] = useState({
         newTopic: '',
         newMinPartitionNum: '',
         newReplicationFactor: ''
       });
 
+    // when the form is submitted, state is dispatched from the partitionForm to the redux store using checkRepartitionData
+    // handle submit also triggers post request to the server with topic selected by the user to fetch topic data
     const handleSubmit = (e) => {
         e.preventDefault();
         if (partitionForm.newMinPartitionNum <= minNumOfPartitions) {
@@ -24,9 +27,9 @@ function RepartitionForm() {
         }
         dispatch(setRepartitionData(partitionForm));
         dispatch(checkRepartitionData());
-        console.log(partitionForm.newTopic, partitionForm.newMinPartitionNum, partitionForm.newReplicationFactor)   
     }
 
+    // event handler that updates the partitionForm based on what inputs are put in
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setPartitionForm(prevState => ({
