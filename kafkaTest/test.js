@@ -134,7 +134,7 @@ const retest = async (topic) => {
         await createTestConsumers(topic);
         await setTestOffsets(topic);
         await disconnectAdmin();
-        await repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
+        // await repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
     }
     catch (error) { console.error(error) }
 }

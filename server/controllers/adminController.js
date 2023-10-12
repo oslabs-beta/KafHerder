@@ -177,8 +177,8 @@ adminController.createTopic = async (req, res, next) => {
             topics: [
                 {
                     topic: newTopicName,
-                    newMinPartitionNumber,
-                    newReplicationFactorNumber,
+                    numPartitions: newMinPartitionNumber,
+                    replicationFactor: newReplicationFactorNumber,
                     replicaAssignment: [], // default
                     configEntries: [] // default
                 }

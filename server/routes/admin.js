@@ -10,7 +10,7 @@ router.post('/', adminController.connectAdmin, adminController.getClusterInfo, a
 });
 
 router.post('/partitions', adminController.connectAdmin, adminController.getPartitions, adminController.disconnectAdmin, (req, res) => {
-    console.log(`Partitions info: `, res.locals.clusterInfo);
+    console.log(`Partitions info: `, res.locals.partitions);
     return res.status(200).json(res.locals.partitions);
 });
 
@@ -24,11 +24,11 @@ router.post('/minPartitions', adminController.connectAdmin, adminController.fetc
 });
 
 // expected body
-// seedBrokerUrl: kafkaPortUrl, 
-// topicName: topic,
-// newTopicName: newTopic,
-// newMinPartitionNumber: newMinPartitionNum,
-// newReplicationFactorNumber: newReplicationFactor
+// seedBrokerUrl:
+// topicName: 
+// newTopicName:
+// newMinPartitionNumber:,
+// newReplicationFactorNumber:
 router.post('/repartition',
             adminController.connectAdmin, 
             adminController.createTopic,
