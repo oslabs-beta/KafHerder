@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s 
+  # note: don't make this too short (will fail)
+
+scrape_configs:
+  - job_name: 'kafka-cluster'
+    static_configs:
+      - targets: 
+          - 'kafka1:9992'
+          - 'kafka2:9993'
+          - 'kafka3:9994'
