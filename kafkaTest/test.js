@@ -218,6 +218,18 @@ const hardReset = async (topic, numPartitions, replicationFactor, messagesToSend
     catch (error) { console.error(error) }
 }
 
+const runSomething = async () => {
+    try {
+        await connectAdmin();
+        const ids = await listConsumerGroupIds;
+        console.log(ids);
+        await disconnectAdmin();
+    }
+    catch (error) {console.error(error)}
+}
+
+runSomething();
+
 module.exports = { reset, hardReset }
 
 

@@ -364,7 +364,7 @@ adminController.repartition = async (req, res, next) => {
 
     try{
         res.locals.newConsumerOffsets = await topicRepartitioner.run();
-        res.locals.groupIdsToDelete = topicRepartitioner.groupIdsToDelete;
+        // res.locals.groupIdsToDelete = topicRepartitioner.groupIdsToDelete;
         return next();
     }
     catch (err) {
@@ -376,27 +376,25 @@ adminController.repartition = async (req, res, next) => {
     }
 }
 
-adminController.cleanUp = async (req, res, next) => {
+adminController.setNewOffsets = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
-    const groupIds = res.locals.groupIdsToDelete;
-    console.log('starting deletion process of: ', groupIds);
-    console.log('this will take at least 10 seconds...')
+    const newConsumerOffsets = res.locals.newConsumerOffsets;
 
     try {
-        // this needs to wait at least 10 seconds. do a setTimeout?
-        await admin.deleteGroups(groupIds);
-        console.log('All consumer groups deleted successfully');
+        for (const [consumerGroup, newOffsets] of Object.entries(newConsumerOffsets)){
+            console.log(`now setting ${consumerGroup}'s new offsets...`)
+            await admin.setOffsets(newOffsets);
+            console.log('success!');
+        }
         return next();
     }
     catch (err) {
         return next({
-            log: `Error in adminController.cleanUp: ${err}`,
+            log: `Error in adminController.setNewOffsets: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })
     }
 }
-
-
 
 module.exports = adminController;

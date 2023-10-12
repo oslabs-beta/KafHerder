@@ -36,7 +36,7 @@ router.post('/repartition',
             adminController.fetchPartitionEnds,
             adminController.calculateTopicConfigs,
             adminController.repartition,
-            // adminController.cleanUp,
+            adminController.setNewOffsets,
             adminController.disconnectAdmin, 
             (req, res) => res.status(200).json(res.locals.newConsumerOffsets)
 );

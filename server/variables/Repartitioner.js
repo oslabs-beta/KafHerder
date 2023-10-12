@@ -45,7 +45,7 @@ class TopicRepartitioner {
                     resolve();
                 }
                 console.log('Still waiting for completion...');  // Optional: for logging
-            }, 1000);  // Checks every 1 second
+            }, 3000);  // Checks every 3 seconds
         });
     }
 
