@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import DoughnutChart from './DoughnutChart';
 /**
- * TODO: Figure out what data to show in BrokerCard
- * TODO: Give it funtionality where we can click on and get a modal
+ * TODO: Figure out what data to show in modal
  * 
  */
 
 
 /**
  * This is the data inside the modal.
- * ?Do we need to make a new component for the modal or is it okay to have it in the BrokerCard component since its same data
  */
 const DialogTitle = () => <h2>Your Title Here</h2>;
 const DialogContent = () => {
@@ -57,20 +55,23 @@ const Modal = ({ closeModal }) => {
  * 
  * {showModal && <Modal closeModal={() => setModal(false)} />} : shows the actual modal white box. it passes in a closeModal function to the modal prop
  * We use the modal prop for the onclick on the span element
- * Todo: probably need to have data propped down to the modal because current items are hardcoded. 
  */
+
+
+
 function BrokerCard({ data }) {
     const [showModal, setModal] = useState(false);
     
     return (
         <>
             <div className='BrokerCard' onClick={() => setModal(!showModal)}>
-                <h1>Broker #{data.BrokerId}</h1>
+                <h1>Broker: {data.id}</h1>
                 <DoughnutChart chartData={data}/>
-                <div> Broker ID: {data.BrokerId} </div>
-                <div> Active Controller Count: {data.ActiveControllerCount} </div>
-                <div> Partition Count: {data.TotalPartitionCount} </div>
-                <div> % of Partitions Up: {((data.OnlinePartitions / data.TotalPartitionCount) * 100).toFixed(2)}% </div>
+                <div> <p></p> </div>
+                <div> Broker ID: {data.id} </div>
+                <div> Total Bytes In: {data.kafka_server_brokertopicmetrics_bytesin_total} </div>
+                <div> Total Bytes Out: {data.kafka_server_brokertopicmetrics_bytesout_total} </div>
+                <div> Disconnects: {data.kafka_server_sessionexpirelistener_zookeeperdisconnects_total}</div>
             </div>
             {showModal && <div className="modal-overlay" onClick={() => setModal(false)}></div>}
             {showModal && <Modal closeModal={() => setModal(false)} />} 

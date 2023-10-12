@@ -10,7 +10,7 @@ function DoughnutChart({ chartData }) {
         labels: ['Online Partitions', 'Offline Partitions'],
         datasets: [{
           label: '# of Partitions',
-          data: [chartData.OnlinePartitions, chartData.OfflinePartitions],
+          data: [chartData.kafka_server_replicamanager_partitioncount, chartData.kafka_server_replicamanager_offlinereplicacount],
           backgroundColor: ['#72D1C8', '#ED9097'],
           borderColor: ['#72D1C8', '#ED9097'],
         }]
