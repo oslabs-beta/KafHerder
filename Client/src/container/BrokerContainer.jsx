@@ -18,13 +18,6 @@ import BrokerCard from '../components/BrokerComponents/BrokerCard'
 
 function BrokerContainer() {
 
-  /** 
-   * Todo: Uncomment dispatch, useEffect, brokerData, status after server is up.
-   * Created a dispatch variable and set it to useDispatch.
-   * Will be used in the useEffect(todo after render) to fetch broker data. 
-   * ?fetchBrokerData is a createAsyncThunk function in brokerSlice. Look there to find more info.
-   */
-
   // once the broker data is fetched, Redux state will be updated with data from server
   const brokers = useSelector(state => state.broker.brokers);
   const allBrokers = brokers.allIds;

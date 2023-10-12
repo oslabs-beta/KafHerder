@@ -43,7 +43,7 @@ function PartitionForm() {
                 name='kafkaPort'
                 value={partitionForm.kafkaPort}
                 onChange={handleInputChange}
-                placeholder='Input Kafka Port'
+                placeholder='Input Kafka Port (e.g. localhost:9092)'
               />
             </div>
             <div className="form-group" id="buttons">
