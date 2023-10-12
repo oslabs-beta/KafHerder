@@ -1,5 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
 
 const promController = {}
 
@@ -15,7 +14,6 @@ const buildQuery = (arr) => `{__name__=~"${arr.join('|')}"}`;
  * @function
  * @param {String} req.body.promPort should be the entire URL (ex. 'http://localhost:9090') 
  */
-// TODO: If port isn't found, should send back 404
 promController.verifyPort = async (req, res, next) => {
     try {
         const { promPort } = req.body;
@@ -55,9 +53,6 @@ promController.verifyPort = async (req, res, next) => {
 promController.getClusterMetrics = async (req, res, next) => {
     try {
         const { promPort } = req.query; 
-        console.log(req.query);
-        // ! This error handling doesn't work. When an invalid port is entered, GEH is triggered and not the following one.
-        if (!promPort) return next({ err: `Port doesn't exist` });
        
         const response = await axios.get(promPort, {
             params: {
@@ -110,8 +105,6 @@ promController.getClusterMetrics = async (req, res, next) => {
 promController.getBrokerMetrics = async (req, res, next) => {
     try {
         const { promPort } = req.query; 
-        // ! Same issue as getClusterMetrics
-        if (!promPort) return next({ err: `Port doesn't exist` });
 
         const response = await axios.get(promPort, {
             params: {
