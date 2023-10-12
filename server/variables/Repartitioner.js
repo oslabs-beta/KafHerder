@@ -26,22 +26,43 @@ class TopicRepartitioner {
             newPartitionNum++;
         }
 
-        // run everything
-        if (this.hasFinished){
-            // return final result
+        await this.waitForCompletion();
+
+        return 'WE DID IT FAM';
+    }
+    async waitForCompletion() {
+        return new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.hasFinished) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                console.log('Still waiting for completion...');  // Optional: for logging
+            }, 1000);  // Checks every 1 second
+        });
+    }
+    
+    checkIfFinished(){
+        let finishedStatus = true;
+        for (const group of this.groups){
+            if (!group.hasFinished) {
+                finishedStatus = false;
+                break;
+            }
+        }
+    
+        if (finishedStatus){
+            this.hasFinished = true;
+            console.log(`ENTIRE REPARTITIONING PROCESS HAS BEEN COMPLETED.`);
         }
     }
-    checkIfFinished(){
-        for (const group of this.groups){
-            if (group.hasFinished === false) return false;
-        }
-        return this.hasFinished = true;
-    }  
+    
 }
 
 class RepartitionerGroup {
     constructor (props, topicRp, consumerOffsetConfig){
         this.props = props;
+        this.topicRp = topicRp;
         this.consumerOffsetConfig = consumerOffsetConfig;
         this.agents = [];
         this.hasFinished = false;
@@ -67,12 +88,21 @@ class RepartitionerGroup {
             agent.resume();
         }
     }
-    allFinished(){
+    checkIfFinished(){
+        let finishedStatus = true;
         for (const agent of this.agents){
-            if (agent.hasFinished === false) return false;
+            if (!agent.hasFinished) {
+                finishedStatus = false;
+                break;
+            }
         }
-        return this.hasFinished = true;
-    }  
+    
+        if (finishedStatus){
+            this.hasFinished = true;
+            console.log(`All agents in rpGroup ${this.consumerOffsetConfig} have finished.`);
+            this.topicRp.checkIfFinished();
+        }
+    }
 }
 
 // each RepartitionerAgent consists of one consumer reading from one partition in and old topic
@@ -156,13 +186,12 @@ class RepartitionerAgent {
 
     async end(){
         this.hasFinished = true;
-        
-        if (this.rpGroup.allFinished()){
-            console.log(`All agents in rpGroup ${this.rpGroup.consumerOffsetConfig} have finished.`);
-        }
+
         console.log('disconnecting consumer and producer');
         await this.consumer.disconnect();
         await this.producer.disconnect();
+
+        this.rpGroup.checkIfFinished();
     }
 
     async writeMessage(value){ // you can add in key later
