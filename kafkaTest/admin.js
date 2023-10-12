@@ -7,14 +7,28 @@ const kafka = new Kafka({
     brokers: ['localhost:9092']
 })
 
-const admin = kafka.admin(); 
+const admin = kafka.admin();
 
-const createTopic = async (topic, numPartitions, replicationFactor) => {
+const connectAdmin = async () => {
     try {
         console.log('connecting to Kafka cluster...')
         await admin.connect();
         console.log('successfully connected!')
+    }
+    catch (error) { console.error(error) };
+}
 
+const disconnectAdmin = async () => {
+    try {
+        console.log('disconnecting...')
+        await admin.disconnect();
+        console.log('disconnected!')
+    }
+    catch (error) { console.error(error) };
+}
+
+const createTopic = async (topic, numPartitions, replicationFactor) => {
+    try {
         console.log(`creating topic ${topic} with ${numPartitions} partitions and rep factor ${replicationFactor}`);
         await admin.createTopics({
             validateOnly: false,
@@ -29,9 +43,6 @@ const createTopic = async (topic, numPartitions, replicationFactor) => {
             ]
         });
         console.log('successfully created topic!');
-
-        console.log('disconnecting...');
-        await admin.disconnect();
     }
     catch (error) {
         console.log('failed to connect or create topic');
@@ -41,10 +52,6 @@ const createTopic = async (topic, numPartitions, replicationFactor) => {
 
 const getTopicInfo = async() => {
     try {
-        console.log('connecting to Kafka cluster...');
-        await admin.connect();
-        console.log('successfully connected!');
-
         console.log('fetching list of topics....');
         const topics = await admin.listTopics();
         console.log('here are the topics: ', topics);
@@ -57,9 +64,6 @@ const getTopicInfo = async() => {
                 console.log(topic);
             }
         }
-
-        console.log('disconnecting...');
-        await admin.disconnect();
     }
     catch (error) {
         console.log('failed to fetch topics list or metadata');
@@ -70,10 +74,6 @@ const getTopicInfo = async() => {
 
 const listConsumerGroupIds = async() => {
     try {
-        console.log('connecting to Kafka cluster...');
-        await admin.connect();
-        console.log('successfully connected!');
-
         console.log('fetching list of topics....');
         const response = await admin.listGroups();
 
@@ -84,9 +84,6 @@ const listConsumerGroupIds = async() => {
             }
         };
         console.log('here are the consumer groups: ', consumerGroups);
-
-        console.log('disconnecting...');
-        await admin.disconnect();
         return consumerGroups;
     }
     catch (error) {
@@ -97,10 +94,6 @@ const listConsumerGroupIds = async() => {
 
 const fetchOffsets = async( groupId, topicName ) => {
     try {
-        console.log('connecting to Kafka cluster...');
-        await admin.connect();
-        console.log('successfully connected!');
-
         console.log(`fetching ${groupId}'s offsets...`);
         const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
         const partitionsArr = response[0].partitions;
@@ -115,9 +108,6 @@ const fetchOffsets = async( groupId, topicName ) => {
         //     { partition: 2, offset: '379', metadata: null },
         //     { partition: 1, offset: '378', metadata: null }
         //   ]
-
-        console.log('disconnecting...');
-        await admin.disconnect();
         return partitionsArr;
     }
     catch (error) {
@@ -126,64 +116,13 @@ const fetchOffsets = async( groupId, topicName ) => {
     }
 }
 
-
-// const fetchAllOffsets = async( consumerGroupIds, topicName ) => {
-//     const allConsumerGroupOffsets = {};
-//     try {
-//         console.log('connecting to Kafka cluster...');
-//         await admin.connect();
-//         console.log('successfully connected!');
-
-//         for (const groupId of consumerGroupIds){
-//             const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
-//             const partitionsArr = response[0].partitions;    
-//             // @example:
-//             // [
-//             //     { partition: 4, offset: '377', metadata: null },
-//             //     { partition: 3, offset: '378', metadata: null },
-//             //     { partition: 0, offset: '-1', metadata: null },
-//             //     { partition: 2, offset: '379', metadata: null },
-//             //     { partition: 1, offset: '-1', metadata: null }
-//             //   ]
-//             // this will return ALL partitions, but -1 for the offset if it doesn't exist
-//             // what I'm realizing then is that it wouldn't be efficient to get all the ConsumerGroupOffsets first
-
-//             if (allConsumerGroupOffsets[groupId])
-
-
-//             allOffsets.push(response);
-//             // this is largely useless. we want consumerGroupId
-//         }
-
-//         console.log(`fetching ${groupId}'s offsets...`);
-//         const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
-//         const partitionsArr = response[0].partitions;
-//         // console.log(partitionsArr);
-//         console.log(response);
-
-//         // @example:
-//         // [
-//         //     { partition: 4, offset: '377', metadata: null },
-//         //     { partition: 3, offset: '378', metadata: null },
-//         //     { partition: 0, offset: '378', metadata: null },
-//         //     { partition: 2, offset: '379', metadata: null },
-//         //     { partition: 1, offset: '378', metadata: null }
-//         //   ]
-
-//         console.log('disconnecting...');
-//         await admin.disconnect();
-//     }
-//     catch (error) {
-//         console.log('failed to consumer groups list');
-//         console.error(error);
-//     }
-// }
-
 const getTopicConfigs = async (topicName) => {
-    const topic = new Topic(topicName);
-
     try {
-        // await admin.connect();
+        const partitionEnds = await admin.fetchTopicOffsets(topicName);
+        console.log(partitionEnds);
+        const topic = new Topic(topicName, partitionEnds);
+
+
         const consumerGroupIds = await listConsumerGroupIds();
         // [ 'consumerGroupId1', 'consumerGroupId2', ... ]
         // not all of these have read the topic
@@ -204,26 +143,21 @@ const getTopicConfigs = async (topicName) => {
                 }
             }
         }
-        console.log('topic: ', topic);
-        console.log('topic.partitions');
-        console.log(topic.partitions[0].consumerOffsetLL.head);
-        console.log(topic.getAllConsumerOffsetConfigs());
+        // console.log('topic: ', topic);
+        // console.log('topic.partitions');
+        // console.log(topic.partitions[0].consumerOffsetLL.head);
+        topic.getAllConsumerOffsetConfigs();
+        console.log(topic.numConfigs);
+        return topic;
     }
     catch (err) {console.log(err)}
 }
 
 const getClusterInfo = async() => {
     try {
-        console.log('connecting to Kafka cluster...');
-        await admin.connect();
-        console.log('successfully connected!');
-
         console.log('fetching cluster info....');
         const cluster = await admin.describeCluster();
         console.log('here is the cluster info: ', cluster);
-
-        console.log('disconnecting...');
-        await admin.disconnect();
     }
     catch (error) {
         console.log('failed to fetch cluster info');
@@ -236,15 +170,53 @@ const getClusterInfo = async() => {
 //     await getTopicInfo();
 // }
 
+const deleteAllConsumerGroups = async () => {
+    try {
+        await connectAdmin();
+        const groupIds = await listConsumerGroupIds();
+        await admin.deleteGroups(groupIds);
+        console.log('All consumer groups deleted successfully');
+        await disconnectAdmin();
+    }
+    catch (error) {
+        console.error('Error deleting groups: ', error)
+    }
+};
+
+const repartition = async (oldTopicName, newTopicName) => {
+    try {
+        await connectAdmin();
+        const oldTopic = await getTopicConfigs(oldTopicName);
+        const minPartitions = oldTopic.numConfigs;
+        const newTopic = await createTopic(newTopicName, minPartitions, 3);
+
+        const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl: 'localhost:9092', oldTopic, newTopicName  }); // seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String></String>
+        await topicRepartitioner.run();
+
+        await disconnectAdmin();
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
+
+// repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
+// deleteAllConsumerGroups(); // MAKE SURE YOU ARE DISCONNECTED!!!
+
+
+
+
+
 //createTopic('animals2', 5, 3);
 // run(); // THIS CREATES A TOPIC AND GETS TOPIC INFO
-createTopic('animals3', 3, 3)
+// createTopic('animals2', 3, 3)
 // getTopicInfo();
 // getClusterInfo()
 // const response = listConsumerGroupIds();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
 // fetchOffsets( 'consumer-group2', 'animals2'); // try this
-// getTopicConfigs('animals2');
+getTopicConfigs('animals2');
 
 
 //
@@ -283,3 +255,5 @@ createTopic('animals3', 3, 3)
 // run();
 // const topicsMetadata = run2();
 // run3(topics);
+
+module.exports = { repartition, createTopic };

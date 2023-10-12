@@ -177,8 +177,8 @@ adminController.createTopic = async (req, res, next) => {
             topics: [
                 {
                     topic: newTopicName,
-                    newMinPartitionNumber,
-                    newReplicationFactorNumber,
+                    numPartitions: newMinPartitionNumber,
+                    replicationFactor: newReplicationFactorNumber,
                     replicaAssignment: [], // default
                     configEntries: [] // default
                 }
@@ -254,7 +254,34 @@ adminController.fetchConsumerGroupIds = async (req, res, next) => {
 }
 
 // MIDDLEWARE 2
-// takes in the consumerGroupIds from the previous middleware, as well as the connected admin
+// this is to know what the offset of the last message is
+// we need this for our Topic object to put __end nodes so we can stop
+//
+// returns an array of highs and lows of offsets for each partition
+// the high is where new messages are being produced to
+// the offset is the consumer offset of the furthest consumer
+// TODO: the difference between high - offset is actually the consumer lag!
+// [
+//  { partition: 0, offset: '378', high: '378', low: '0' },
+//  { partition: 1, offset: '379', high: '379', low: '0' },
+// ]
+adminController.fetchPartitionEnds = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const { topicName } = req.body;
+
+    try {
+        const response = await admin.fetchTopicOffsets(topicName);
+        res.locals.partitionEnds = response;
+        return next();
+    }
+    catch (error) {
+        console.log('failed to fetch partition ends');
+        console.error(error);
+    }
+}
+
+// MIDDLEWARE 3
+// takes in the consumerGroupIds/partitionEnds from the previous middleware, as well as the connected admin
 // also takes the old topic name passed initially in the body
 // returns a Topic object with all the offset information you could possibly need
 // see Topic.js for more information about its shape
@@ -263,8 +290,9 @@ adminController.fetchConsumerGroupIds = async (req, res, next) => {
 adminController.calculateTopicConfigs = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
     const consumerGroupIds = res.locals.consumerGroupIds;
+    const partitionEnds = res.locals.partitionEnds;
     const { topicName } = req.body;
-    const topic = new Topic(topicName);
+    const topic = new Topic(topicName, partitionEnds);
 
     // HELPER FUNCTION: fetches offsets on each partition of the topic for one consumerGroup
     // TODO: JSDocs for this function
@@ -316,95 +344,30 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
     }
 }
 
+// @returns newConsumerOffsets:
+    // { 'A': {
+    //          groupId: 'A',
+    //          topic,
+    //          partitions: [
+    //                          { partition: 0, offset: '20'},
+    //                          { partition: 1, offset: '30'},
+    //                          { partition: 2, offset: '40'},
+    //                       ]
+    //         },
+    //    'B': ...
+    // }
+adminController.repartition = async (req, res, next) => {
+    const { seedBrokerUrl, newTopicName } = req.body;
+    const oldTopic = res.locals.topicObj;
+    const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl, oldTopic, newTopicName  });
 
-// ~~~ getMinPartitions route: ~~~
-
-// MIDDLEWARE 1
-// takes in a connected admin
-// returns list of consumerGroupIds: [ 'consumerGroupId1', 'consumerGroupId2', ... ]
-adminController.fetchConsumerGroupIds = async (req, res, next) => {
-    const admin = res.locals.connectedAdmin;
-
-    try {
-        const response = await admin.listGroups();
-
-        const consumerGroupIds = [];
-        for (group of response.groups){
-            if (group.protocolType === 'consumer'){
-                consumerGroupIds.push(group.groupId);
-            }
-        };
-
-        res.locals.consumerGroupIds = consumerGroupIds;
-
+    try{
+        res.locals.newConsumerOffsets = await topicRepartitioner.run();
         return next();
     }
     catch (err) {
         return next({
-            log: `Error in adminController.fetchConsumerGroupIds: ${err}`,
-            status: 400,
-            message: { err: 'An error occured' }
-        })
-    }
-}
-
-// MIDDLEWARE 2
-// takes in the consumerGroupIds from the previous middleware, as well as the connected admin
-// also takes the old topic name passed initially in the body
-// returns a Topic object with all the offset information you could possibly need
-// see Topic.js for more information about its shape
-// YOU CAN ACCESS THE NUMBER OF CONFIGS IN THE RESPONSE:
-// topicObj.numConfigs
-adminController.calculateTopicConfigs = async (req, res, next) => {
-    const admin = res.locals.connectedAdmin;
-    const consumerGroupIds = res.locals.consumerGroupIds;
-    const { topicName } = req.body;
-    const topic = new Topic(topicName);
-
-    // HELPER FUNCTION: fetches offsets on each partition of the topic for one consumerGroup
-    // TODO: JSDocs for this function
-    const fetchOffsets = async (groupId, topicName) => {
-        try {
-            const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
-            const partitionObjArr = response[0].partitions;
-            // @example:
-            // [
-            //     { partition: 0, offset: '377', metadata: null },
-            //     { partition: 1, offset: '-1', metadata: null }
-            // ]
-            // if the consumer group has NOT read a partition, the offset will be '-1'
-            return partitionObjArr;
-        }
-        catch (err) {
-            return next({
-                log: `Failed to fetch ${groupId}'s offsets in adminController.calculateTopicConfigs: ${err}`,
-                status: 400,
-                message: { err: 'An error occured' }
-            })
-        }
-    }
-
-    try {
-        for (const groupId of consumerGroupIds){
-
-            const partitionObjArr = await fetchOffsets ( groupId, topicName );
-
-            for (const partitionObj of partitionObjArr){
-                const { partition, offset } = partitionObj;
-                if (offset !== '-1'){
-                    // this is where we build out the topic object:
-                    topic.addConsumerOffset(partition, offset, groupId);
-                }
-            }
-        }
-        topic.getAllConsumerOffsetConfigs(); // TODO: maybe this should happen automatically?
-        
-        res.locals.topicObj = topic;
-        return next();
-    }
-    catch (err) {
-        return next({
-            log: `Error in adminController.calculateTopicConfigs: ${err}`,
+            log: `Error in adminController.repartition: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })

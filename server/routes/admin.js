@@ -10,7 +10,7 @@ router.post('/', adminController.connectAdmin, adminController.getClusterInfo, a
 });
 
 router.post('/partitions', adminController.connectAdmin, adminController.getPartitions, adminController.disconnectAdmin, (req, res) => {
-    console.log(`Partitions info: `, res.locals.clusterInfo);
+    console.log(`Partitions info: `, res.locals.partitions);
     return res.status(200).json(res.locals.partitions);
 });
 
@@ -19,8 +19,25 @@ router.post('/create', adminController.connectAdmin, adminController.createTopic
     return res.status(200).json(res.locals.wasCreated);
 });
 
-router.post('/minPartitions', adminController.connectAdmin, adminController.fetchConsumerGroupIds, adminController.calculateTopicConfigs, adminController.disconnectAdmin, (req, res) => {
+router.post('/minPartitions', adminController.connectAdmin, adminController.fetchConsumerGroupIds, adminController.fetchPartitionEnds, adminController.calculateTopicConfigs, adminController.disconnectAdmin, (req, res) => {
     return res.status(200).json(res.locals.topicObj);
-})
+});
+
+// expected body
+// seedBrokerUrl:
+// topicName: 
+// newTopicName:
+// newMinPartitionNumber:,
+// newReplicationFactorNumber:
+router.post('/repartition',
+            adminController.connectAdmin, 
+            adminController.createTopic,
+            adminController.fetchConsumerGroupIds,
+            adminController.fetchPartitionEnds,
+            adminController.calculateTopicConfigs,
+            adminController.disconnectAdmin, 
+            adminController.repartition,
+            (req, res) => res.status(200).json(res.locals.newConsumerOffsets)
+);
 
 module.exports = router;
