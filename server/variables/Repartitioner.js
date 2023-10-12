@@ -1,5 +1,6 @@
 const { Kafka } = require('kafkajs');
 
+// TODO: this only repartitions to the minimum number of partitions so far. it will leave the rest empty
 class TopicRepartitioner {
     constructor (props) {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
@@ -188,27 +189,27 @@ class RepartitionerAgent {
                 this.consumerOffset = message.offset;
                 // console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset })
                 // if (Number(this.consumerOffset) > 375) console.log({ moving: `${this.oldPartitionNum}->${this.newPartitionNum}`, value, consumerOffset: this.consumerOffset });
-                if (Number(this.consumerOffset) > 375) console.log(`end node offset: ${Object.keys(this.endNode)}`);
+                // if (Number(this.consumerOffset) > 375) console.log(`end node offset: ${Object.keys(this.endNode)}`);
 
 
                 // MAIN LOGIC
                 if (this.consumerOffset === this.stoppingPoint.offset) { // has reached stopping point
-                    console.log('reached stopping point: ', this.stoppingPoint)
+                    console.log('reached stopping point: ') // , this.stoppingPoint)
                     this.pauseAndResumeWhenReady(pause); // this breaks out of eachMessage, moves the stopping point, and resumes from the same message when all have reached the previous stopping point
                 }
                 else if (Number(this.consumerOffset) === Number(this.endNode.offset)-1) { // is last message
-                    console.log('reached last message: ', this.consumerOffset);
+                    console.log('reached last message: ') //, this.consumerOffset);
                     if (!this.allMessagesProcessed){ // write the message if it hasn't been written
-                        console.log('writing the last message: ', value);
+                        console.log('writing the last message: ') // , value);
                         await this.writeMessage(value);
                         this.allMessagesProcessed = true;
                     }
                     if (this.stoppingPoint !== this.endNode){ // there are other nodes at the end
-                        console.log('more nodes at end: ', this.stoppingPoint);
+                        console.log('more nodes at end: ') // , this.stoppingPoint);
                         this.pauseAndResumeWhenReady(pause);
                     }
                     else { // it has reached the end
-                        console.log('reached last node: ', this.stoppingPoint);
+                        console.log('reached last node: ') //, this.stoppingPoint);
                         this.end(); // this breaks out of run, and logs a message when all in the group have ended
                     }
                 }

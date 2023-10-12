@@ -21,6 +21,23 @@ router.post('/create', adminController.connectAdmin, adminController.createTopic
 
 router.post('/minPartitions', adminController.connectAdmin, adminController.fetchConsumerGroupIds, adminController.fetchPartitionEnds, adminController.calculateTopicConfigs, adminController.disconnectAdmin, (req, res) => {
     return res.status(200).json(res.locals.topicObj);
-})
+});
+
+// expected body
+// seedBrokerUrl: kafkaPortUrl, 
+// topicName: topic,
+// newTopicName: newTopic,
+// newMinPartitionNumber: newMinPartitionNum,
+// newReplicationFactorNumber: newReplicationFactor
+router.post('/repartition',
+            adminController.connectAdmin, 
+            adminController.createTopic,
+            adminController.fetchConsumerGroupIds,
+            adminController.fetchPartitionEnds,
+            adminController.calculateTopicConfigs,
+            adminController.repartition,
+            adminController.disconnectAdmin, 
+            (req, res) => res.status(200).json(res.locals.newConsumerOffsets)
+);
 
 module.exports = router;

@@ -344,4 +344,22 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
     }
 }
 
+adminController.repartition = async (req, res, next) => {
+    const { seedBrokerUrl, newTopicName } = req.body;
+    const oldTopic = res.locals.topicObj;
+    const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl, oldTopic, newTopicName  });
+
+    try{
+        res.locals.newConsumerOffsets = await topicRepartitioner.run();
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.repartition: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
 module.exports = adminController;
