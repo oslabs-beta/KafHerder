@@ -358,8 +358,9 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
     // }
 adminController.repartition = async (req, res, next) => {
     const { seedBrokerUrl, newTopicName } = req.body;
+    const admin = res.locals.connectedAdmin;
     const oldTopic = res.locals.topicObj;
-    const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl, oldTopic, newTopicName  });
+    const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl, oldTopic, newTopicName, admin });
 
     try{
         res.locals.newConsumerOffsets = await topicRepartitioner.run();
@@ -378,15 +379,18 @@ adminController.repartition = async (req, res, next) => {
 adminController.cleanUp = async (req, res, next) => {
     const admin = res.locals.connectedAdmin;
     const groupIds = res.locals.groupIdsToDelete;
+    console.log('starting deletion process of: ', groupIds);
+    console.log('this will take at least 10 seconds...')
 
     try {
+        // this needs to wait at least 10 seconds. do a setTimeout?
         await admin.deleteGroups(groupIds);
         console.log('All consumer groups deleted successfully');
         return next();
     }
     catch (err) {
         return next({
-            log: `Error in adminController.repartition: ${err}`,
+            log: `Error in adminController.cleanUp: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })

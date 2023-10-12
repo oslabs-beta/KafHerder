@@ -6,8 +6,9 @@ class TopicRepartitioner {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
         this.groups = [];
         this.hasFinished = false;
-        this.newTopicName = props.newTopicName;
         this.oldTopic = props.oldTopic;
+        this.newTopicName = props.newTopicName;
+        this.connectedAdmin = props.admin;
         this.newConsumerOffsets = {}; // this is the final output!
         this.groupIdsToDelete = [];
     }
@@ -31,6 +32,9 @@ class TopicRepartitioner {
 
         await this.waitForCompletion();
 
+        // this runs a cleanUp process asynchronously (no await) after completing
+        if(this.connectedAdmin) setTimeout(() => this.runCleanup(), 10000);
+
         return this.newConsumerOffsets;
     }
     async waitForCompletion() {
@@ -44,7 +48,17 @@ class TopicRepartitioner {
             }, 1000);  // Checks every 1 second
         });
     }
-    
+
+    async runCleanup() {
+        console.log('now running cleanup process...');
+        try {
+            await this.connectedAdmin.deleteGroups(this.groupIdsToDelete);
+            console.log('successfully deleted rp consumer groups!')
+        }
+        catch (err){
+            console.error('error in cleanUp process: ', err);
+        }
+    }
     checkIfFinished(){
         let finishedStatus = true;
         for (const group of this.groups){
