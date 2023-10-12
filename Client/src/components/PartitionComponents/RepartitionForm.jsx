@@ -2,12 +2,25 @@ import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setRepartitionData, checkRepartitionData} from '../../features/clusterform/clusterFormSlice'
 
+// const Modal = ({ closeModal }) => {
+    
+//     return (
+//         <div className="modal">
+//             <span className="modal-close" onClick={closeModal}>&times;</span>
+//             {modalContent}
+//         </div>
+//     );
+// };
+
+
 function RepartitionForm() {
     const topicName = useSelector(state => state.clusterForm.selectedTopic);
     const minNumOfPartitions = useSelector(state=>state.clusterForm.mimNumOfPartitions);
     const partitions = useSelector(state=>state.clusterForm.partitionData);
     const numOfpartitions = Object.keys(partitions).length;
-
+    const repartitionStatus = useSelector(state=>state.clusterForm.repartitionStatus)
+    const repartitionResult = useSelector(state=>state.clusterForm.repartitionResult)
+    
     const dispatch = useDispatch();
     
     // Creating local state for input data
@@ -17,16 +30,42 @@ function RepartitionForm() {
         newReplicationFactor: ''
       });
 
+    const [modal, setModal] = useState(false);
+
+    const Modal = ({ closeModal }) => {
+    
+        return (
+            <div className="modal" style={{ overflowY: 'scroll' }}>
+                <span className="modal-close" onClick={closeModal}>&times;</span>
+                {modalContent}
+            </div>
+        );
+    };
+
+    let modalContent;
+    switch (repartitionStatus) {
+        case 'pending':
+            modalContent = <h1>Loading...</h1>;
+            break;
+        case 'done':
+            modalContent = <div><h1>Repartitioning Complete!</h1><pre>{JSON.stringify(repartitionResult, null, 2)}</pre></div>
+            break;
+        default: 
+            modalContent = <h1>What would be default?</h1> 
+            break;
+        }
+
     // when the form is submitted, state is dispatched from the partitionForm to the redux store using checkRepartitionData
     // handle submit also triggers post request to the server with topic selected by the user to fetch topic data
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (partitionForm.newMinPartitionNum <= minNumOfPartitions) {
+        if (partitionForm.newMinPartitionNum < minNumOfPartitions) {
             alert('NOT ENOUGH PARTITIONS');
             throw new Error('NOT ENOUGH PARTITIONS');
         }
         dispatch(setRepartitionData(partitionForm));
         dispatch(checkRepartitionData());
+        setModal(true);
     }
 
     // event handler that updates the partitionForm based on what inputs are put in
@@ -83,6 +122,8 @@ function RepartitionForm() {
                 <button className='newTopicDetails-button' onClick={handleSubmit}>Start Repartition</button>
             </div>
         </div>
+        {modal && <div className="modal-overlay" onClick={() => setModal(false)}></div>}
+        {modal && <Modal closeModal={() => setModal(false)} />}
     </div>
   )
 }

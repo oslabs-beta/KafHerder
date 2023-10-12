@@ -58,7 +58,7 @@ export const fetchPartitionDataFromAPI = async (state) => {
 
         console.log('inside fetch partition data')
         console.log('selected Topic', topic)
-        const response = await fetch(API_URL + 'admin/partitions', {
+        const response = await fetch(API_URL + 'admin/minPartitions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -67,6 +67,7 @@ export const fetchPartitionDataFromAPI = async (state) => {
         });
 
         const data = await response.json();
+        console.log('data', data)
         return data;
 
     } catch (error) {
@@ -86,7 +87,7 @@ export const fetchRepartitionDataToAPI = async (state) => {
         const newMinPartitionNum = state.clusterForm.newMinPartitionNum;
         const newReplicationFactor = state.clusterForm.newReplicationFactor;
 
-        const response = await fetch(API_URL + 'admin/partitions', {
+        const response = await fetch(API_URL + 'admin/repartition', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
