@@ -363,6 +363,7 @@ adminController.repartition = async (req, res, next) => {
 
     try{
         res.locals.newConsumerOffsets = await topicRepartitioner.run();
+        res.locals.groupIdsToDelete = topicRepartitioner.groupIdsToDelete;
         return next();
     }
     catch (err) {
@@ -373,5 +374,25 @@ adminController.repartition = async (req, res, next) => {
         })
     }
 }
+
+adminController.cleanUp = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const groupIds = res.locals.groupIdsToDelete;
+
+    try {
+        await admin.deleteGroups(groupIds);
+        console.log('All consumer groups deleted successfully');
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.repartition: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+
 
 module.exports = adminController;

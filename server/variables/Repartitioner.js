@@ -9,6 +9,7 @@ class TopicRepartitioner {
         this.newTopicName = props.newTopicName;
         this.oldTopic = props.oldTopic;
         this.newConsumerOffsets = {}; // this is the final output!
+        this.groupIdsToDelete = [];
     }
     async run(){
         console.log('now running repartitioning process');
@@ -167,6 +168,7 @@ class RepartitionerAgent {
     }
     async createConsumer(){
         const clientIdConsumer = 'Bconsumer-'+this.id;
+        this.rpGroup.topicRp.groupIdsToDelete.push(clientIdConsumer);
         const kafka = new Kafka({
             clientId: clientIdConsumer,
             brokers: [this.seedBrokerUrl]
