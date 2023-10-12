@@ -1,16 +1,25 @@
 class Topic {
-    constructor (name){
+    constructor (name, partitionEnds){
         this.name = name;
         this.partitions = {}; // key: partitionNumber, value: Partition object
         this.consumerOffsetConfigs = {}; // key: config, value: array of partitions that have it
         this.numConfigs = 0;
+        this.partitionEnds = partitionEnds;
+        this.addEnds();
     }
 
-    addConsumerOffset(number, offset, consumerGroupId){
-        if (!this.partitions[number]){
-            this.partitions[number] = new Partition(number);
+    addConsumerOffset(partitionNumber, offset, consumerGroupId){
+        if (!this.partitions[partitionNumber]){
+            this.partitions[partitionNumber] = new Partition(partitionNumber);
         }
-        this.partitions[number].consumerOffsetLL.add(offset, consumerGroupId);
+        this.partitions[partitionNumber].consumerOffsetLL.add(offset, consumerGroupId);
+    }
+
+    addEnds(){ // this adds the __end nodes to the linkedlists
+        for (const partitionEnd of this.partitionEnds){
+            const { partition, high } = partitionEnd;
+            this.addConsumerOffset(partition, high, '__end');
+        }
     }
 
     getAllConsumerOffsetConfigs(){
@@ -29,7 +38,7 @@ class Topic {
 
 class Partition {
     constructor (partitionNumber){
-        this.partitionNumber = partitionNumber;
+        this.partitionNumber = partitionNumber; // probably unnecessary
         this.consumerOffsetLL = new ConsumerOffsetLL;
         // this.length should be defined
         // then this.consumerOffsetLL.add(String(this.length), '__end')
@@ -58,10 +67,16 @@ class ConsumerOffsetLL {
     add(offset, consumerGroupId) {
         const newNode = new ConsumerOffsetNode(offset, consumerGroupId);
         const numericOffset = parseInt(offset, 10);
-    
+
+        const shouldInsertBefore = (a, b) => {
+            if (a.consumerGroupId === '__end') return false;
+            if (b.consumerGroupId === '__end') return true;
+            return a.consumerGroupId > b.consumerGroupId;
+        };
+
         if (this.head === null || 
             parseInt(this.head.offset, 10) > numericOffset || 
-            (parseInt(this.head.offset, 10) === numericOffset && this.head.consumerGroupId > consumerGroupId)) {
+            (parseInt(this.head.offset, 10) === numericOffset && shouldInsertBefore(this.head, newNode))) {
             newNode.next = this.head;
             this.head = newNode;
             if (this.tail === null) {
@@ -69,14 +84,15 @@ class ConsumerOffsetLL {
             }
             return;
         }
-    
+
         let currentNode = this.head;
         while (currentNode.next !== null &&
                (parseInt(currentNode.next.offset, 10) < numericOffset ||
-               (parseInt(currentNode.next.offset, 10) === numericOffset && currentNode.next.consumerGroupId < consumerGroupId))) {
+               (parseInt(currentNode.next.offset, 10) === numericOffset && 
+               !shouldInsertBefore(currentNode.next, newNode)))) {
             currentNode = currentNode.next;
         }
-    
+
         newNode.next = currentNode.next;
         currentNode.next = newNode;
         if (newNode.next === null) {
