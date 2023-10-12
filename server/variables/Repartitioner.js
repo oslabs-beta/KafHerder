@@ -6,7 +6,9 @@ class TopicRepartitioner {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
         this.groups = [];
         this.hasFinished = false;
+        this.newTopicName = props.newTopicName;
         this.oldTopic = props.oldTopic;
+        this.newConsumerOffsets = {}; // this is the final output!
     }
     async run(){
         console.log('now running repartitioning process');
@@ -28,7 +30,7 @@ class TopicRepartitioner {
 
         await this.waitForCompletion();
 
-        return 'WE DID IT FAM';
+        return this.newConsumerOffsets;
     }
     async waitForCompletion() {
         return new Promise((resolve) => {
@@ -56,7 +58,20 @@ class TopicRepartitioner {
             console.log(`ENTIRE REPARTITIONING PROCESS HAS BEEN COMPLETED.`);
         }
     }
-    
+
+    addNewConsumerOffset (groupId, partition, offset){
+        if (!this.newConsumerOffsets[groupId]){
+            this.newConsumerOffsets[groupId] = {
+                groupId,
+                topic: this.props.newTopicName,
+                partitions: []
+            }
+        }
+        this.newConsumerOffsets[groupId].partitions.push({
+            partition, // should be a number
+            offset // should be a string
+        });
+    }
 }
 
 class RepartitionerGroup {
@@ -175,6 +190,7 @@ class RepartitionerAgent {
         if (this.rpGroup.allPaused()){
             // this is where you would write the logic for the new consumer offsets. currently a console.log:
             console.log(`On partition ${this.newPartitionNum}, consumer group ${this.stoppingPoint.consumerGroupId}'s new offset will be ${this.rpGroup.producerOffset}`) // +1?
+            this.rpGroup.topicRp.addNewConsumerOffset(this.stoppingPoint.consumerGroupId, Number(this.newPartitionNum), String(this.rpGroup.producerOffset))
             this.stoppingPoint = this.stoppingPoint.next;
             // resume all if all paused
             this.rpGroup.resumeAll();

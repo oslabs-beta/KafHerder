@@ -344,6 +344,18 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
     }
 }
 
+// @returns newConsumerOffsets:
+    // { 'A': {
+    //          groupId: 'A',
+    //          topic,
+    //          partitions: [
+    //                          { partition: 0, offset: '20'},
+    //                          { partition: 1, offset: '30'},
+    //                          { partition: 2, offset: '40'},
+    //                       ]
+    //         },
+    //    'B': ...
+    // }
 adminController.repartition = async (req, res, next) => {
     const { seedBrokerUrl, newTopicName } = req.body;
     const oldTopic = res.locals.topicObj;
