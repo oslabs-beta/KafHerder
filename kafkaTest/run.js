@@ -1,9 +1,10 @@
 const { reset, hardReset } = require('./test.js');
 
-reset('animals2');
-// hardReset('animals2', 5, 3, 500); // do this for the FIRST
+// reset('animals2');
+hardReset('animals3', 5, 3, 500); // do this for the FIRST
 
 // INSTRUCTIONS:
+// 0. MAKE SURE NOTHING IN TEST.JS, ADMIN.JS WILL RUN WHEN WE IMPORT
 // 1. First, cd to the kafkaTest folder
 // 2. Second, I would suggest (for consistency) deleting your docker container then rebuilding it:
 // docker-compose -f docker-compose.yml up -d

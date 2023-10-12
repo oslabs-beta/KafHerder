@@ -50,7 +50,7 @@ const createTopic = async (topic, numPartitions, replicationFactor) => {
     }
 }
 
-const getTopicInfo = async() => {
+const getTopicInfo = async () => {
     try {
         console.log('fetching list of topics....');
         const topics = await admin.listTopics();
@@ -59,8 +59,8 @@ const getTopicInfo = async() => {
         console.log('now fetching topicsMetadata...');
         const topicsMetadata = await admin.fetchTopicMetadata({ topics: ['animals2'] });
         console.log('here is the topicsMetadata: ', topicsMetadata);
-        for (const topic of topicsMetadata.topics){
-            if (!topic.name.includes('offset')){
+        for (const topic of topicsMetadata.topics) {
+            if (!topic.name.includes('offset')) {
                 console.log(topic);
             }
         }
@@ -72,14 +72,14 @@ const getTopicInfo = async() => {
 }
 
 
-const listConsumerGroupIds = async() => {
+const listConsumerGroupIds = async () => {
     try {
         console.log('fetching list of topics....');
         const response = await admin.listGroups();
 
         const consumerGroups = [];
-        for (group of response.groups){
-            if (group.protocolType === 'consumer'){
+        for (group of response.groups) {
+            if (group.protocolType === 'consumer') {
                 consumerGroups.push(group.groupId);
             }
         };
@@ -92,10 +92,10 @@ const listConsumerGroupIds = async() => {
     }
 }
 
-const fetchOffsets = async( groupId, topicName ) => {
+const fetchOffsets = async (groupId, topicName) => {
     try {
         console.log(`fetching ${groupId}'s offsets...`);
-        const response = await admin.fetchOffsets({ groupId, topics: [topicName]});
+        const response = await admin.fetchOffsets({ groupId, topics: [topicName] });
         const partitionsArr = response[0].partitions;
         // console.log(partitionsArr);
         // console.log(response);
@@ -128,17 +128,17 @@ const getTopicConfigs = async (topicName) => {
         // not all of these have read the topic
         // if they haven't, all their offsets below will be -1
 
-        for (const groupId of consumerGroupIds){
+        for (const groupId of consumerGroupIds) {
 
-            const partitionObjArr = await fetchOffsets ( groupId, topicName );
+            const partitionObjArr = await fetchOffsets(groupId, topicName);
             // [
             //     { partition: 0, offset: '377', metadata: null },
             //     { partition: 1, offset: '-1', metadata: null }
             // ]
 
-            for (const partitionObj of partitionObjArr){
+            for (const partitionObj of partitionObjArr) {
                 const { partition, offset } = partitionObj;
-                if (offset !== '-1'){
+                if (offset !== '-1') {
                     topic.addConsumerOffset(partition, offset, groupId);
                 }
             }
@@ -150,10 +150,10 @@ const getTopicConfigs = async (topicName) => {
         console.log(topic.numConfigs);
         return topic;
     }
-    catch (err) {console.log(err)}
+    catch (err) { console.log(err) }
 }
 
-const getClusterInfo = async() => {
+const getClusterInfo = async () => {
     try {
         console.log('fetching cluster info....');
         const cluster = await admin.describeCluster();
@@ -190,7 +190,7 @@ const repartition = async (oldTopicName, newTopicName) => {
         const minPartitions = oldTopic.numConfigs;
         const newTopic = await createTopic(newTopicName, minPartitions, 3);
 
-        const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl: 'localhost:9092', oldTopic, newTopicName  }); // seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String></String>
+        const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl: 'localhost:9092', oldTopic, newTopicName }); // seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String></String>
         await topicRepartitioner.run();
 
         await disconnectAdmin();
@@ -199,6 +199,20 @@ const repartition = async (oldTopicName, newTopicName) => {
         console.error(error);
     }
 }
+
+const runSomething = async () => {
+    try {
+        await connectAdmin();
+        const topics = await admin.listTopics();
+        console.log(topics);
+        // const ids = await listConsumerGroupIds();
+        // console.log(ids);
+        await disconnectAdmin();
+    }
+    catch (error) { console.error(error) }
+}
+
+// runSomething();
 
 
 // repartition('animals2', `animals_test1${Math.floor(100000*Math.random())}`);
@@ -216,7 +230,7 @@ const repartition = async (oldTopicName, newTopicName) => {
 // const response = listConsumerGroupIds();
 // returns { groups: [ { groupId: 'consumer-group', protocolType: 'consumer' } ] }
 // fetchOffsets( 'consumer-group2', 'animals2'); // try this
-getTopicConfigs('animals2');
+// getTopicConfigs('animals2');
 
 
 //

@@ -8,7 +8,7 @@ const initialState = {
     kafkaPort: '',
     topics: [],
     selectedTopic: '',
-    partitionData: [],
+    partitionData: {},
     offsetJSON: {},
     mimNumOfPartitions: '',
     newTopic: '',
@@ -17,6 +17,7 @@ const initialState = {
     interval: 5,
     status: 'off',
     repartitionStatus: 'off',
+    repartitionResult: {},
     error: null
 }
 
@@ -148,16 +149,17 @@ const clusterFormSlice = createSlice({
                 // adminController.js returns res.locals.partitions
                 // I dont think that there is a key called partitionData. Lets check on that
                 // we are also going to get data regarding partition min number and offset data json
-                state.selectedTopic = action.payload.name
+                // state.selectedTopic = action.payload.name
                 state.partitionData = action.payload.partitions
                 state.mimNumOfPartitions = action.payload.numConfigs // change name of variable
-                state.offsetData = action.payload.offsetData // change name of variable
+                // state.offsetData = action.payload.offsetData // change name of variable
             })
             .addCase(checkRepartitionData.pending, (state) => {
                 state.repartitionStatus = 'pending'
             })
             .addCase(checkRepartitionData.fulfilled, (state, action) => {
-                state.repartitionStatus = 'off'
+                state.repartitionStatus = 'done'
+                state.repartitionResult = action.payload
             })
     }
 });

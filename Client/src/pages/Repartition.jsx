@@ -23,7 +23,7 @@ function Repartition() {
   const [showModal, setModal] = useState(true);
 
   const partitionData = useSelector(state => state.clusterForm.partitionData)
-
+  let partitionArray = Object.keys(partitionData)
   return (
     <>
       <div className='root'>
@@ -31,8 +31,8 @@ function Repartition() {
         <div className='homeContainer'>
           <LeftContainer />
           <div className='rightContainer' style={{ minWidth: '400px' }}>
-            {(partitionData.length === 0) ?
-              <TopicsList /> :
+            {(partitionArray.length === 0)  ?
+              <TopicsList />  :
               <RepartitionForm />}
           </div>
         </div>

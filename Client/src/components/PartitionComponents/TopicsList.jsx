@@ -41,7 +41,7 @@ function TopicsList() {
             <div className='topicsList'>
                 {filteredTopics.map((topic, index) => (
                     <div className='topic' key={index}>
-                        <p className='topicName' onClick={() => clickTopic(topic)} style={{ backgroundColor: topic === selectedTopicLocal ? 'lightgray' : 'transparent' }}>{topic}</p>
+                        <p className='topicName' onClick={() => clickTopic(topic)} style={{ backgroundColor: topic === selectedTopicLocal ? '#f69708' : 'transparent' }}>{topic}</p>
                     </div>
                 ))}
             </div>

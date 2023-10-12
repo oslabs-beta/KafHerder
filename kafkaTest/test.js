@@ -54,14 +54,14 @@ const createTopic = async (topic, numPartitions, replicationFactor) => {
     }
 }
 
-const listConsumerGroupIds = async() => {
+const listConsumerGroupIds = async () => {
     try {
         console.log('fetching list of topics....');
         const response = await admin.listGroups();
 
         const consumerGroups = [];
-        for (group of response.groups){
-            if (group.protocolType === 'consumer'){
+        for (group of response.groups) {
+            if (group.protocolType === 'consumer') {
                 consumerGroups.push(group.groupId);
             }
         };
@@ -116,33 +116,33 @@ const setTestOffsets = async (topic) => {
             groupId: 'A',
             topic,
             partitions: [
-                { partition: 0, offset: '20'},
-                { partition: 1, offset: '30'},
-                { partition: 2, offset: '40'},
-                { partition: 3, offset: '50'},
-                { partition: 4, offset: '60'},
+                { partition: 0, offset: '20' },
+                { partition: 1, offset: '30' },
+                { partition: 2, offset: '40' },
+                { partition: 3, offset: '50' },
+                { partition: 4, offset: '60' },
             ]
         });
         await admin.setOffsets({
             groupId: 'B',
             topic,
             partitions: [
-                { partition: 0, offset: '30'},
-                { partition: 1, offset: '40'},
-                { partition: 2, offset: '50'},
-                { partition: 3, offset: '20'},
-                { partition: 4, offset: '70'},
+                { partition: 0, offset: '30' },
+                { partition: 1, offset: '40' },
+                { partition: 2, offset: '50' },
+                { partition: 3, offset: '20' },
+                { partition: 4, offset: '70' },
             ]
         });
         await admin.setOffsets({
             groupId: 'C',
             topic,
             partitions: [
-                { partition: 0, offset: '40'},
-                { partition: 1, offset: '50'},
-                { partition: 2, offset: '60'},
-                { partition: 3, offset: '70'},
-                { partition: 4, offset: '20'},
+                { partition: 0, offset: '40' },
+                { partition: 1, offset: '50' },
+                { partition: 2, offset: '60' },
+                { partition: 3, offset: '70' },
+                { partition: 4, offset: '20' },
             ]
         });
         // await disconnectAdmin();
@@ -165,7 +165,7 @@ const sendTestMessages = async (topic, messagesToSend) => {
             await producer.disconnect();
             return;
         }
-        
+
         console.log('animal sent');
         try {
             await producer.send({
@@ -189,7 +189,7 @@ const sendTestMessages = async (topic, messagesToSend) => {
     }
 }
 
-        
+
 // TODO: add delete topic, create new topic, run producers as well
 const reset = async (topic) => {
     // wait at least 20 seconds after ending the repartitioning before resuming this
@@ -209,8 +209,8 @@ const hardReset = async (topic, numPartitions, replicationFactor, messagesToSend
     // wait at least 20 seconds after ending the repartitioning before resuming this
     try {
         await connectAdmin();
-        await createTopic (topic, numPartitions, replicationFactor);
-        await sendTestMessages (topic, messagesToSend);
+        await createTopic(topic, numPartitions, replicationFactor);
+        await sendTestMessages(topic, messagesToSend);
         await createTestConsumers(topic);
         await setTestOffsets(topic);
         await disconnectAdmin();
@@ -225,10 +225,10 @@ const runSomething = async () => {
         console.log(ids);
         await disconnectAdmin();
     }
-    catch (error) {console.error(error)}
+    catch (error) { console.error(error) }
 }
 
-runSomething();
+// runSomething();
 
 module.exports = { reset, hardReset }
 
