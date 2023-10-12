@@ -1,7 +1,7 @@
 const { Kafka } = require('kafkajs');
 const Chance = require('chance');
 
-const topic = 'animals3';
+const topic = 'animals2';
 
 const chance = new Chance();
 
@@ -12,8 +12,10 @@ const kafka = new Kafka({
 
 const producer = kafka.producer();
 
+let counter = 0;
+
 const produceMessage = async () => {
-    console.log('animal sent');
+    console.log(`animal ${++counter} sent`);
     try {
         await producer.send({
             topic,
@@ -30,10 +32,10 @@ const run = async () => {
     console.log('attempting connection');
     await producer.connect();
     console.log('connected successfully');
-    setInterval(produceMessage, 1000)
+    setInterval(produceMessage, 10)
 }
 
-run('animals3');
+run('animals2');
 
 // const run = async () => {
 //     console.log('Entering producer');

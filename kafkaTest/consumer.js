@@ -5,21 +5,21 @@ const kafka = new Kafka({
     brokers: ['localhost:9092'] //, 'localhost:9094', 'localhost:9096']
 })
 
-const consumer = kafka.consumer({ groupId: 'A' });
+const consumer = kafka.consumer({ groupId: '4' });
 
-// const run = async (topic) => {
-//     await consumer.connect();
-//     await consumer.subscribe({ topic, fromBeginning: true });
-//     await consumer.run({
-//         eachMessage: async ({ topic, partition, message }) => {
-//             console.log({
-//                 partition,
-//                 offset: message.offset,
-//                 value: message.value.toString(),
-//             })
-//         },
-//     })
-// }
+const run = async (topic) => {
+    await consumer.connect();
+    await consumer.subscribe({ topic, fromBeginning: true });
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            console.log({
+                partition,
+                offset: message.offset,
+                value: message.value.toString(),
+            })
+        },
+    })
+}
 
 const run2 = async (topic) => {
     await consumer.connect();
@@ -77,8 +77,8 @@ const createTestConsumers = async (topic) => {
 }
 
 // run2('animals2');
-// run('animals2');
-createTestConsumers('animals2');
+run('animals2');
+// createTestConsumers('animals2');
 
 
 // HOW TO MAKE A CONSUMER READ FROM A SINGLE PARTITION

@@ -119,6 +119,7 @@ const fetchOffsets = async( groupId, topicName ) => {
 const getTopicConfigs = async (topicName) => {
     try {
         const partitionEnds = await admin.fetchTopicOffsets(topicName);
+        console.log(partitionEnds);
         const topic = new Topic(topicName, partitionEnds);
 
 
@@ -255,4 +256,4 @@ getTopicConfigs('animals2');
 // const topicsMetadata = run2();
 // run3(topics);
 
-module.exports = repartition;
+module.exports = { repartition, createTopic };

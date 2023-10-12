@@ -1,12 +1,15 @@
 const { Kafka } = require('kafkajs');
+const Chance = require('chance');
 const { Topic, Partition, ConsumerOffsetLL, ConsumerOffsetNode } = require('../server/variables/Topic.js');
 const { TopicRepartitioner, RepartitionerGroup, RepartitionerAgent } = require('../server/variables/Repartitioner.js');
-const repartition = require('./admin.js');
+const { repartition } = require('./admin.js');
+
 
 const kafka = new Kafka({
     clientId: 'testing',
     brokers: ['localhost:9092']
 });
+const chance = new Chance();
 
 const admin = kafka.admin();
 
@@ -26,6 +29,29 @@ const disconnectAdmin = async () => {
         console.log('disconnected!')
     }
     catch (error) { console.error(error) };
+}
+
+const createTopic = async (topic, numPartitions, replicationFactor) => {
+    try {
+        console.log(`creating topic ${topic} with ${numPartitions} partitions and rep factor ${replicationFactor}`);
+        await admin.createTopics({
+            validateOnly: false,
+            waitForLeaders: true,
+            timeout: 5000,
+            topics: [
+                {
+                    topic,
+                    numPartitions,
+                    replicationFactor
+                }
+            ]
+        });
+        console.log('successfully created topic!');
+    }
+    catch (error) {
+        console.log('failed to connect or create topic');
+        console.error(error);
+    }
 }
 
 const listConsumerGroupIds = async() => {
@@ -125,8 +151,41 @@ const setTestOffsets = async (topic) => {
     }
 }
 
+
+
+const sendTestMessages = async (topic, messagesToSend) => {
+    const producer = kafka.producer();
+    let counter = 0;
+
+    const produceMessage = async () => {
+        console.log('animal sent');
+        try {
+            await producer.send({
+                topic,
+                messages: [
+                    { value: chance.animal() },
+                ],
+            });
+            counter++;
+        } catch (error) {
+            console.log('Error: ', error);
+        }
+    }
+
+    try {
+        await producer.connect();
+        console.log('sending messages...');
+        while (counter < messagesToSend){
+            setInterval(produceMessage, 10)
+        }
+        console.log('done sending messages!')
+    } catch (error) {
+        console.error(error);
+    }
+}
+        
 // TODO: add delete topic, create new topic, run producers as well
-const retest = async (topic) => {
+const reset = async (topic) => {
     // wait at least 20 seconds after ending the repartitioning before resuming this
     try {
         await connectAdmin();
@@ -139,5 +198,20 @@ const retest = async (topic) => {
     catch (error) { console.error(error) }
 }
 
+// TODO: add delete topic, create new topic, run producers as well
+const hardReset = async (topic, numPartitions, replicationFactor, messagesToSend) => {
+    // wait at least 20 seconds after ending the repartitioning before resuming this
+    try {
+        await connectAdmin();
+        await createTopic (topic, numPartitions, replicationFactor);
+        await sendTestMessages (topic, messagesToSend);
+        await createTestConsumers(topic);
+        await setTestOffsets(topic);
+        await disconnectAdmin();
+    }
+    catch (error) { console.error(error) }
+}
 
-retest('animals2');
+
+reset('animals2');
+// hardReset('animals2', 5, 3, 500);
