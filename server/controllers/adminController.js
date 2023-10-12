@@ -358,16 +358,39 @@ adminController.calculateTopicConfigs = async (req, res, next) => {
     // }
 adminController.repartition = async (req, res, next) => {
     const { seedBrokerUrl, newTopicName } = req.body;
+    const admin = res.locals.connectedAdmin;
     const oldTopic = res.locals.topicObj;
-    const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl, oldTopic, newTopicName  });
+    const topicRepartitioner = new TopicRepartitioner({ seedBrokerUrl, oldTopic, newTopicName, admin });
 
     try{
         res.locals.newConsumerOffsets = await topicRepartitioner.run();
+        // res.locals.groupIdsToDelete = topicRepartitioner.groupIdsToDelete;
         return next();
     }
     catch (err) {
         return next({
             log: `Error in adminController.repartition: ${err}`,
+            status: 400,
+            message: { err: 'An error occured' }
+        })
+    }
+}
+
+adminController.setNewOffsets = async (req, res, next) => {
+    const admin = res.locals.connectedAdmin;
+    const newConsumerOffsets = res.locals.newConsumerOffsets;
+
+    try {
+        for (const [consumerGroup, newOffsets] of Object.entries(newConsumerOffsets)){
+            console.log(`now setting ${consumerGroup}'s new offsets...`)
+            await admin.setOffsets(newOffsets);
+            console.log('success!');
+        }
+        return next();
+    }
+    catch (err) {
+        return next({
+            log: `Error in adminController.setNewOffsets: ${err}`,
             status: 400,
             message: { err: 'An error occured' }
         })

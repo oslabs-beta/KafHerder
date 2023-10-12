@@ -6,9 +6,11 @@ class TopicRepartitioner {
         this.props = props; // consists of a seedBrokerUrl <String>, oldTopic <Topic>, newTopicName <String>
         this.groups = [];
         this.hasFinished = false;
-        this.newTopicName = props.newTopicName;
         this.oldTopic = props.oldTopic;
+        this.newTopicName = props.newTopicName;
+        this.connectedAdmin = props.admin;
         this.newConsumerOffsets = {}; // this is the final output!
+        this.groupIdsToDelete = [];
     }
     async run(){
         console.log('now running repartitioning process');
@@ -30,6 +32,9 @@ class TopicRepartitioner {
 
         await this.waitForCompletion();
 
+        // this runs a cleanUp process asynchronously (no await) after completing
+        if(this.connectedAdmin) setTimeout(() => this.runCleanup(), 10000);
+
         return this.newConsumerOffsets;
     }
     async waitForCompletion() {
@@ -40,10 +45,20 @@ class TopicRepartitioner {
                     resolve();
                 }
                 console.log('Still waiting for completion...');  // Optional: for logging
-            }, 1000);  // Checks every 1 second
+            }, 3000);  // Checks every 3 seconds
         });
     }
-    
+
+    async runCleanup() {
+        console.log('now running cleanup process...');
+        try {
+            await this.connectedAdmin.deleteGroups(this.groupIdsToDelete);
+            console.log('successfully deleted rp consumer groups!')
+        }
+        catch (err){
+            console.error('error in cleanUp process: ', err);
+        }
+    }
     checkIfFinished(){
         let finishedStatus = true;
         for (const group of this.groups){
@@ -167,6 +182,7 @@ class RepartitionerAgent {
     }
     async createConsumer(){
         const clientIdConsumer = 'Bconsumer-'+this.id;
+        this.rpGroup.topicRp.groupIdsToDelete.push(clientIdConsumer);
         const kafka = new Kafka({
             clientId: clientIdConsumer,
             brokers: [this.seedBrokerUrl]
