@@ -2,10 +2,6 @@
 
 ## Technologies used:
 
-## Tech Stack
-
-## Technologies used:
-
 <div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/react.svg" alt="React" width=30 height=30>
     <br>
