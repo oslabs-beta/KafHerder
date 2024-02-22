@@ -2,18 +2,80 @@
 
 ## Technologies used:
 
-<img src="https://github.com/get-icon/geticon/raw/master/icons/react.svg" alt="React" width=30 height =30>
-<img src="https://user-images.githubusercontent.com/25181517/182534182-c510199a-7a4d-4084-96e3-e3db2251bbce.png" alt="Prometheus" width=30 height =30>
-<img src="https://user-images.githubusercontent.com/25181517/183859966-a3462d8d-1bc7-4880-b353-e2cbed900ed6.png" alt="ExpressJS" width=30 height =30>
-<img src="https://user-images.githubusercontent.com/25181517/121401671-49102800-c959-11eb-9f6f-74d49a5e1774.png" alt="NPM" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/vite.svg" alt="Vite" width=30 height =30>
-<img src="https://github.com/tandpfun/skill-icons/raw/main/icons/Kafka.svg" alt="Kafka" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/electron.svg" alt="Electron" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/css-3.svg" alt="CSS" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/docker-icon.svg" alt="Docker" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/git-icon.svg" alt="Git" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/redux.svg" alt="Redux" width=30 height =30>
-<img src="https://github.com/get-icon/geticon/raw/master/icons/html-5.svg" alt="HTML" width=30 height =30>
+## Technologies used:
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/react.svg" alt="React" width=30 height=30>
+    <br>
+    <span style="color: white;">React</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://user-images.githubusercontent.com/25181517/182534182-c510199a-7a4d-4084-96e3-e3db2251bbce.png" alt="Prometheus" width=30 height=30>
+    <br>
+    <span style="color: white;">Prometheus</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://user-images.githubusercontent.com/25181517/183859966-a3462d8d-1bc7-4880-b353-e2cbed900ed6.png" alt="ExpressJS" width=30 height=30>
+    <br>
+    <span style="color: white;">ExpressJS</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/npm.svg" alt="NPM" width=30 height=30>
+    <br>
+    <span style="color: white;">NPM</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/vite.svg" alt="Vite" width=30 height=30>
+    <br>
+    <span style="color: white;">Vite</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/tandpfun/skill-icons/raw/main/icons/Kafka.svg" alt="Kafka" width=30 height=30>
+    <br>
+    <span style="color: white;">Kafka</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/electron.svg" alt="Electron" width=30 height=30>
+    <br>
+    <span style="color: white;">Electron</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/css-3.svg" alt="CSS" width=30 height=30>
+    <br>
+    <span style="color: white;">CSS</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/docker-icon.svg" alt="Docker" width=30 height=30>
+    <br>
+    <span style="color: white;">Docker</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/git-icon.svg" alt="Git" width=30 height=30>
+    <br>
+    <span style="color: white;">Git</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/redux.svg" alt="Redux" width=30 height=30>
+    <br>
+    <span style="color: white;">Redux</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/html-5.svg" alt="HTML" width=30 height=30>
+    <br>
+    <span style="color: white;">HTML</span>
+</div>
+
 
 
 
