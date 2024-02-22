@@ -2,94 +2,77 @@
 
 ## Technologies used:
 
-## Technologies used:
-
-## Technologies used:
-
-## Technologies used:
-
-## Technologies used:
-
-## Technologies used:
-
-## Technologies used:
-
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/react.svg" alt="React" width=30 height=30>
     <br>
-    <span style="color: white;">React</span>
+    <div style="color: white;">React</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://user-images.githubusercontent.com/25181517/182534182-c510199a-7a4d-4084-96e3-e3db2251bbce.png" alt="Prometheus" width=30 height=30>
     <br>
-    <span style="color: white;">Prometheus</span>
+    <div style="color: white;">Prometheus</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://user-images.githubusercontent.com/25181517/183859966-a3462d8d-1bc7-4880-b353-e2cbed900ed6.png" alt="ExpressJS" width=30 height=30>
     <br>
-    <span style="color: white;">ExpressJS</span>
+    <div style="color: white;">ExpressJS</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/npm.svg" alt="NPM" width=30 height=30>
     <br>
-    <span style="color: white;">NPM</span>
+    <div style="color: white;">NPM</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/vite.svg" alt="Vite" width=30 height=30>
     <br>
-    <span style="color: white;">Vite</span>
+    <div style="color: white;">Vite</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/tandpfun/skill-icons/raw/main/icons/Kafka.svg" alt="Kafka" width=30 height=30>
     <br>
-    <span style="color: white;">Kafka</span>
+    <div style="color: white;">Kafka</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/electron.svg" alt="Electron" width=30 height=30>
     <br>
-    <span style="color: white;">Electron</span>
+    <div style="color: white;">Electron</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/css-3.svg" alt="CSS" width=30 height=30>
     <br>
-    <span style="color: white;">CSS</span>
+    <div style="color: white;">CSS</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/docker-icon.svg" alt="Docker" width=30 height=30>
     <br>
-    <span style="color: white;">Docker</span>
+    <div style="color: white;">Docker</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/git-icon.svg" alt="Git" width=30 height=30>
     <br>
-    <span style="color: white;">Git</span>
+    <div style="color: white;">Git</div>
 </div>
 
-<div style="display: inline; text-align: center; margin-right: 10px">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/redux.svg" alt="Redux" width=30 height=30>
     <br>
-    <span style="color: white;">Redux</span>
+    <div style="color: white;">Redux</div>
 </div>
 
-<div style="display: inline; text-align: center;">
+<div style="display: inline-block; text-align: center;">
     <img src="https://github.com/get-icon/geticon/raw/master/icons/html-5.svg" alt="HTML" width=30 height=30>
     <br>
-    <span style="color: white;">HTML</span>
+    <div style="color: white;">HTML</div>
 </div>
-
-
-
-
-
 
 
 # KafHerder
