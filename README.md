@@ -1,30 +1,82 @@
 ![KafHerderNew1 (1)](https://github.com/oslabs-beta/KafHerder/assets/61262911/883aa4b6-b90b-4521-bdc9-fb387d63c4e8)
 
 ## Technologies used:
-## Tech Stack
 
 ## Tech Stack
 
-- Frontend:
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/ReactRouter_Logo.png" width="50" height="50">
+## Technologies used:
 
-- Backend:
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.png" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Apache_kafka-icon.png" width="50" height="50">
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/react.svg" alt="React" width=30 height=30>
+    <br>
+    <span style="color: white;">React</span>
+</div>
 
-- Tools:
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/d/db/Npm-logo.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Redux.png" width="50" height="50">
-  - <img src="https://redux-toolkit.js.org/img/redux.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Prometheus_logo.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/ViteJS_Logo.svg" width="50" height="50">
-  - <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Electron_Software_Framework_Logo.svg" width="50" height="50">
+<div style="display: inline-block; text-align: center;">
+    <img src="https://user-images.githubusercontent.com/25181517/182534182-c510199a-7a4d-4084-96e3-e3db2251bbce.png" alt="Prometheus" width=30 height=30>
+    <br>
+    <span style="color: white;">Prometheus</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://user-images.githubusercontent.com/25181517/183859966-a3462d8d-1bc7-4880-b353-e2cbed900ed6.png" alt="ExpressJS" width=30 height=30>
+    <br>
+    <span style="color: white;">ExpressJS</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/npm.svg" alt="NPM" width=30 height=30>
+    <br>
+    <span style="color: white;">NPM</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/vite.svg" alt="Vite" width=30 height=30>
+    <br>
+    <span style="color: white;">Vite</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/tandpfun/skill-icons/raw/main/icons/Kafka.svg" alt="Kafka" width=30 height=30>
+    <br>
+    <span style="color: white;">Kafka</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/electron.svg" alt="Electron" width=30 height=30>
+    <br>
+    <span style="color: white;">Electron</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/css-3.svg" alt="CSS" width=30 height=30>
+    <br>
+    <span style="color: white;">CSS</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/docker-icon.svg" alt="Docker" width=30 height=30>
+    <br>
+    <span style="color: white;">Docker</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/git-icon.svg" alt="Git" width=30 height=30>
+    <br>
+    <span style="color: white;">Git</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/redux.svg" alt="Redux" width=30 height=30>
+    <br>
+    <span style="color: white;">Redux</span>
+</div>
+
+<div style="display: inline-block; text-align: center;">
+    <img src="https://github.com/get-icon/geticon/raw/master/icons/html-5.svg" alt="HTML" width=30 height=30>
+    <br>
+    <span style="color: white;">HTML</span>
+</div>
 
 
 # KafHerder
